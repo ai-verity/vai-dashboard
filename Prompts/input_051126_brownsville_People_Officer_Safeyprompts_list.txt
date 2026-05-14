@@ -1,0 +1,47 @@
+Estimate the crowd density in this image then Classify zones as sparse (<1 person/m²), moderate (1–3/m²), or dense (>3/m²) and highlight any areas of congestion.
+
+Count approximate number of pedestrians, identify pedestrian flow direction, and Identify any individuals who appear to have fallen, are separated from a group, or show signs of medical distress.
+
+Identify unattended luggage, unusually dense crowd pockets, or individuals in distress, and rate overall risk level as low, medium, or high.
+
+Flag any unsafe crowd behaviors including people climbing barriers, running against crowd flow, or congregating in vehicle clearance zones.
+
+Analyze crowd spacing in this image and determine whether minimum safe distancing is maintained and identify choke points that could lead to dangerous surges.
+
+Analyze this image estimate number of individuals waiting, identify vulnerable individuals (elderly, children, those with large bags), and flag signs of crowd stress.
+
+Estimate total attendance in the visible area, identify the stage viewing area vs. general circulation zones, and assess whether egress paths are clear.
+
+From this image of a crowd gathered flag any unsupervised children separated from adult groups.
+
+How many children are unsupervised or more than 10 meters from an adult in the playground zone right now?
+
+Detect groups and estimate how many people are congregating in the parking lot rather than moving into the park and flag prolonged stationary clusters.
+
+Is there an imminent threat to officer or public safety visible in frame?
+
+Estimate total attendance in the visible area for officer or public safety official visible in the frame?
+
+Are there any weapons or dangerous objects visible?
+
+What is the estimated civilian population exposed in this frame?
+
+What threats are visible that require immediate patrol response?
+
+Does scene activity indicate gang affiliation, organized crime, or domestic dispute?
+
+Are there environmental hazards (fire, chemical spill, downed power lines) at the scene?
+
+Are there Fire/Smoke incidents and if so, identify the location where the fire was reported, specifically looking for any signs of smoke or flames emanating from the area?
+   
+Are two or more individuals engaged in physical contact (pushing, striking, grappling) that is clearly not playful or consensual?
+
+Is an individual displaying signs of a medical emergency (unconscious, convulsing, unable to stand, clutching chest) without receiving immediate assistance?
+
+Is any person displaying, brandishing, or pointing an object consistent with a weapon?
+
+Are there any individuals or people participating in assault, robbery, or altercation?
+
+Is a person lying or fallen on the ground in a non-resting posture on the premises, suggesting injury or incapacitation?
+
+Is any person carrying, dragging, or transferring an unattended object?

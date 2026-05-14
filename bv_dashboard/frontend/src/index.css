@@ -1,0 +1,86 @@
+/* index.css */
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg:     #07090e;
+  --s0:     #0b0d14;
+  --s1:     #10131c;
+  --s2:     #171a24;
+  --border: rgba(255,255,255,0.07);
+  --b2:     rgba(255,255,255,0.04);
+  --text:   #d8d5cc;
+  --muted:  #5e5d58;
+  --dim:    #8a887f;
+  --red:    #e84040;
+  --orange: #f27a30;
+  --amber:  #f5b731;
+  --green:  #2ec98a;
+  --blue:   #4a9ef5;
+  --purple: #a07cf0;
+  --teal:   #2dc9a8;
+  --accent: #e85d2f;
+  --mono:   'DM Mono', monospace;
+  --body:   'Barlow', sans-serif;
+  --cond:   'Barlow Condensed', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 14px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(180deg, transparent 0px, transparent 3px, rgba(0,0,0,0.022) 3px, rgba(0,0,0,0.022) 4px);
+  pointer-events: none;
+  z-index: 9000;
+}
+button { cursor: pointer; font-family: inherit; }
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+@keyframes fadeUp   { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+@keyframes fadeIn   { from { opacity:0; } to { opacity:1; } }
+@keyframes pulse    { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:.3; transform:scale(.85); } }
+@keyframes blink    { 0%,100% { opacity:1; } 50% { opacity:0.25; } }
+@keyframes cur      { 0%,100% { opacity:1; } 50% { opacity:0; } }
+@keyframes spin     { to { transform:rotate(360deg); } }
+@keyframes shimmer  { 0% { background-position:-400px 0; } 100% { background-position:400px 0; } }
+@keyframes tickerScroll { 0% { transform:translateX(0); } 100% { transform:translateX(-50%); } }
+
+.fade-up { animation: fadeUp 0.35s ease both; }
+.fade-in { animation: fadeIn 0.25s ease both; }
+.skeleton {
+  background: linear-gradient(90deg, var(--s1) 25%, var(--s2) 50%, var(--s1) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 3px;
+}
+
+/* Row hover affordances. The .row-hover-faint class targets a subtle
+   white tint used in CategoryPanel, IncidentFeed and VlmPage list rows.
+   .row-hover-s1 swaps to surface-1 used in LocationStrip-style cells.
+   Items already selected get .row-selected which suppresses the hover. */
+.row-hover-faint,
+.row-hover-s1 {
+  transition: background-color .15s;
+}
+.row-hover-faint:hover:not(.row-selected) {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+.row-hover-s1:hover {
+  background-color: var(--s1);
+}
+.row-hover-faint:focus-visible,
+.row-hover-s1:focus-visible {
+  outline: 1px solid var(--accent);
+  outline-offset: -1px;
+}

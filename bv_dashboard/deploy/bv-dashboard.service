@@ -1,0 +1,26 @@
+[Unit]
+Description=Brownsville TX Public Safety Dashboard (FastAPI + Vite SPA)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=shadeform
+Group=shadeform
+WorkingDirectory=/home/shadeform/bv_dashboard
+ExecStart=/home/shadeform/bv_dashboard/deploy/run-prod.sh
+EnvironmentFile=-/home/shadeform/bv_dashboard/.env
+Restart=on-failure
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+# Sandboxing — defensive defaults for a single-tenant box.
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/home/shadeform/bv_dashboard
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,18 @@
+# Caddyfile for Brownsville Dashboard — auto-TLS reverse proxy.
+# install.sh renders this template by substituting __BV_TLS_DOMAIN__
+# with the value of $BV_TLS_DOMAIN.
+
+__BV_TLS_DOMAIN__ {
+    encode gzip
+    reverse_proxy localhost:8000 {
+        header_up X-Forwarded-Proto {scheme}
+        header_up X-Real-IP {remote_host}
+    }
+    # Reasonable defaults: HSTS, no server header leak, basic security.
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options nosniff
+        Referrer-Policy strict-origin-when-cross-origin
+        -Server
+    }
+}
