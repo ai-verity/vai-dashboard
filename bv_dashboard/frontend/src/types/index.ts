@@ -215,3 +215,89 @@ export interface VlmAggregates {
   feed_density: VlmFeedDensityRow[];
   daily_dense: VlmDailyDenseRow[];
 }
+
+// ─── AI Model Metrics types ─────────────────────────────────────────────────
+
+export type AiMetricName = 'Precision' | 'Recall' | 'F1';
+export type AiPeriod = 'daily' | 'weekly' | 'monthly';
+
+export interface AiHeadlineRow {
+  metric: AiMetricName;
+  current: number | null;
+  previous: number | null;
+  delta: number | null;
+}
+
+export interface AiPerClassMetricCell {
+  current: number | null;
+  previous: number | null;
+  delta: number | null;
+}
+
+export interface AiPerClassRow {
+  cls: string;
+  metrics: Record<AiMetricName, AiPerClassMetricCell>;
+}
+
+export interface AiSummary {
+  available: boolean;
+  reason?: string;
+  run_date?: string;
+  run_timestamp?: string | null;
+  run_name?: string | null;
+  model?: string | null;
+  classes?: string[];
+  headline?: AiHeadlineRow[];
+}
+
+export interface AiByClassMetricCell {
+  current: number | null;
+  previous: number | null;
+  delta: number | null;
+}
+
+export interface AiByClassRow {
+  cls: string;
+  instances: { train?: number; val?: number; total?: number };
+  metrics: Record<AiMetricName, AiByClassMetricCell>;
+  extras: Record<string, AiByClassMetricCell>;
+}
+
+export interface AiByClass {
+  available: boolean;
+  run_date?: string;
+  classes: AiByClassRow[];
+}
+
+export interface AiComparison {
+  available: boolean;
+  period: AiPeriod;
+  awaiting: boolean;
+  current_run_date: string;
+  previous_run_date: string | null;
+  runs_in_window: number;
+  runs_required: number;
+  headline: AiHeadlineRow[];
+  by_class?: AiPerClassRow[];
+}
+
+export interface AiHistoryPoint {
+  run_date: string;
+  Precision: number | null;
+  Recall: number | null;
+  F1: number | null;
+}
+
+export interface AiHistory {
+  available: boolean;
+  period: AiPeriod;
+  points: AiHistoryPoint[];
+  points_captured: number;
+  points_required: number;
+}
+
+export const AI_METRIC_COLORS: Record<AiMetricName, string> = {
+  Precision: '#4A9EF5',
+  Recall:    '#2DC9A8',
+  F1:        '#e85d2f',
+};

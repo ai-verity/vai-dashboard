@@ -19,6 +19,7 @@ import httpx
 import json
 
 import vlm
+import ai_metrics
 
 # Optional rate-limit. slowapi is only required for production deployments;
 # dev installs (fastapi + uvicorn + httpx + pydantic) work without it. When
@@ -756,12 +757,69 @@ def vlm_list(
     }
 
 
+# ─── AI Model Metrics endpoints ─────────────────────────────────────────────
+# Per-class Precision / Recall / F1 captured by the daily training
+# pipeline. comparison.csv carries before/after for the latest run;
+# additional comparison_YYYYMMDD.csv files in data/ai_metrics/history/
+# are picked up automatically as the pipeline accumulates daily runs.
+
+
+@app.get("/api/ai_metrics/summary")
+def ai_metrics_summary():
+    return ai_metrics.summary()
+
+
+@app.get("/api/ai_metrics/by_class")
+def ai_metrics_by_class():
+    return ai_metrics.by_class()
+
+
+@app.get("/api/ai_metrics/comparison")
+def ai_metrics_comparison(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.comparison(period)
+
+
+@app.get("/api/ai_metrics/history")
+def ai_metrics_history(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.history(period)
+
+
+@app.get("/api/ai_metrics/state")
+def ai_metrics_state():
+    return ai_metrics.state()
+
+
+@app.post("/api/ai_metrics/reload")
+@rate_limit(_RELOAD_RATE)
+async def ai_metrics_reload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    x_reload_token: Optional[str] = Header(default=None),
+):
+    """Re-read AI Model Metrics files from disk.
+
+    Same fail-closed token contract as /api/vlm/reload: requires
+    BV_RELOAD_TOKEN env var on the server and a matching X-Reload-Token
+    request header.
+    """
+    expected = os.getenv("BV_RELOAD_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="reload disabled: set BV_RELOAD_TOKEN on the server to enable",
+        )
+    if not x_reload_token or not hmac.compare_digest(x_reload_token, expected):
+        raise HTTPException(status_code=401, detail="invalid reload token")
+    await run_in_threadpool(ai_metrics.load)
+    return ai_metrics.state()
+
+
 @app.get("/api/health")
 def health():
     return {
         "status": "ok",
         "incidents": len(ALL_INCIDENTS),
         "vlm_observations": vlm.load_info().get("row_count", 0),
+        "ai_metrics_runs": ai_metrics.state().get("runs", 0),
         "timestamp": datetime.now().isoformat(),
     }
 

@@ -6,7 +6,8 @@ import {
 import { API_BASE } from '../types';
 import type { VlmAggregates } from '../types';
 import type { VlmListParams } from '../hooks/useApi';
-import { setupCanvas, useCanvas } from '../utils/canvas';
+import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
+import { useTheme } from '../hooks/useTheme';
 
 const MODEL_NAME = 'nvidia/cosmos-reason2-8b';
 
@@ -121,19 +122,21 @@ const DENSITY_KEYS = ['SPARSE', 'MODERATE', 'DENSE'] as const;
 const setupCv = setupCanvas;
 
 function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
     const p = { l: 30, r: 10, t: 14, b: 28 };
     const totals = data.map(r => r.LOW + r.MODERATE + r.HIGH);
     const mx = Math.max(...totals, 1);
     // grid
     for (let i = 0; i <= 4; i++) {
       const y = p.t + (H - p.t - p.b) * (1 - i / 4);
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.strokeStyle = GRID;
       ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
-      ctx.fillStyle = 'rgba(94,93,88,.75)';
+      ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
       ctx.textAlign = 'right';
       ctx.fillText(String(Math.round(mx * i / 4)), p.l - 4, y + 3);
@@ -156,7 +159,7 @@ function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
         yBase -= hh;
       });
       if (h % 3 === 0) {
-        ctx.fillStyle = 'rgba(94,93,88,.85)';
+        ctx.fillStyle = MUTED;
         ctx.font = '8px DM Mono, monospace';
         ctx.textAlign = 'center';
         ctx.fillText(String(h).padStart(2, '0'), x + bW / 2, H - 14);
@@ -166,20 +169,22 @@ function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
       const x = p.l + i * 78;
       ctx.fillStyle = colors[k];
       ctx.fillRect(x, H - 8, 8, 6);
-      ctx.fillStyle = 'rgba(94,93,88,.9)';
+      ctx.fillStyle = MUTED;
       ctx.font = '8px DM Mono, monospace';
       ctx.textAlign = 'left';
       ctx.fillText(k, x + 11, H - 2);
     });
-  }, [data]);
+  }, [data, tick]);
   return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
 }
 
 function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { MUTED, TEXT, GRID_SOFT } = chartColors();
     const p = { l: 150, r: 12, t: 6, b: 6 };
     const mx = Math.max(...data.map(f => f.total), 1);
     const rowH = (H - p.t - p.b) / Math.max(data.length, 1);
@@ -187,7 +192,7 @@ function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
     data.forEach((f, i) => {
       const y = p.t + i * rowH;
       const fullBw = Math.round((f.total / mx) * (W - p.l - p.r));
-      ctx.fillStyle = 'rgba(255,255,255,0.04)';
+      ctx.fillStyle = GRID_SOFT;
       ctx.fillRect(p.l, y + 2, W - p.l - p.r, rowH - 4);
       let x = p.l;
       DENSITY_KEYS.forEach(k => {
@@ -200,33 +205,35 @@ function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
         ctx.globalAlpha = 1;
         x += bw;
       });
-      ctx.fillStyle = 'rgba(216,213,204,.88)';
+      ctx.fillStyle = TEXT;
       ctx.font = '9px Barlow, sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(f.feed_label.substring(0, 24), p.l - 4, y + rowH / 2 + 3);
-      ctx.fillStyle = 'rgba(94,93,88,.9)';
+      ctx.fillStyle = MUTED;
       ctx.font = 'bold 9px DM Mono, monospace';
       ctx.textAlign = 'left';
       ctx.fillText(String(f.total), p.l + fullBw + 4, y + rowH / 2 + 3);
     });
-  }, [data]);
+  }, [data, tick]);
   return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
 }
 
 function DailyDenseChart({ data }: { data: VlmAggregates['daily_dense'] }) {
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
     if (!data.length) return;
     const p = { l: 32, r: 12, t: 14, b: 28 };
     const mxShare = Math.max(...data.map(d => d.share), 0.01);
     // grid
     for (let i = 0; i <= 4; i++) {
       const y = p.t + (H - p.t - p.b) * (1 - i / 4);
-      ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+      ctx.strokeStyle = GRID;
       ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
-      ctx.fillStyle = 'rgba(94,93,88,.75)';
+      ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
       ctx.textAlign = 'right';
       ctx.fillText(`${Math.round((mxShare * i / 4) * 100)}%`, p.l - 4, y + 3);
@@ -261,12 +268,12 @@ function DailyDenseChart({ data }: { data: VlmAggregates['daily_dense'] }) {
     const step = Math.max(1, Math.floor(n / 6));
     data.forEach((d, i) => {
       if (i % step !== 0 && i !== n - 1) return;
-      ctx.fillStyle = 'rgba(94,93,88,.85)';
+      ctx.fillStyle = MUTED;
       ctx.font = '8px DM Mono, monospace';
       ctx.textAlign = 'center';
       ctx.fillText(d.date.slice(5), xs[i], H - 6);
     });
-  }, [data]);
+  }, [data, tick]);
   return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
 }
 
