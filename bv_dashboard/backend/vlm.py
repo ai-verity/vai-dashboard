@@ -19,10 +19,15 @@ from typing import Optional
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
 
-# Filename suffix encoding capture time, e.g.
-#   ..._03-27-2026-01-09-40-pm.jpg  -> 2026-03-27T13:09:40
+# Filename suffix encoding capture time. Two formats in the wild:
+#   ..._03-27-2026-01-09-40-pm.jpg   (legacy: MM-DD-YYYY-HH-MM-SS-am/pm)
+#   ..._20260515T000000.jpg          (compact ISO: YYYYMMDDTHHMMSS[Z])
 _FILENAME_TS_RE = re.compile(
     r"_(\d{2})-(\d{2})-(\d{4})-(\d{2})-(\d{2})-(\d{2})-(am|pm)\.jpg$",
+    re.IGNORECASE,
+)
+_FILENAME_TS_ISO_RE = re.compile(
+    r"_(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z?\.jpg$",
     re.IGNORECASE,
 )
 
@@ -136,17 +141,23 @@ def _parse_run_started_at(run_id: str) -> Optional[str]:
 
 def _parse_capture_time(filename: str) -> Optional[str]:
     m = _FILENAME_TS_RE.search(filename)
-    if not m:
-        return None
-    mm, dd, yyyy, h, mi, ss, ampm = m.groups()
-    hour = int(h) % 12
-    if ampm.lower() == "pm":
-        hour += 12
-    try:
-        dt = datetime(int(yyyy), int(mm), int(dd), hour, int(mi), int(ss))
-    except ValueError:
-        return None
-    return dt.isoformat()
+    if m:
+        mm, dd, yyyy, h, mi, ss, ampm = m.groups()
+        hour = int(h) % 12
+        if ampm.lower() == "pm":
+            hour += 12
+        try:
+            return datetime(int(yyyy), int(mm), int(dd), hour, int(mi), int(ss)).isoformat()
+        except ValueError:
+            return None
+    m = _FILENAME_TS_ISO_RE.search(filename)
+    if m:
+        yyyy, mm, dd, h, mi, ss = m.groups()
+        try:
+            return datetime(int(yyyy), int(mm), int(dd), int(h), int(mi), int(ss)).isoformat()
+        except ValueError:
+            return None
+    return None
 
 
 # Known camera-vendor prefixes that are noise in the human label. Add new
@@ -431,16 +442,22 @@ def _is_yes(text: Optional[str]) -> bool:
 
 
 def _clean_value(text: Optional[str]) -> Optional[str]:
-    """Trim and drop placeholder responses ('none', 'not visible', ...)."""
+    """Trim and drop placeholder responses ('none', 'not visible', ...).
+
+    Strips wrapping punctuation like '<…>' before classifying so that
+    '<none detected>' or '(none)' aren't treated as real values.
+    """
     if not text:
         return None
     t = text.strip()
     if not t:
         return None
-    low = t.lower()
-    if low in ("none", "no", "not visible", "not applicable", "n/a", "unknown"):
+    bare = re.sub(r"^[<\[(\s]+|[>\])\s]+$", "", t).strip().lower()
+    if not bare:
         return None
-    if low.startswith(("not visible", "not applicable", "no ", "none.")):
+    if bare in ("none", "no", "not visible", "not applicable", "n/a", "unknown"):
+        return None
+    if bare.startswith(("not visible", "not applicable", "no ", "none ", "none.", "none detected")):
         return None
     return t[:160]
 
