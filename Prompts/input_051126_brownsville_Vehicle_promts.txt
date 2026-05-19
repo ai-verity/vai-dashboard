@@ -1,0 +1,35 @@
+Are all vehicles present operating at safe speeds and in designated areas, without erratic maneuvers or obstruction of emergency routes?
+
+Is a vehicle traveling at speed clearly above the posted limit or inconsistent with safe yard / parking-lot driving behavior?
+
+Has a vehicle collided with another vehicle, a city asset (fence, building), or struck a pedestrian?
+
+Identify and count vehicles with a near miss that may have collided with another vehicle, a city asset (fence, building), or struck a pedestrian?
+
+Is a vehicle parked or stationary in a fire lane, emergency access corridor, loading bay, or clearly marked no-stopping zone?
+
+Is a vehicle operating in reverse, making unexpected maneuvers, or appearing to pursue a pedestrian in a threatening manner?
+
+Is any individual observed crouching, crawling, or passing by a vehicle?
+
+Does the image show a person making direct contact with a parked vehicle door, window, or trunk in a manner inconsistent with normal entry?
+
+Is any vehicle traveling in the wrong direction or entering a restricted-access road?
+
+Is any vehicle making physical contact with, driving alongside, or parking directly against any building or any obstruction?
+
+Estimate the number of Vehicles having no visible registration plates or plates are deliberately obscured.
+
+Provide the registration or license plate for each Vehicles visible.
+
+Provide the color, make, and model for each Vehicles visible.
+
+Provide the color, make, and model for each Vehicles visible.
+
+Identify and count individuals that have been struck or injured by a vehicle creating an accident.
+
+Identify and count near misses of individuals that have been struck or injured by a vehicle creating an accident.
+
+Identify and count children that have been struck or injured by a vehicle creating an accident.
+
+Identify and count near misses of children that could have been struck or injured by a vehicle creating an accident.

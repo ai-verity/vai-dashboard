@@ -131,11 +131,22 @@ export interface VlmListParams {
   feed_id?: string;
   run_id?: string;
   location_id?: string;
+  preset?: string;                  // crowd_behavior | vehicle_prompts
   density?: string;
   risk?: string;
   min_risk?: string;
   only_threats?: boolean;
   has_pedestrians?: boolean;
+  only_vehicle_issues?: boolean;
+  collision?: boolean;
+  speeding?: boolean;
+  fire_lane?: boolean;
+  // illegal_dumping filters
+  only_dumping?: boolean;
+  chronic_site?: boolean;
+  water_proximity?: boolean;
+  priority?: string;             // LOW / MEDIUM / HIGH
+  waste_type?: string;
   search?: string;
   limit?: number;
   offset?: number;

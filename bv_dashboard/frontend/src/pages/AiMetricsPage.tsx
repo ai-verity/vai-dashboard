@@ -475,6 +475,31 @@ function SkeletonPanel({ title, h = 240 }: { title: string; h?: number }) {
   );
 }
 
+// Empty state for the case where the API call succeeded but the current
+// runs simply don't carry per-class data (e.g. aggregate-only "all" rows
+// from the older YOLO summary format). Distinct from the loading skeleton
+// — a perpetually-shimmering panel looks broken when data is just absent.
+function EmptyPanel({ title, h = 240, message }: { title: string; h?: number; message: string }) {
+  return (
+    <div style={S.panel}>
+      <div style={S.hdr}><div style={S.title}>{title}</div></div>
+      <div style={{
+        ...S.body,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        minHeight: h, flexDirection: 'column', gap: 6,
+        border: '1px dashed var(--border)', margin: 16, padding: 16,
+      }}>
+        <div style={{
+          fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--muted)',
+          letterSpacing: '0.06em', textAlign: 'center', lineHeight: 1.6,
+        }}>
+          {message}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Page header (self-contained — does NOT use TopNav) ─────────────
 function AiHeader({
   runDate, model, runName, period, onPeriodChange,
@@ -691,30 +716,60 @@ export default function AiMetricsPage() {
           )}
         </div>
 
-        {/* Row 2: F1 + Precision per-class */}
-        {perClassRows.length > 0 ? (
-          <PerClassBars rows={perClassRows} metric="F1" period={period} awaiting={awaiting} />
-        ) : (
-          <SkeletonPanel title="F1 by class" />
-        )}
-        {perClassRows.length > 0 ? (
-          <PerClassBars rows={perClassRows} metric="Precision" period={period} awaiting={awaiting} />
-        ) : (
-          <SkeletonPanel title="Precision by class" />
-        )}
+        {/* Row 2 + 3 — per-class panels. Three states: still loading (skeleton),
+            loaded but the runs only carry aggregate values (empty state), or
+            loaded with per-class rows (the actual charts). */}
+        {renderPerClassPanel(perClassRows, byClass, comparison, 'F1',        period, awaiting)}
+        {renderPerClassPanel(perClassRows, byClass, comparison, 'Precision', period, awaiting)}
+        {renderPerClassPanel(perClassRows, byClass, comparison, 'Recall',    period, awaiting)}
 
-        {/* Row 3: Recall + table */}
-        {perClassRows.length > 0 ? (
-          <PerClassBars rows={perClassRows} metric="Recall" period={period} awaiting={awaiting} />
-        ) : (
-          <SkeletonPanel title="Recall by class" />
-        )}
-        {byClass?.classes ? (
-          <ClassTable rows={byClass.classes} />
-        ) : (
+        {byClass === null ? (
           <SkeletonPanel title="Per-class breakdown" h={300} />
+        ) : byClass.classes.length === 0 ? (
+          <EmptyPanel
+            title="Per-class breakdown — latest run"
+            h={260}
+            message={
+              'Current run carries only aggregate (“all”) metrics — no per-class rows ' +
+              'to break down. The next daily pipeline run that emits per-class P / R / F1 ' +
+              'will populate this table automatically.'
+            }
+          />
+        ) : (
+          <ClassTable rows={byClass.classes} />
         )}
       </div>
     </div>
   );
+}
+
+// Helper kept outside the component to keep the JSX above readable. byClass
+// is `null` while the request is in flight, `{ classes: [] }` after the
+// request returns but no per-class rows existed in the data.
+function renderPerClassPanel(
+  perClassRows: AiPerClassRow[],
+  byClass: import('../types').AiByClass | null,
+  comparison: import('../types').AiComparison | null,
+  metric: 'F1' | 'Precision' | 'Recall',
+  period: AiPeriod,
+  awaiting: boolean,
+) {
+  const title = `${metric} by class`;
+  // Still loading either dependency → skeleton.
+  if (byClass === null || comparison === null) return <SkeletonPanel title={title} />;
+  // Loaded, but neither the comparison's by_class nor the by_class endpoint
+  // produced any rows → aggregate-only data, render an empty state.
+  if (perClassRows.length === 0) {
+    return (
+      <EmptyPanel
+        title={title}
+        message={
+          'No per-class breakdown for this run. Aggregated-only training output ' +
+          '(class=“all”) was supplied; once per-class rows are emitted ' +
+          'by the daily pipeline this chart will activate.'
+        }
+      />
+    );
+  }
+  return <PerClassBars rows={perClassRows} metric={metric} period={period} awaiting={awaiting} />;
 }

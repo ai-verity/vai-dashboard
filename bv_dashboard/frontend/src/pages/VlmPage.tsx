@@ -13,6 +13,22 @@ const MODEL_NAME = 'nvidia/cosmos-reason2-8b';
 
 const PAGE_SIZE = 50;
 
+// Wire preset values; the empty string sentinel = "all presets".
+type PresetFilter = '' | 'crowd_behavior' | 'vehicle_prompts' | 'illegal_dumping';
+
+const PRESET_LABEL: Record<string, string> = {
+  crowd_behavior: 'CROWD',
+  vehicle_prompts: 'VEHICLE',
+  illegal_dumping: 'DUMPING',
+};
+
+// Priority tier colors — shared by KPI, chips, and badges.
+const PRIORITY_COLOR: Record<string, string> = {
+  LOW:    '#2DC9A8',
+  MEDIUM: '#F5B731',
+  HIGH:   '#EF4444',
+};
+
 const DENSITY_COLOR: Record<string, string> = {
   SPARSE: '#2DC9A8',
   MODERATE: '#F5B731',
@@ -23,6 +39,20 @@ const RISK_COLOR: Record<string, string> = {
   MODERATE: '#F5B731',
   HIGH: '#EF4444',
 };
+
+// Vehicle issue colors — used in chips, badges, charts.
+const VEH_COLLISION   = '#EF4444';
+const VEH_SPEEDING    = '#F97316';
+const VEH_FIRE_LANE   = '#F5B731';
+const VEH_WRONG_WAY   = '#F5B731';
+const VEH_OTHER       = '#A78BFA';
+
+// Illegal-dumping colors — separate from vehicle so the eye learns the
+// preset palette quickly.
+const DMP_PRESENT     = '#EF4444';
+const DMP_CHRONIC     = '#7f1d1d';
+const DMP_WATER       = '#4A9EF5';
+const DMP_GUTTER      = '#F5B731';
 
 // Per-frame section roll-up definition.
 // Each section knows which Q-numbers feed it and how to summarize them.
@@ -75,6 +105,90 @@ const SECTION_ORDER = [
   'THREAT & SAFETY',
   'HAZARDS & INCIDENTS',
   'CRITICAL INCIDENTS',
+];
+
+// Vehicle-preset section roll-up. Mirrors the crowd version but for the
+// 6 vehicle sections — caller branches on detail.preset to pick a map.
+function summarizeVehicleAnswers(answers: Record<string, string> | undefined): Record<string, SectionSummary> {
+  const a = answers ?? {};
+  const get = (n: number) => a[String(n)];
+  const yesIn = (qs: number[]) => qs.filter(n => isYes(get(n))).length;
+  const num = (n: number) => extractNumber(get(n));
+
+  const speedingFlag = isYes(get(2)) ? 'SPEEDING' : (get(1)?.toLowerCase().startsWith('yes') ? 'safe' : '—');
+  const collisionTxt = isYes(get(3)) ? 'COLLISION' : 'none';
+  const nearMiss = num(4);
+  const parkingFlags = yesIn([5, 6, 7]);
+  const suspiciousFlags = yesIn([8, 9, 10]);
+  const noPlate = num(11);
+  const desc = get(13);
+  const idValue = (() => {
+    const trimmed = desc?.trim();
+    if (trimmed && !/^(not visible|not applicable|none|no)/i.test(trimmed)) {
+      return trimmed.length > 36 ? `${trimmed.slice(0, 36)}…` : trimmed;
+    }
+    return noPlate !== null ? `no-plate: ${noPlate}` : '—';
+  })();
+  const safetyFlags = yesIn([14, 15, 16, 17]);
+
+  return {
+    'GENERAL VEHICLE SAFETY':       { value: speedingFlag, flagCount: isYes(get(2)) ? 1 : 0, questionCount: 2, highlight: isYes(get(2)) ? VEH_SPEEDING : undefined },
+    'COLLISIONS & NEAR MISSES':     { value: nearMiss ? `${collisionTxt} · near=${nearMiss}` : collisionTxt, flagCount: (isYes(get(3)) ? 1 : 0) + ((nearMiss ?? 0) > 0 ? 1 : 0), questionCount: 2, highlight: isYes(get(3)) ? VEH_COLLISION : undefined },
+    'PARKING & ACCESS VIOLATIONS':  { value: parkingFlags === 0 ? 'clear' : `${parkingFlags} flag${parkingFlags === 1 ? '' : 's'}`, flagCount: parkingFlags, questionCount: 3 },
+    'SUSPICIOUS VEHICLE BEHAVIOR':  { value: suspiciousFlags === 0 ? 'clear' : `${suspiciousFlags} flag${suspiciousFlags === 1 ? '' : 's'}`, flagCount: suspiciousFlags, questionCount: 3 },
+    'VEHICLE IDENTIFICATION':       { value: idValue, flagCount: (noPlate ?? 0) > 0 ? 1 : 0, questionCount: 3 },
+    'PEDESTRIAN & CHILD SAFETY':    { value: safetyFlags === 0 ? 'clear' : `${safetyFlags} flag${safetyFlags === 1 ? '' : 's'}`, flagCount: safetyFlags, questionCount: 4 },
+  };
+}
+
+const VEHICLE_SECTION_ORDER = [
+  'GENERAL VEHICLE SAFETY',
+  'COLLISIONS & NEAR MISSES',
+  'PARKING & ACCESS VIOLATIONS',
+  'SUSPICIOUS VEHICLE BEHAVIOR',
+  'VEHICLE IDENTIFICATION',
+  'PEDESTRIAN & CHILD SAFETY',
+];
+
+// Illegal-dumping section roll-up. The dumping preset emits KEY:value
+// answers (not numbered) but the backend remaps each key to a q_number
+// 1–16, so the existing answers dict still works.
+function summarizeDumpingAnswers(answers: Record<string, string> | undefined): Record<string, SectionSummary> {
+  const a = answers ?? {};
+  const get = (n: number) => a[String(n)];
+  const present = isYes(get(1));
+  const ord = isYes(get(2));
+  const wasteType = get(3);
+  const wasteVol = get(4);
+  const propType = get(6);
+  const gutter = isYes(get(8));
+  const water = isYes(get(9));
+  const chronic = isYes(get(10));
+  const vehicles = get(11);
+  const idents = get(12);
+  const severity = (get(13) ?? '').trim();
+  const priority = (get(15) ?? '').trim();
+  const ordinance = (get(14) ?? '').trim();
+
+  const idHas = (s: string | undefined) => !!s && !/^(none|not visible|no\b|unknown)/i.test(s);
+
+  return {
+    DETECTION:           { value: present ? (ord ? 'PRESENT · violation' : 'PRESENT') : (ord ? 'violation' : 'absent'), flagCount: (present ? 1 : 0) + (ord ? 1 : 0), questionCount: 2, highlight: present ? DMP_PRESENT : undefined },
+    'WASTE PROFILE':     { value: wasteType ? `${wasteType.slice(0, 24)}${wasteVol ? ` · ${wasteVol.slice(0, 20)}` : ''}` : '—', flagCount: 0, questionCount: 3 },
+    LOCATION:            { value: propType ? `${propType.slice(0, 28)}${gutter ? ' · gutter' : ''}` : (gutter ? 'gutter/alley' : '—'), flagCount: gutter ? 1 : 0, questionCount: 3, highlight: gutter ? DMP_GUTTER : undefined },
+    'CHRONIC / HAZARD':  { value: chronic && water ? 'CHRONIC · WATER' : chronic ? 'CHRONIC' : water ? 'WATER PROX.' : 'clear', flagCount: (chronic ? 1 : 0) + (water ? 1 : 0), questionCount: 2, highlight: water ? DMP_WATER : chronic ? DMP_CHRONIC : undefined },
+    IDENTIFIERS:         { value: [idHas(vehicles) ? 'vehicles' : null, idHas(idents) ? 'identifiers' : null].filter(Boolean).join(' · ') || 'none', flagCount: (idHas(vehicles) ? 1 : 0) + (idHas(idents) ? 1 : 0), questionCount: 2 },
+    ENFORCEMENT:         { value: [severity && `sev ${severity.slice(0, 1)}`, priority, ordinance].filter(Boolean).join(' · ') || '—', flagCount: /high/i.test(priority) ? 1 : 0, questionCount: 4, highlight: PRIORITY_COLOR[priority.toUpperCase()] },
+  };
+}
+
+const DUMPING_SECTION_ORDER = [
+  'DETECTION',
+  'WASTE PROFILE',
+  'LOCATION',
+  'CHRONIC / HAZARD',
+  'IDENTIFIERS',
+  'ENFORCEMENT',
 ];
 
 function StatCell({ label, value, color }: { label: string; value: number | string; color?: string }) {
@@ -277,6 +391,298 @@ function DailyDenseChart({ data }: { data: VlmAggregates['daily_dense'] }) {
   return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
 }
 
+// ─── Vehicle-preset charts ─────────────────────────────────────────────────
+const VEH_ISSUE_KEYS = ['collisions', 'speeding', 'fire_lane'] as const;
+const VEH_ISSUE_COLOR: Record<string, string> = {
+  collisions: VEH_COLLISION,
+  speeding:   VEH_SPEEDING,
+  fire_lane:  VEH_FIRE_LANE,
+  other:      VEH_OTHER,
+};
+
+function VehicleHourChart({ data }: { data: VlmAggregates['vehicle_hour_issue'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    const p = { l: 30, r: 10, t: 14, b: 28 };
+    const totals = data.map(r => r.collisions + r.speeding + r.fire_lane);
+    const mx = Math.max(...totals, 1);
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(String(Math.round(mx * i / 4)), p.l - 4, y + 3);
+    }
+    const bW = (W - p.l - p.r) / 24;
+    data.forEach((row, h) => {
+      const x = p.l + h * bW + 1;
+      let yBase = H - p.b;
+      VEH_ISSUE_KEYS.forEach(k => {
+        const n = (row[k] as number) || 0;
+        if (!n) return;
+        const hh = Math.max(1, (n / mx) * (H - p.t - p.b));
+        ctx.fillStyle = VEH_ISSUE_COLOR[k];
+        ctx.globalAlpha = 0.86;
+        ctx.fillRect(x, yBase - hh, bW - 2, hh);
+        ctx.globalAlpha = 1;
+        yBase -= hh;
+      });
+      if (h % 3 === 0) {
+        ctx.fillStyle = MUTED;
+        ctx.font = '8px DM Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(h).padStart(2, '0'), x + bW / 2, H - 14);
+      }
+    });
+    VEH_ISSUE_KEYS.forEach((k, i) => {
+      const x = p.l + i * 78;
+      ctx.fillStyle = VEH_ISSUE_COLOR[k];
+      ctx.fillRect(x, H - 8, 8, 6);
+      ctx.fillStyle = MUTED;
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(k.toUpperCase(), x + 11, H - 2);
+    });
+  }, [data, tick]);
+  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+}
+
+function VehicleFeedChart({ data }: { data: VlmAggregates['vehicle_feed_issue'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, TEXT, GRID_SOFT } = chartColors();
+    const p = { l: 150, r: 12, t: 6, b: 6 };
+    const issueTotals = data.map(f => f.collisions + f.speeding + f.fire_lane + f.other);
+    const mx = Math.max(...issueTotals, 1);
+    const rowH = (H - p.t - p.b) / Math.max(data.length, 1);
+    data.forEach((f, i) => {
+      const y = p.t + i * rowH;
+      const issueTotal = issueTotals[i];
+      const fullBw = Math.round((issueTotal / mx) * (W - p.l - p.r));
+      ctx.fillStyle = GRID_SOFT;
+      ctx.fillRect(p.l, y + 2, W - p.l - p.r, rowH - 4);
+      let x = p.l;
+      (['collisions', 'speeding', 'fire_lane', 'other'] as const).forEach(k => {
+        const n = (f[k] as number) || 0;
+        if (!n || !issueTotal) return;
+        const bw = Math.round((n / issueTotal) * fullBw);
+        ctx.fillStyle = VEH_ISSUE_COLOR[k];
+        ctx.globalAlpha = 0.86;
+        ctx.fillRect(x, y + 2, bw, rowH - 4);
+        ctx.globalAlpha = 1;
+        x += bw;
+      });
+      ctx.fillStyle = TEXT;
+      ctx.font = '9px Barlow, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(f.feed_label.substring(0, 24), p.l - 4, y + rowH / 2 + 3);
+      ctx.fillStyle = MUTED;
+      ctx.font = 'bold 9px DM Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(String(issueTotal), p.l + fullBw + 4, y + rowH / 2 + 3);
+    });
+  }, [data, tick]);
+  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+}
+
+function VehicleDailyChart({ data }: { data: VlmAggregates['vehicle_daily_collision'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    if (!data.length) return;
+    const p = { l: 32, r: 12, t: 14, b: 28 };
+    const mxShare = Math.max(...data.map(d => d.share), 0.01);
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${Math.round((mxShare * i / 4) * 100)}%`, p.l - 4, y + 3);
+    }
+    const n = data.length;
+    const xs = data.map((_, i) => p.l + (n === 1 ? 0 : (i * (W - p.l - p.r)) / (n - 1)));
+    const ys = data.map(d => p.t + (H - p.t - p.b) * (1 - d.share / mxShare));
+    const grad = ctx.createLinearGradient(0, p.t, 0, H - p.b);
+    grad.addColorStop(0, 'rgba(239,68,68,.35)');
+    grad.addColorStop(1, 'rgba(239,68,68,0)');
+    ctx.beginPath();
+    ctx.moveTo(xs[0], H - p.b);
+    xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+    ctx.lineTo(xs[xs.length - 1], H - p.b);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.beginPath();
+    xs.forEach((x, i) => i === 0 ? ctx.moveTo(x, ys[i]) : ctx.lineTo(x, ys[i]));
+    ctx.strokeStyle = VEH_COLLISION;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    xs.forEach((x, i) => {
+      ctx.beginPath();
+      ctx.arc(x, ys[i], 3, 0, Math.PI * 2);
+      ctx.fillStyle = VEH_COLLISION;
+      ctx.fill();
+    });
+    const step = Math.max(1, Math.floor(n / 6));
+    data.forEach((d, i) => {
+      if (i % step !== 0 && i !== n - 1) return;
+      ctx.fillStyle = MUTED;
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(d.date.slice(5), xs[i], H - 6);
+    });
+  }, [data, tick]);
+  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+}
+
+// ─── Illegal-dumping charts ─────────────────────────────────────────────────
+function DumpingSeverityChart({ data }: { data: VlmAggregates['dumping_severity'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    const p = { l: 30, r: 12, t: 14, b: 28 };
+    const mx = Math.max(...data.map(r => r.count), 1);
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(String(Math.round(mx * i / 4)), p.l - 4, y + 3);
+    }
+    const bW = (W - p.l - p.r) / 5;
+    // Severity 1 → green, 5 → red. Linear interpolation through orange.
+    const sevColor = (s: number) => ['#22C55E', '#84CC16', '#F5B731', '#F97316', '#EF4444'][s - 1] ?? '#888';
+    data.forEach((row, i) => {
+      const x = p.l + i * bW + 4;
+      const bw = bW - 8;
+      const h = Math.max(1, (row.count / mx) * (H - p.t - p.b));
+      ctx.fillStyle = sevColor(row.severity);
+      ctx.globalAlpha = 0.86;
+      ctx.fillRect(x, H - p.b - h, bw, h);
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`sev ${row.severity}`, x + bw / 2, H - 14);
+      ctx.fillText(String(row.count), x + bw / 2, H - 4);
+    });
+  }, [data, tick]);
+  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+}
+
+function DumpingFeedChart({ data }: { data: VlmAggregates['dumping_feed'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, TEXT, GRID_SOFT } = chartColors();
+    const p = { l: 150, r: 12, t: 6, b: 6 };
+    const mx = Math.max(...data.map(f => f.dumping), 1);
+    const rowH = (H - p.t - p.b) / Math.max(data.length, 1);
+    data.forEach((f, i) => {
+      const y = p.t + i * rowH;
+      const fullBw = Math.round((f.dumping / mx) * (W - p.l - p.r));
+      ctx.fillStyle = GRID_SOFT;
+      ctx.fillRect(p.l, y + 2, W - p.l - p.r, rowH - 4);
+      // dumping bar
+      ctx.fillStyle = DMP_PRESENT;
+      ctx.globalAlpha = 0.78;
+      ctx.fillRect(p.l, y + 2, fullBw, rowH - 4);
+      ctx.globalAlpha = 1;
+      // chronic overlay — darker stripe at the start
+      if (f.chronic) {
+        const cw = Math.min(fullBw, Math.round((f.chronic / mx) * (W - p.l - p.r)));
+        ctx.fillStyle = DMP_CHRONIC;
+        ctx.fillRect(p.l, y + 2, cw, rowH - 4);
+      }
+      ctx.fillStyle = TEXT;
+      ctx.font = '9px Barlow, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(f.feed_label.substring(0, 24), p.l - 4, y + rowH / 2 + 3);
+      ctx.fillStyle = MUTED;
+      ctx.font = 'bold 9px DM Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(String(f.dumping), p.l + fullBw + 4, y + rowH / 2 + 3);
+    });
+  }, [data, tick]);
+  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+}
+
+function DumpingDailyChart({ data }: { data: VlmAggregates['dumping_daily'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    if (!data.length) return;
+    const p = { l: 32, r: 12, t: 14, b: 28 };
+    const mxShare = Math.max(...data.map(d => d.share), 0.01);
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${Math.round((mxShare * i / 4) * 100)}%`, p.l - 4, y + 3);
+    }
+    const n = data.length;
+    const xs = data.map((_, i) => p.l + (n === 1 ? 0 : (i * (W - p.l - p.r)) / (n - 1)));
+    const ys = data.map(d => p.t + (H - p.t - p.b) * (1 - d.share / mxShare));
+    const grad = ctx.createLinearGradient(0, p.t, 0, H - p.b);
+    grad.addColorStop(0, 'rgba(239,68,68,.35)');
+    grad.addColorStop(1, 'rgba(239,68,68,0)');
+    ctx.beginPath();
+    ctx.moveTo(xs[0], H - p.b);
+    xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+    ctx.lineTo(xs[xs.length - 1], H - p.b);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.beginPath();
+    xs.forEach((x, i) => i === 0 ? ctx.moveTo(x, ys[i]) : ctx.lineTo(x, ys[i]));
+    ctx.strokeStyle = DMP_PRESENT;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    xs.forEach((x, i) => {
+      ctx.beginPath();
+      ctx.arc(x, ys[i], 3, 0, Math.PI * 2);
+      ctx.fillStyle = DMP_PRESENT;
+      ctx.fill();
+    });
+    const step = Math.max(1, Math.floor(n / 6));
+    data.forEach((d, i) => {
+      if (i % step !== 0 && i !== n - 1) return;
+      ctx.fillStyle = MUTED;
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(d.date.slice(5), xs[i], H - 6);
+    });
+  }, [data, tick]);
+  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+}
+
 function ChartCard({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
   return (
     <div style={{ background: 'var(--s0)' }}>
@@ -294,24 +700,58 @@ export default function VlmPage() {
   const [page, setPage] = useState(0);
   const [feedId, setFeedId] = useState<string | undefined>();
   const [runId, setRunId] = useState<string | undefined>();
+  const [preset, setPreset] = useState<PresetFilter>('');
   const [density, setDensity] = useState<string | undefined>();
   const [risk, setRisk] = useState<string | undefined>();
   const [elevatedRisk, setElevatedRisk] = useState(false);
   const [onlyThreats, setOnlyThreats] = useState(false);
   const [hasPeds, setHasPeds] = useState(false);
+  const [collisionOnly, setCollisionOnly] = useState(false);
+  const [speedingOnly, setSpeedingOnly] = useState(false);
+  const [fireLaneOnly, setFireLaneOnly] = useState(false);
+  const [onlyVehicleIssues, setOnlyVehicleIssues] = useState(false);
+  // illegal_dumping filters
+  const [onlyDumping, setOnlyDumping] = useState(false);
+  const [chronicOnly, setChronicOnly] = useState(false);
+  const [waterOnly, setWaterOnly] = useState(false);
+  const [priorityFilter, setPriorityFilter] = useState<string | undefined>();
   const [search, setSearch] = useState('');
 
+  const isVehicleView = preset === 'vehicle_prompts';
+  const isCrowdView = preset === 'crowd_behavior';
+  const isDumpingView = preset === 'illegal_dumping';
+  const isAllView = preset === '';
+
   const params: VlmListParams = useMemo(() => ({
-    feed_id: feedId, run_id: runId, density, risk,
-    min_risk: elevatedRisk ? 'MODERATE' : undefined,
-    only_threats: onlyThreats || undefined,
-    has_pedestrians: hasPeds || undefined,
+    feed_id: feedId, run_id: runId,
+    preset: preset || undefined,
+    // Crowd filters apply only when the active view can contain crowd rows.
+    density: isCrowdView || isAllView ? density : undefined,
+    risk: isCrowdView || isAllView ? risk : undefined,
+    min_risk: (isCrowdView || isAllView) && elevatedRisk ? 'MODERATE' : undefined,
+    only_threats: (isCrowdView || isAllView) && onlyThreats ? true : undefined,
+    has_pedestrians: (isCrowdView || isAllView) && hasPeds ? true : undefined,
+    // Vehicle filters apply only when the active view can contain vehicle rows.
+    only_vehicle_issues: (isVehicleView || isAllView) && onlyVehicleIssues ? true : undefined,
+    collision: (isVehicleView || isAllView) && collisionOnly ? true : undefined,
+    speeding: (isVehicleView || isAllView) && speedingOnly ? true : undefined,
+    fire_lane: (isVehicleView || isAllView) && fireLaneOnly ? true : undefined,
+    // Dumping filters apply only when the active view can contain dumping rows.
+    only_dumping: (isDumpingView || isAllView) && onlyDumping ? true : undefined,
+    chronic_site: (isDumpingView || isAllView) && chronicOnly ? true : undefined,
+    water_proximity: (isDumpingView || isAllView) && waterOnly ? true : undefined,
+    priority: (isDumpingView || isAllView) && priorityFilter ? priorityFilter : undefined,
     search: search || undefined,
     limit: PAGE_SIZE,
     offset: page * PAGE_SIZE,
     sort: 'captured_at',
     order: 'desc',
-  }), [feedId, runId, density, risk, elevatedRisk, onlyThreats, hasPeds, search, page]);
+  }), [
+    feedId, runId, preset, density, risk, elevatedRisk, onlyThreats, hasPeds,
+    onlyVehicleIssues, collisionOnly, speedingOnly, fireLaneOnly,
+    onlyDumping, chronicOnly, waterOnly, priorityFilter,
+    search, page, isCrowdView, isVehicleView, isDumpingView, isAllView,
+  ]);
 
   const { data: list, loading: listLoading, error: listError, refetch: refetchList } = useVlmList(params);
   const { data: feedsResp, refetch: refetchFeeds } = useVlmFeeds();
@@ -320,10 +760,19 @@ export default function VlmPage() {
   const { data: aggregates } = useVlmAggregates();
   const { data: runs } = useVlmRuns();
   const { data: detail } = useVlmOne(selectedId);
-  const detailSummaries = useMemo(
-    () => (detail ? summarizeAnswers(detail.answers) : null),
-    [detail],
-  );
+  const detailIsVehicle = detail?.preset === 'vehicle_prompts';
+  const detailIsDumping = detail?.preset === 'illegal_dumping';
+  const detailSummaries = useMemo(() => {
+    if (!detail) return null;
+    if (detailIsVehicle) return summarizeVehicleAnswers(detail.answers);
+    if (detailIsDumping) return summarizeDumpingAnswers(detail.answers);
+    return summarizeAnswers(detail.answers);
+  }, [detail, detailIsVehicle, detailIsDumping]);
+  const detailSectionOrder = detailIsVehicle
+    ? VEHICLE_SECTION_ORDER
+    : detailIsDumping
+      ? DUMPING_SECTION_ORDER
+      : SECTION_ORDER;
 
   const handleReload = async () => {
     try {
@@ -366,54 +815,147 @@ export default function VlmPage() {
         >Reload Data</button>
       </div>
 
-      {/* KPI strip */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <StatCell label="Total Frames" value={stats?.total ?? '—'} color="var(--accent)" />
-        <StatCell label="Feeds" value={stats?.feeds ?? '—'} color="var(--blue)" />
-        <StatCell label="With Pedestrians" value={stats?.with_pedestrians ?? '—'} color="var(--teal)" />
-        <StatCell label="Imminent Threats" value={stats?.imminent_threats ?? 0} color="var(--red)" />
-        <StatCell label="Weapons" value={stats?.weapons ?? 0} color="var(--red)" />
-        <StatCell label="Medical" value={stats?.medical ?? 0} color="var(--purple)" />
-        <StatCell label="Fire / Smoke" value={stats?.fire_smoke ?? 0} color="var(--orange)" />
+      {/* Preset chip row — sits between header and KPI strip so users see
+          which lens drives the strip / charts / filters below. */}
+      <div style={{ padding: '8px 24px', borderBottom: '1px solid var(--border)', background: 'var(--s1)', display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+        <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Preset</span>
+        <Chip active={isAllView} onClick={() => { setPreset(''); resetPage(); }}>
+          ALL · {stats?.total ?? '—'}
+        </Chip>
+        <Chip active={isCrowdView} color="#2DC9A8" onClick={() => { setPreset(isCrowdView ? '' : 'crowd_behavior'); resetPage(); }}>
+          CROWD BEHAVIOR · {stats?.presets?.crowd_behavior ?? 0}
+        </Chip>
+        <Chip active={isVehicleView} color="#4A9EF5" onClick={() => { setPreset(isVehicleView ? '' : 'vehicle_prompts'); resetPage(); }}>
+          VEHICLE PROMPTS · {stats?.presets?.vehicle_prompts ?? 0}
+        </Chip>
+        <Chip active={isDumpingView} color="#F97316" onClick={() => { setPreset(isDumpingView ? '' : 'illegal_dumping'); resetPage(); }}>
+          ILLEGAL DUMPING · {stats?.presets?.illegal_dumping ?? 0}
+        </Chip>
       </div>
 
-      {/* Aggregate charts */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <ChartCard title="Hour-of-Day Risk Mix" sub="Stacked frames per UTC hour · LOW · MOD · MED · HIGH">
-          {aggregates ? <HourRiskChart data={aggregates.hour_risk} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-        </ChartCard>
-        <ChartCard title="Per-Feed Density (top 10)" sub="Stacked share of SPARSE / MODERATE / DENSE per feed">
-          {aggregates ? <FeedDensityChart data={aggregates.feed_density} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-        </ChartCard>
-        <ChartCard title="DENSE-Frame Share by Day" sub="Daily share of frames classified DENSE">
-          {aggregates ? <DailyDenseChart data={aggregates.daily_dense} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-        </ChartCard>
-      </div>
+      {/* KPI strip — swaps based on active preset. */}
+      {isVehicleView ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <StatCell label="Vehicle Frames" value={stats?.vehicle.total ?? '—'} color="var(--accent)" />
+          <StatCell label="With Vehicles" value={stats?.vehicle.with_vehicle_desc ?? '—'} color="var(--blue)" />
+          <StatCell label="Collisions" value={stats?.vehicle.collisions ?? 0} color={VEH_COLLISION} />
+          <StatCell label="Speeding" value={stats?.vehicle.speeding ?? 0} color={VEH_SPEEDING} />
+          <StatCell label="Fire-Lane" value={stats?.vehicle.fire_lane ?? 0} color={VEH_FIRE_LANE} />
+          <StatCell label="Wrong-Way" value={stats?.vehicle.wrong_way ?? 0} color={VEH_WRONG_WAY} />
+          <StatCell label="No-Plate Frames" value={stats?.vehicle.no_plate_frames ?? 0} color="var(--purple)" />
+        </div>
+      ) : isDumpingView ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <StatCell label="Dumping Frames" value={stats?.dumping.total ?? '—'} color="var(--accent)" />
+          <StatCell label="Dumping Present" value={stats?.dumping.dumping_present ?? 0} color={DMP_PRESENT} />
+          <StatCell label="Ordinance Viol." value={stats?.dumping.ordinance_violation ?? 0} color={DMP_PRESENT} />
+          <StatCell label="Chronic Sites" value={stats?.dumping.chronic_site ?? 0} color={DMP_CHRONIC} />
+          <StatCell label="Gutter / Alley" value={stats?.dumping.gutter_alley ?? 0} color={DMP_GUTTER} />
+          <StatCell label="Near Water" value={stats?.dumping.water_proximity ?? 0} color={DMP_WATER} />
+          <StatCell label="High Priority" value={stats?.dumping.high_priority ?? 0} color={PRIORITY_COLOR.HIGH} />
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <StatCell label="Total Frames" value={stats?.total ?? '—'} color="var(--accent)" />
+          <StatCell label="Feeds" value={stats?.feeds ?? '—'} color="var(--blue)" />
+          <StatCell label="With Pedestrians" value={stats?.with_pedestrians ?? '—'} color="var(--teal)" />
+          <StatCell label="Imminent Threats" value={stats?.imminent_threats ?? 0} color="var(--red)" />
+          <StatCell label="Weapons" value={stats?.weapons ?? 0} color="var(--red)" />
+          <StatCell label="Medical" value={stats?.medical ?? 0} color="var(--purple)" />
+          <StatCell label="Fire / Smoke" value={stats?.fire_smoke ?? 0} color="var(--orange)" />
+        </div>
+      )}
+
+      {/* Aggregate charts — swap to vehicle / dumping versions per preset. */}
+      {isVehicleView ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <ChartCard title="Hour-of-Day Vehicle Issues" sub="Stacked frames per UTC hour · collision · speeding · fire-lane">
+            {aggregates ? <VehicleHourChart data={aggregates.vehicle_hour_issue} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+          <ChartCard title="Per-Feed Issue Mix (top 10)" sub="Stacked issue counts per feed · collision · speeding · fire-lane · other">
+            {aggregates ? <VehicleFeedChart data={aggregates.vehicle_feed_issue} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+          <ChartCard title="Collision-Frame Share by Day" sub="Daily share of vehicle frames flagged as collision">
+            {aggregates ? <VehicleDailyChart data={aggregates.vehicle_daily_collision} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+        </div>
+      ) : isDumpingView ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <ChartCard title="Severity Distribution" sub="Dumping frames bucketed by reported severity (1 lowest, 5 highest)">
+            {aggregates ? <DumpingSeverityChart data={aggregates.dumping_severity} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+          <ChartCard title="Per-Feed Dumping (top 10)" sub="Dumping-present count per feed · darker = chronic site">
+            {aggregates ? <DumpingFeedChart data={aggregates.dumping_feed} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+          <ChartCard title="Dumping-Frame Share by Day" sub="Daily share of dumping frames flagged as 'dumping present'">
+            {aggregates ? <DumpingDailyChart data={aggregates.dumping_daily} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+        </div>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <ChartCard title="Hour-of-Day Risk Mix" sub="Stacked frames per UTC hour · LOW · MOD · MED · HIGH">
+            {aggregates ? <HourRiskChart data={aggregates.hour_risk} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+          <ChartCard title="Per-Feed Density (top 10)" sub="Stacked share of SPARSE / MODERATE / DENSE per feed">
+            {aggregates ? <FeedDensityChart data={aggregates.feed_density} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+          <ChartCard title="DENSE-Frame Share by Day" sub="Daily share of frames classified DENSE">
+            {aggregates ? <DailyDenseChart data={aggregates.daily_dense} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+          </ChartCard>
+        </div>
+      )}
 
       {/* Main grid: list | detail */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 1, background: 'var(--border)' }}>
         {/* List column */}
         <div style={{ background: 'var(--s0)', display: 'flex', flexDirection: 'column' }}>
-          {/* Filter bar */}
+          {/* Filter bar — chips swap based on preset. In ALL view we keep
+              the crowd chips visible since those rows dominate the data. */}
           <div style={{ padding: '10px 14px', borderBottom: '1px solid var(--border)', background: 'var(--s1)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
-              <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Density</span>
-              {(['SPARSE', 'MODERATE', 'DENSE'] as const).map(d => (
-                <Chip key={d} active={density === d} color={DENSITY_COLOR[d]} onClick={() => { setDensity(density === d ? undefined : d); resetPage(); }}>
-                  {d} {stats?.density?.[d] ? `· ${stats.density[d]}` : ''}
-                </Chip>
-              ))}
-              <span style={{ width: 8 }} />
-              <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Risk</span>
-              {(['LOW', 'MODERATE', 'HIGH'] as const).map(r => (
-                <Chip key={r} active={risk === r} color={RISK_COLOR[r]} onClick={() => { setRisk(risk === r ? undefined : r); resetPage(); }}>
-                  {r} {stats?.risk?.[r] ? `· ${stats.risk[r]}` : ''}
-                </Chip>
-              ))}
-              <span style={{ width: 8 }} />
-              <Chip active={elevatedRisk} color="#F97316" onClick={() => { setElevatedRisk(!elevatedRisk); resetPage(); }}>RISK ≥ MODERATE</Chip>
-              <Chip active={onlyThreats} color="var(--red)" onClick={() => { setOnlyThreats(!onlyThreats); resetPage(); }}>ONLY THREATS</Chip>
-              <Chip active={hasPeds} color="var(--teal)" onClick={() => { setHasPeds(!hasPeds); resetPage(); }}>HAS PEDESTRIANS</Chip>
+              {isVehicleView ? (
+                <>
+                  <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Vehicle</span>
+                  <Chip active={collisionOnly} color={VEH_COLLISION} onClick={() => { setCollisionOnly(!collisionOnly); resetPage(); }}>COLLISION</Chip>
+                  <Chip active={speedingOnly} color={VEH_SPEEDING} onClick={() => { setSpeedingOnly(!speedingOnly); resetPage(); }}>SPEEDING</Chip>
+                  <Chip active={fireLaneOnly} color={VEH_FIRE_LANE} onClick={() => { setFireLaneOnly(!fireLaneOnly); resetPage(); }}>FIRE-LANE</Chip>
+                  <Chip active={onlyVehicleIssues} color="var(--red)" onClick={() => { setOnlyVehicleIssues(!onlyVehicleIssues); resetPage(); }}>ANY ISSUE</Chip>
+                </>
+              ) : isDumpingView ? (
+                <>
+                  <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Dumping</span>
+                  <Chip active={onlyDumping} color={DMP_PRESENT} onClick={() => { setOnlyDumping(!onlyDumping); resetPage(); }}>DUMPING PRESENT</Chip>
+                  <Chip active={chronicOnly} color={DMP_CHRONIC} onClick={() => { setChronicOnly(!chronicOnly); resetPage(); }}>CHRONIC</Chip>
+                  <Chip active={waterOnly} color={DMP_WATER} onClick={() => { setWaterOnly(!waterOnly); resetPage(); }}>NEAR WATER</Chip>
+                  <span style={{ width: 8 }} />
+                  <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Priority</span>
+                  {(['LOW', 'MEDIUM', 'HIGH'] as const).map(p => (
+                    <Chip key={p} active={priorityFilter === p} color={PRIORITY_COLOR[p]} onClick={() => { setPriorityFilter(priorityFilter === p ? undefined : p); resetPage(); }}>
+                      {p} {stats?.dumping?.priority?.[p] ? `· ${stats.dumping.priority[p]}` : ''}
+                    </Chip>
+                  ))}
+                </>
+              ) : (
+                <>
+                  <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Density</span>
+                  {(['SPARSE', 'MODERATE', 'DENSE'] as const).map(d => (
+                    <Chip key={d} active={density === d} color={DENSITY_COLOR[d]} onClick={() => { setDensity(density === d ? undefined : d); resetPage(); }}>
+                      {d} {stats?.density?.[d] ? `· ${stats.density[d]}` : ''}
+                    </Chip>
+                  ))}
+                  <span style={{ width: 8 }} />
+                  <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Risk</span>
+                  {(['LOW', 'MODERATE', 'HIGH'] as const).map(r => (
+                    <Chip key={r} active={risk === r} color={RISK_COLOR[r]} onClick={() => { setRisk(risk === r ? undefined : r); resetPage(); }}>
+                      {r} {stats?.risk?.[r] ? `· ${stats.risk[r]}` : ''}
+                    </Chip>
+                  ))}
+                  <span style={{ width: 8 }} />
+                  <Chip active={elevatedRisk} color="#F97316" onClick={() => { setElevatedRisk(!elevatedRisk); resetPage(); }}>RISK ≥ MODERATE</Chip>
+                  <Chip active={onlyThreats} color="var(--red)" onClick={() => { setOnlyThreats(!onlyThreats); resetPage(); }}>ONLY THREATS</Chip>
+                  <Chip active={hasPeds} color="var(--teal)" onClick={() => { setHasPeds(!hasPeds); resetPage(); }}>HAS PEDESTRIANS</Chip>
+                </>
+              )}
             </div>
             <input
               type="text" placeholder="search caption / feed / file"
@@ -480,9 +1022,21 @@ export default function VlmPage() {
               <div style={{ padding: 24, color: 'var(--muted)', fontSize: 11, textAlign: 'center' }}>No observations match.</div>
             ) : items.map(o => {
               const isSel = selectedId === o.id;
+              const rowIsVehicle = o.preset === 'vehicle_prompts';
+              const rowIsDumping = o.preset === 'illegal_dumping';
               const dCol = o.density_zone ? DENSITY_COLOR[o.density_zone] : 'var(--border)';
               const rCol = o.risk_level ? RISK_COLOR[o.risk_level] : 'var(--border)';
-              const threat = o.has_imminent_threat || o.weapons_visible || o.medical_emergency || o.fire_smoke || o.fallen_person || o.physical_altercation || o.unsupervised_children;
+              const crowdThreat = o.has_imminent_threat || o.weapons_visible || o.medical_emergency || o.fire_smoke || o.fallen_person || o.physical_altercation || o.unsupervised_children;
+              const vehSubtitle = o.vehicle_description
+                ? `🚗 ${o.vehicle_description.slice(0, 48)}${o.vehicle_description.length > 48 ? '…' : ''}`
+                : '🚗 no vehicle visible';
+              const dmpSubtitle = (() => {
+                const parts: string[] = [];
+                if (o.waste_type) parts.push(o.waste_type);
+                if (o.severity) parts.push(`sev ${o.severity}`);
+                if (o.priority) parts.push(o.priority);
+                return parts.length ? `🗑 ${parts.join(' · ').slice(0, 56)}` : '🗑 no waste detected';
+              })();
               return (
                 <div
                   key={o.id}
@@ -515,18 +1069,54 @@ export default function VlmPage() {
                     </div>
                   </div>
                   <div style={{ fontSize: 9.5, color: 'var(--dim)', marginBottom: 4, fontFamily: 'var(--mono)' }}>
-                    👣 {o.pedestrian_count ?? '–'} pedestrians · {o.image_name.split('_').pop()}
+                    {rowIsVehicle
+                      ? `${vehSubtitle} · ${o.image_name.split('_').pop()}`
+                      : rowIsDumping
+                        ? `${dmpSubtitle} · ${o.image_name.split('_').pop()}`
+                        : `👣 ${o.pedestrian_count ?? '–'} pedestrians · ${o.image_name.split('_').pop()}`}
                   </div>
                   <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-                    {o.density_zone && <Badge color={dCol}>{o.density_zone}</Badge>}
-                    {o.risk_level && <Badge color={rCol}>RISK {o.risk_level}</Badge>}
-                    {threat && <Badge color="#EF4444">⚠ THREAT</Badge>}
-                    {o.weapons_visible && <Badge color="#EF4444">WEAPON</Badge>}
-                    {o.medical_emergency && <Badge color="#A78BFA">MEDICAL</Badge>}
-                    {o.fire_smoke && <Badge color="#F97316">FIRE</Badge>}
-                    {o.fallen_person && <Badge color="#F97316">FALLEN</Badge>}
-                    {o.unsupervised_children && <Badge color="#F5B731">CHILD</Badge>}
-                    {o.physical_altercation && <Badge color="#EF4444">ALTERCATION</Badge>}
+                    {/* Preset tag — only visible in ALL view to disambiguate
+                        rows of different presets in the same list. */}
+                    {isAllView && o.preset && (
+                      <Badge color={rowIsVehicle ? '#4A9EF5' : rowIsDumping ? '#F97316' : '#2DC9A8'}>{PRESET_LABEL[o.preset] ?? o.preset.toUpperCase()}</Badge>
+                    )}
+                    {rowIsVehicle ? (
+                      <>
+                        {o.collision && <Badge color={VEH_COLLISION}>COLLISION</Badge>}
+                        {o.speeding && <Badge color={VEH_SPEEDING}>SPEEDING</Badge>}
+                        {o.fire_lane_violation && <Badge color={VEH_FIRE_LANE}>FIRE-LANE</Badge>}
+                        {o.wrong_way && <Badge color={VEH_WRONG_WAY}>WRONG-WAY</Badge>}
+                        {o.erratic_maneuver && <Badge color={VEH_OTHER}>ERRATIC</Badge>}
+                        {o.vehicle_tamper && <Badge color={VEH_COLLISION}>TAMPER</Badge>}
+                        {o.building_contact && <Badge color={VEH_COLLISION}>BUILDING-HIT</Badge>}
+                        {o.pedestrian_struck && <Badge color={VEH_COLLISION}>PED-STRUCK</Badge>}
+                        {o.child_struck && <Badge color={VEH_COLLISION}>CHILD-STRUCK</Badge>}
+                        {(o.no_plate_count ?? 0) > 0 && <Badge color="#F5B731">NO-PLATE×{o.no_plate_count}</Badge>}
+                      </>
+                    ) : rowIsDumping ? (
+                      <>
+                        {o.dumping_present && <Badge color={DMP_PRESENT}>DUMPING</Badge>}
+                        {o.ordinance_violation && <Badge color={DMP_PRESENT}>ORDINANCE</Badge>}
+                        {o.chronic_site && <Badge color={DMP_CHRONIC}>CHRONIC</Badge>}
+                        {o.water_proximity && <Badge color={DMP_WATER}>WATER PROX</Badge>}
+                        {o.gutter_alley && <Badge color={DMP_GUTTER}>GUTTER</Badge>}
+                        {o.priority && <Badge color={PRIORITY_COLOR[o.priority] ?? 'var(--muted)'}>{o.priority}</Badge>}
+                        {o.severity !== null && o.severity !== undefined && <Badge color={PRIORITY_COLOR.HIGH}>SEV {o.severity}</Badge>}
+                      </>
+                    ) : (
+                      <>
+                        {o.density_zone && <Badge color={dCol}>{o.density_zone}</Badge>}
+                        {o.risk_level && <Badge color={rCol}>RISK {o.risk_level}</Badge>}
+                        {crowdThreat && <Badge color="#EF4444">⚠ THREAT</Badge>}
+                        {o.weapons_visible && <Badge color="#EF4444">WEAPON</Badge>}
+                        {o.medical_emergency && <Badge color="#A78BFA">MEDICAL</Badge>}
+                        {o.fire_smoke && <Badge color="#F97316">FIRE</Badge>}
+                        {o.fallen_person && <Badge color="#F97316">FALLEN</Badge>}
+                        {o.unsupervised_children && <Badge color="#F5B731">CHILD</Badge>}
+                        {o.physical_altercation && <Badge color="#EF4444">ALTERCATION</Badge>}
+                      </>
+                    )}
                   </div>
                 </div>
               );
@@ -583,15 +1173,49 @@ export default function VlmPage() {
                 ))}
 
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 10, marginBottom: 14 }}>
-                  {detail.density_zone && <Badge color={DENSITY_COLOR[detail.density_zone]}>{detail.density_zone}</Badge>}
-                  {detail.risk_level && <Badge color={RISK_COLOR[detail.risk_level]}>RISK {detail.risk_level}</Badge>}
-                  {detail.pedestrian_count !== null && <Badge color="#2DC9A8">👣 {detail.pedestrian_count}</Badge>}
-                  {detail.weapons_visible && <Badge color="#EF4444">WEAPON</Badge>}
-                  {detail.medical_emergency && <Badge color="#A78BFA">MEDICAL</Badge>}
-                  {detail.fire_smoke && <Badge color="#F97316">FIRE</Badge>}
-                  {detail.fallen_person && <Badge color="#F97316">FALLEN</Badge>}
-                  {detail.unsupervised_children && <Badge color="#F5B731">CHILD</Badge>}
-                  {detail.has_imminent_threat && <Badge color="#EF4444">THREAT</Badge>}
+                  {detail.preset && (
+                    <Badge color={detailIsVehicle ? '#4A9EF5' : detailIsDumping ? '#F97316' : '#2DC9A8'}>{PRESET_LABEL[detail.preset] ?? detail.preset.toUpperCase()}</Badge>
+                  )}
+                  {detailIsVehicle ? (
+                    <>
+                      {detail.vehicle_description && <Badge color="#4A9EF5">🚗 {detail.vehicle_description.slice(0, 32)}{detail.vehicle_description.length > 32 ? '…' : ''}</Badge>}
+                      {detail.collision && <Badge color={VEH_COLLISION}>COLLISION</Badge>}
+                      {detail.speeding && <Badge color={VEH_SPEEDING}>SPEEDING</Badge>}
+                      {detail.fire_lane_violation && <Badge color={VEH_FIRE_LANE}>FIRE-LANE</Badge>}
+                      {detail.wrong_way && <Badge color={VEH_WRONG_WAY}>WRONG-WAY</Badge>}
+                      {detail.erratic_maneuver && <Badge color={VEH_OTHER}>ERRATIC</Badge>}
+                      {detail.vehicle_tamper && <Badge color={VEH_COLLISION}>TAMPER</Badge>}
+                      {detail.building_contact && <Badge color={VEH_COLLISION}>BUILDING-HIT</Badge>}
+                      {detail.pedestrian_struck && <Badge color={VEH_COLLISION}>PED-STRUCK</Badge>}
+                      {detail.child_struck && <Badge color={VEH_COLLISION}>CHILD-STRUCK</Badge>}
+                      {(detail.no_plate_count ?? 0) > 0 && <Badge color="#F5B731">NO-PLATE×{detail.no_plate_count}</Badge>}
+                      {(detail.near_miss_count ?? 0) > 0 && <Badge color="#F97316">NEAR-MISS×{detail.near_miss_count}</Badge>}
+                    </>
+                  ) : detailIsDumping ? (
+                    <>
+                      {detail.dumping_present && <Badge color={DMP_PRESENT}>DUMPING</Badge>}
+                      {detail.ordinance_violation && <Badge color={DMP_PRESENT}>ORDINANCE</Badge>}
+                      {detail.chronic_site && <Badge color={DMP_CHRONIC}>CHRONIC</Badge>}
+                      {detail.water_proximity && <Badge color={DMP_WATER}>WATER PROX</Badge>}
+                      {detail.gutter_alley && <Badge color={DMP_GUTTER}>GUTTER</Badge>}
+                      {detail.priority && <Badge color={PRIORITY_COLOR[detail.priority] ?? 'var(--muted)'}>{detail.priority}</Badge>}
+                      {detail.severity !== null && detail.severity !== undefined && <Badge color={PRIORITY_COLOR.HIGH}>SEV {detail.severity}</Badge>}
+                      {detail.ordinance && <Badge color="#4A9EF5">{detail.ordinance}</Badge>}
+                      {detail.waste_type && <Badge color="#A78BFA">{detail.waste_type.slice(0, 16)}</Badge>}
+                    </>
+                  ) : (
+                    <>
+                      {detail.density_zone && <Badge color={DENSITY_COLOR[detail.density_zone]}>{detail.density_zone}</Badge>}
+                      {detail.risk_level && <Badge color={RISK_COLOR[detail.risk_level]}>RISK {detail.risk_level}</Badge>}
+                      {detail.pedestrian_count !== null && <Badge color="#2DC9A8">👣 {detail.pedestrian_count}</Badge>}
+                      {detail.weapons_visible && <Badge color="#EF4444">WEAPON</Badge>}
+                      {detail.medical_emergency && <Badge color="#A78BFA">MEDICAL</Badge>}
+                      {detail.fire_smoke && <Badge color="#F97316">FIRE</Badge>}
+                      {detail.fallen_person && <Badge color="#F97316">FALLEN</Badge>}
+                      {detail.unsupervised_children && <Badge color="#F5B731">CHILD</Badge>}
+                      {detail.has_imminent_threat && <Badge color="#EF4444">THREAT</Badge>}
+                    </>
+                  )}
                 </div>
 
                 {/* Section roll-up */}
@@ -600,8 +1224,9 @@ export default function VlmPage() {
                 </div>
                 {detailSummaries && (
                   <div style={{ marginBottom: 14, border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
-                    {SECTION_ORDER.map((sec, i) => {
+                    {detailSectionOrder.map((sec, i) => {
                       const s = detailSummaries[sec];
+                      if (!s) return null;
                       const flagged = s.flagCount > 0;
                       const color = s.highlight ?? (flagged ? '#EF4444' : 'var(--muted)');
                       return (
@@ -632,7 +1257,7 @@ export default function VlmPage() {
                   Per-Prompt Answers
                 </div>
                 <div style={{ marginBottom: 14 }}>
-                  {prompts?.map(p => {
+                  {prompts?.filter(p => p.preset === detail.preset).map(p => {
                     const lines = p.q_numbers
                       .map(n => ({ n, ans: detail.answers[String(n)] }))
                       .filter(x => x.ans);
