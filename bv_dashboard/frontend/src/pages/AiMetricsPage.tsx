@@ -65,13 +65,14 @@ function periodLabel(p: AiPeriod) {
 
 // ─── Headline KPI cards ─────────────────────────────────────────────
 function HeadlineCards({
-  rows, period, currentDate, previousDate, awaiting,
+  rows, period, currentDate, previousDate, awaiting, aggregateOnly,
 }: {
   rows: AiHeadlineRow[];
   period: AiPeriod;
   currentDate: string | undefined;
   previousDate: string | null | undefined;
   awaiting: boolean;
+  aggregateOnly: boolean;
 }) {
   return (
     <div style={{
@@ -90,6 +91,20 @@ function HeadlineCards({
             }}>
               <span style={{ width: 8, height: 8, background: col, borderRadius: '50%' }} />
               {r.metric}
+              {aggregateOnly && (
+                <span
+                  title="Macro-averaged across all 6 project classes (person, bicycle, car, motorcycle, bus, truck). No per-class breakdown was emitted for this run."
+                  style={{
+                    fontSize: 8, letterSpacing: '0.1em',
+                    padding: '2px 6px', borderRadius: 2,
+                    background: 'rgba(74,158,245,0.12)',
+                    color: 'var(--blue)',
+                    border: '1px solid rgba(74,158,245,0.35)',
+                  }}
+                >
+                  ALL CLASSES
+                </span>
+              )}
               <span style={{ marginLeft: 'auto', color: 'var(--dim)' }}>
                 {currentDate ?? '—'}
               </span>
@@ -126,11 +141,12 @@ function HeadlineCards({
 
 // ─── Time-series chart (multi-line P/R/F1 across runs) ──────────────
 function HistoryChart({
-  points, pointsRequired, period,
+  points, pointsRequired, period, aggregateOnly,
 }: {
   points: AiHistoryPoint[];
   pointsRequired: number;
   period: AiPeriod;
+  aggregateOnly: boolean;
 }) {
   const enough = points.length >= 2;
   const { tick } = useTheme();
@@ -220,7 +236,24 @@ function HistoryChart({
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
-          <div style={S.title}>Metric Trend</div>
+          <div style={S.title}>
+            Metric Trend
+            {aggregateOnly && (
+              <span
+                title="Trend reflects macro-averaged values across all 6 project classes — no per-class series for these runs"
+                style={{
+                  marginLeft: 10, fontSize: 8, letterSpacing: '0.1em',
+                  padding: '2px 6px', borderRadius: 2,
+                  background: 'rgba(74,158,245,0.12)',
+                  color: 'var(--blue)',
+                  border: '1px solid rgba(74,158,245,0.35)',
+                  verticalAlign: 'middle',
+                }}
+              >
+                ALL CLASSES
+              </span>
+            )}
+          </div>
           <div style={S.sub}>
             Macro-averaged P / R / F1 across daily training runs
           </div>
@@ -624,6 +657,11 @@ export default function AiMetricsPage() {
   const runsCaptured = comparison?.runs_in_window ?? 0;
   const runsRequired = comparison?.runs_required ?? 1;
 
+  // When the current run only carries the "all" pseudo-class (no per-class
+  // breakdown), surface that explicitly so readers know the headline numbers
+  // are aggregate, not a single class. byClass === null means still loading.
+  const aggregateOnly = byClass !== null && byClass.classes.length === 0;
+
   if (summary && !summary.available) {
     return (
       <>
@@ -667,6 +705,7 @@ export default function AiMetricsPage() {
           currentDate={comparison.current_run_date}
           previousDate={comparison.previous_run_date}
           awaiting={awaiting}
+          aggregateOnly={aggregateOnly}
         />
       ) : (
         <div style={{
@@ -710,6 +749,7 @@ export default function AiMetricsPage() {
               points={history.points}
               pointsRequired={history.points_required}
               period={period}
+              aggregateOnly={aggregateOnly}
             />
           ) : (
             <SkeletonPanel title="Metric Trend" />
