@@ -98,8 +98,9 @@ class VlmObservation:
     wrong_way: bool
     building_contact: bool
     no_plate_count: Optional[int]
-    pedestrian_struck: bool
-    child_struck: bool
+    pedestrian_struck: bool              # Q15: actual strike (count > 0)
+    pedestrian_near_miss: bool           # Q16: near-miss (count > 0)
+    child_struck: bool                   # Q17: includes struck OR near-miss (prompt merges them)
     vehicle_description: Optional[str]   # Q13 text — e.g. "Gray SUV, white pickup truck"
 
     # Derived — illegal_dumping preset (None/False for non-dumping frames)
@@ -200,11 +201,18 @@ def _parse_answers(caption: str) -> dict[int, str]:
 
 
 def _yes(text: str) -> bool:
-    """True if the answer starts with 'Yes' (case-insensitive) and is not negated."""
+    """True if the answer starts with 'Yes' (case-insensitive) and is not negated.
+
+    Negative prefixes need word boundaries so 'north', 'notable', 'nothing'
+    aren't treated as 'no'. We accept 'no'/'no '/'no.'/'no,' but not 'no'
+    followed by other letters.
+    """
     if not text:
         return False
     t = text.strip().lower()
-    if t.startswith("no") or t.startswith("not applicable") or t.startswith("none") or t.startswith("zero"):
+    if t == "no" or t.startswith(("no ", "no.", "no,")):
+        return False
+    if t.startswith(("not applicable", "none ", "none.", "none,", "zero ", "zero.", "zero,")) or t in ("none", "zero"):
         return False
     if t.startswith("yes"):
         return True
@@ -241,7 +249,9 @@ def _flag_yes(text: Optional[str], positive_re) -> bool:
         return False
     t = text.strip()
     low = t.lower()
-    if low.startswith(("not applicable", "n/a", "no", "none", "zero")):
+    if low == "no" or low.startswith(("no ", "no.", "no,")):
+        return False
+    if low.startswith(("not applicable", "n/a", "none ", "none.", "none,", "zero ", "zero.", "zero,")) or low in ("none", "zero", "n/a"):
         return False
     if low.startswith("yes"):
         return True
@@ -444,22 +454,24 @@ def _is_yes(text: Optional[str]) -> bool:
 def _clean_value(text: Optional[str]) -> Optional[str]:
     """Trim and drop placeholder responses ('none', 'not visible', ...).
 
-    Strips wrapping punctuation like '<…>' before classifying so that
-    '<none detected>' or '(none)' aren't treated as real values.
+    Strips wrapping punctuation like '<…>' or '(…)' before classifying AND
+    before returning, so '<none detected>' is rejected and a real value
+    like '<3 bags>' returns as '3 bags' (not the bracketed original).
     """
     if not text:
         return None
     t = text.strip()
     if not t:
         return None
-    bare = re.sub(r"^[<\[(\s]+|[>\])\s]+$", "", t).strip().lower()
-    if not bare:
+    stripped = re.sub(r"^[<\[(\s]+|[>\])\s]+$", "", t).strip()
+    if not stripped:
         return None
-    if bare in ("none", "no", "not visible", "not applicable", "n/a", "unknown"):
+    low = stripped.lower()
+    if low in ("none", "no", "not visible", "not applicable", "n/a", "unknown"):
         return None
-    if bare.startswith(("not visible", "not applicable", "no ", "none ", "none.", "none detected")):
+    if low.startswith(("not visible", "not applicable", "no ", "none ", "none.", "none detected")):
         return None
-    return t[:160]
+    return stripped[:160]
 
 
 def _parse_severity(text: Optional[str]) -> Optional[int]:
@@ -583,7 +595,8 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         no_plate_count = _vehicle_count(answers.get(11))
         ped_struck_count = _vehicle_count(answers.get(15)) or 0
         ped_near_miss_count = _vehicle_count(answers.get(16)) or 0
-        pedestrian_struck = ped_struck_count > 0 or ped_near_miss_count > 0
+        pedestrian_struck = ped_struck_count > 0
+        pedestrian_near_miss = ped_near_miss_count > 0
         child_struck_count = _vehicle_count(answers.get(17)) or 0
         child_struck = child_struck_count > 0
         vehicle_description = _vehicle_desc(answers.get(13))
@@ -599,6 +612,7 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         building_contact = False
         no_plate_count = None
         pedestrian_struck = False
+        pedestrian_near_miss = False
         child_struck = False
         vehicle_description = None
 
@@ -666,6 +680,7 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         building_contact=building_contact,
         no_plate_count=no_plate_count,
         pedestrian_struck=pedestrian_struck,
+        pedestrian_near_miss=pedestrian_near_miss,
         child_struck=child_struck,
         vehicle_description=vehicle_description,
         dumping_present=dumping_present,
@@ -830,7 +845,7 @@ def _compute_feeds_summary(rows: list[VlmObservation]) -> list[dict]:
             f["presets"][o.preset] = f["presets"].get(o.preset, 0) + 1
         if (
             o.has_imminent_threat or o.weapons_visible or o.fire_smoke or o.medical_emergency
-            or o.collision or o.pedestrian_struck or o.child_struck
+            or o.collision or o.pedestrian_struck or o.pedestrian_near_miss or o.child_struck
             or o.dumping_present
         ):
             f["threats"] += 1
@@ -916,7 +931,7 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
             if o.fire_lane_violation: vf["fire_lane"] += 1; had_issue = True
             if not had_issue and (
                 o.erratic_maneuver or o.wrong_way or o.vehicle_tamper
-                or o.building_contact or o.pedestrian_struck or o.child_struck
+                or o.building_contact or o.pedestrian_struck or o.pedestrian_near_miss or o.child_struck
             ):
                 vf["other"] += 1
 
@@ -1006,7 +1021,7 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
     # Vehicle counters — distinct from crowd to keep the wire schema flat.
     veh_total = veh_collisions = veh_speeding = veh_fire_lane = 0
     veh_erratic = veh_wrong_way = veh_tamper = veh_building = 0
-    veh_near_person = veh_struck = veh_child = 0
+    veh_near_person = veh_struck = veh_near_miss = veh_child = 0
     veh_no_plate_frames = veh_with_desc = 0
     # Illegal-dumping counters.
     dmp_total = dmp_present = dmp_ord_violation = dmp_chronic = 0
@@ -1045,6 +1060,7 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
             if o.building_contact: veh_building += 1
             if o.person_near_vehicle: veh_near_person += 1
             if o.pedestrian_struck: veh_struck += 1
+            if o.pedestrian_near_miss: veh_near_miss += 1
             if o.child_struck: veh_child += 1
             if (o.no_plate_count or 0) > 0: veh_no_plate_frames += 1
             if o.vehicle_description: veh_with_desc += 1
@@ -1083,6 +1099,7 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
             "building_contact": veh_building,
             "person_near_vehicle": veh_near_person,
             "pedestrian_struck": veh_struck,
+            "pedestrian_near_miss": veh_near_miss,
             "child_struck": veh_child,
             "no_plate_frames": veh_no_plate_frames,
         },
@@ -1107,7 +1124,8 @@ def _empty_vehicle_stats() -> dict:
         "total": 0, "with_vehicle_desc": 0, "collisions": 0, "speeding": 0,
         "fire_lane": 0, "erratic": 0, "wrong_way": 0, "tamper": 0,
         "building_contact": 0, "person_near_vehicle": 0,
-        "pedestrian_struck": 0, "child_struck": 0, "no_plate_frames": 0,
+        "pedestrian_struck": 0, "pedestrian_near_miss": 0, "child_struck": 0,
+        "no_plate_frames": 0,
     }
 
 

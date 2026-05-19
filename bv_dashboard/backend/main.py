@@ -780,7 +780,7 @@ def vlm_list(
             o for o in items
             if o.collision or o.speeding or o.fire_lane_violation or o.erratic_maneuver
                or o.wrong_way or o.vehicle_tamper or o.building_contact
-               or o.pedestrian_struck or o.child_struck
+               or o.pedestrian_struck or o.pedestrian_near_miss or o.child_struck
         ]
     if collision:
         items = [o for o in items if o.collision]

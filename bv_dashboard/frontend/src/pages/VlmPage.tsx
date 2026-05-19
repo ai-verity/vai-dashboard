@@ -16,25 +16,28 @@ const PAGE_SIZE = 50;
 // Wire preset values; the empty string sentinel = "all presets".
 type PresetFilter = '' | 'crowd_behavior' | 'vehicle_prompts' | 'illegal_dumping';
 
-const PRESET_LABEL: Record<string, string> = {
+// Partial<Record<...>> instead of Record so a lookup with an unknown key
+// is typed `string | undefined` — forces callers to deal with the miss
+// (every call site uses `?? fallback`).
+const PRESET_LABEL: Partial<Record<string, string>> = {
   crowd_behavior: 'CROWD',
   vehicle_prompts: 'VEHICLE',
   illegal_dumping: 'DUMPING',
 };
 
 // Priority tier colors — shared by KPI, chips, and badges.
-const PRIORITY_COLOR: Record<string, string> = {
+const PRIORITY_COLOR: Partial<Record<string, string>> = {
   LOW:    '#2DC9A8',
   MEDIUM: '#F5B731',
   HIGH:   '#EF4444',
 };
 
-const DENSITY_COLOR: Record<string, string> = {
+const DENSITY_COLOR: Partial<Record<string, string>> = {
   SPARSE: '#2DC9A8',
   MODERATE: '#F5B731',
   DENSE: '#EF4444',
 };
-const RISK_COLOR: Record<string, string> = {
+const RISK_COLOR: Partial<Record<string, string>> = {
   LOW: '#2DC9A8',
   MODERATE: '#F5B731',
   HIGH: '#EF4444',
@@ -166,9 +169,14 @@ function summarizeDumpingAnswers(answers: Record<string, string> | undefined): R
   const chronic = isYes(get(10));
   const vehicles = get(11);
   const idents = get(12);
-  const severity = (get(13) ?? '').trim();
+  const severityRaw = (get(13) ?? '').trim();
   const priority = (get(15) ?? '').trim();
   const ordinance = (get(14) ?? '').trim();
+
+  // Match a 1–5 digit anywhere in the SEVERITY answer so values like
+  // "Severity 5", "5/5", or just "3" all yield the same canonical int.
+  const sevMatch = severityRaw.match(/[1-5]/);
+  const sevLabel = sevMatch ? `sev ${sevMatch[0]}` : '';
 
   const idHas = (s: string | undefined) => !!s && !/^(none|not visible|no\b|unknown)/i.test(s);
 
@@ -178,7 +186,7 @@ function summarizeDumpingAnswers(answers: Record<string, string> | undefined): R
     LOCATION:            { value: propType ? `${propType.slice(0, 28)}${gutter ? ' · gutter' : ''}` : (gutter ? 'gutter/alley' : '—'), flagCount: gutter ? 1 : 0, questionCount: 3, highlight: gutter ? DMP_GUTTER : undefined },
     'CHRONIC / HAZARD':  { value: chronic && water ? 'CHRONIC · WATER' : chronic ? 'CHRONIC' : water ? 'WATER PROX.' : 'clear', flagCount: (chronic ? 1 : 0) + (water ? 1 : 0), questionCount: 2, highlight: water ? DMP_WATER : chronic ? DMP_CHRONIC : undefined },
     IDENTIFIERS:         { value: [idHas(vehicles) ? 'vehicles' : null, idHas(idents) ? 'identifiers' : null].filter(Boolean).join(' · ') || 'none', flagCount: (idHas(vehicles) ? 1 : 0) + (idHas(idents) ? 1 : 0), questionCount: 2 },
-    ENFORCEMENT:         { value: [severity && `sev ${severity.slice(0, 1)}`, priority, ordinance].filter(Boolean).join(' · ') || '—', flagCount: /high/i.test(priority) ? 1 : 0, questionCount: 4, highlight: PRIORITY_COLOR[priority.toUpperCase()] },
+    ENFORCEMENT:         { value: [sevLabel, priority, ordinance].filter(Boolean).join(' · ') || '—', flagCount: /high/i.test(priority) ? 1 : 0, questionCount: 4, highlight: PRIORITY_COLOR[priority.toUpperCase()] },
   };
 }
 
@@ -393,7 +401,7 @@ function DailyDenseChart({ data }: { data: VlmAggregates['daily_dense'] }) {
 
 // ─── Vehicle-preset charts ─────────────────────────────────────────────────
 const VEH_ISSUE_KEYS = ['collisions', 'speeding', 'fire_lane'] as const;
-const VEH_ISSUE_COLOR: Record<string, string> = {
+const VEH_ISSUE_COLOR: Partial<Record<string, string>> = {
   collisions: VEH_COLLISION,
   speeding:   VEH_SPEEDING,
   fire_lane:  VEH_FIRE_LANE,
@@ -427,7 +435,7 @@ function VehicleHourChart({ data }: { data: VlmAggregates['vehicle_hour_issue'] 
         const n = (row[k] as number) || 0;
         if (!n) return;
         const hh = Math.max(1, (n / mx) * (H - p.t - p.b));
-        ctx.fillStyle = VEH_ISSUE_COLOR[k];
+        ctx.fillStyle = VEH_ISSUE_COLOR[k] ?? '#888';
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, yBase - hh, bW - 2, hh);
         ctx.globalAlpha = 1;
@@ -442,7 +450,7 @@ function VehicleHourChart({ data }: { data: VlmAggregates['vehicle_hour_issue'] 
     });
     VEH_ISSUE_KEYS.forEach((k, i) => {
       const x = p.l + i * 78;
-      ctx.fillStyle = VEH_ISSUE_COLOR[k];
+      ctx.fillStyle = VEH_ISSUE_COLOR[k] ?? '#888';
       ctx.fillRect(x, H - 8, 8, 6);
       ctx.fillStyle = MUTED;
       ctx.font = '8px DM Mono, monospace';
@@ -475,7 +483,7 @@ function VehicleFeedChart({ data }: { data: VlmAggregates['vehicle_feed_issue'] 
         const n = (f[k] as number) || 0;
         if (!n || !issueTotal) return;
         const bw = Math.round((n / issueTotal) * fullBw);
-        ctx.fillStyle = VEH_ISSUE_COLOR[k];
+        ctx.fillStyle = VEH_ISSUE_COLOR[k] ?? '#888';
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, y + 2, bw, rowH - 4);
         ctx.globalAlpha = 1;
@@ -722,6 +730,39 @@ export default function VlmPage() {
   const isDumpingView = preset === 'illegal_dumping';
   const isAllView = preset === '';
 
+  // Switching presets clears filters whose chips ARE NOT visible in the
+  // destination view. The filter chip row shows: crowd chips in CROWD or
+  // ALL view, vehicle chips only in VEHICLE view, dumping chips only in
+  // DUMPING view. Clearing on entry means a filter the user enabled can
+  // never silently re-apply when they return to a view where the chip is
+  // hidden. Page resets for the same "fresh slate" reason.
+  function switchPreset(target: PresetFilter) {
+    const crowdChipsShown   = target === 'crowd_behavior' || target === '';
+    const vehicleChipsShown = target === 'vehicle_prompts';
+    const dumpingChipsShown = target === 'illegal_dumping';
+    if (!crowdChipsShown) {
+      setDensity(undefined);
+      setRisk(undefined);
+      setElevatedRisk(false);
+      setOnlyThreats(false);
+      setHasPeds(false);
+    }
+    if (!vehicleChipsShown) {
+      setCollisionOnly(false);
+      setSpeedingOnly(false);
+      setFireLaneOnly(false);
+      setOnlyVehicleIssues(false);
+    }
+    if (!dumpingChipsShown) {
+      setOnlyDumping(false);
+      setChronicOnly(false);
+      setWaterOnly(false);
+      setPriorityFilter(undefined);
+    }
+    setPreset(target);
+    setPage(0);
+  }
+
   const params: VlmListParams = useMemo(() => ({
     feed_id: feedId, run_id: runId,
     preset: preset || undefined,
@@ -819,16 +860,16 @@ export default function VlmPage() {
           which lens drives the strip / charts / filters below. */}
       <div style={{ padding: '8px 24px', borderBottom: '1px solid var(--border)', background: 'var(--s1)', display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Preset</span>
-        <Chip active={isAllView} onClick={() => { setPreset(''); resetPage(); }}>
+        <Chip active={isAllView} onClick={() => switchPreset('')}>
           ALL · {stats?.total ?? '—'}
         </Chip>
-        <Chip active={isCrowdView} color="#2DC9A8" onClick={() => { setPreset(isCrowdView ? '' : 'crowd_behavior'); resetPage(); }}>
+        <Chip active={isCrowdView} color="#2DC9A8" onClick={() => switchPreset(isCrowdView ? '' : 'crowd_behavior')}>
           CROWD BEHAVIOR · {stats?.presets?.crowd_behavior ?? 0}
         </Chip>
-        <Chip active={isVehicleView} color="#4A9EF5" onClick={() => { setPreset(isVehicleView ? '' : 'vehicle_prompts'); resetPage(); }}>
+        <Chip active={isVehicleView} color="#4A9EF5" onClick={() => switchPreset(isVehicleView ? '' : 'vehicle_prompts')}>
           VEHICLE PROMPTS · {stats?.presets?.vehicle_prompts ?? 0}
         </Chip>
-        <Chip active={isDumpingView} color="#F97316" onClick={() => { setPreset(isDumpingView ? '' : 'illegal_dumping'); resetPage(); }}>
+        <Chip active={isDumpingView} color="#F97316" onClick={() => switchPreset(isDumpingView ? '' : 'illegal_dumping')}>
           ILLEGAL DUMPING · {stats?.presets?.illegal_dumping ?? 0}
         </Chip>
       </div>
@@ -975,7 +1016,11 @@ export default function VlmPage() {
               <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Batch</span>
               <Chip active={!runId} onClick={() => { setRunId(undefined); resetPage(); }}>ALL · {runs.reduce((s, r) => s + r.count, 0)}</Chip>
               {runs.map(r => {
-                const ts = r.run_started_at ? r.run_started_at.replace('T', ' ').slice(0, 16) + ' UTC' : r.run_id;
+                const ts = r.run_started_at
+                  ? r.run_started_at.replace('T', ' ').slice(0, 16) + ' UTC'
+                  : r.run_id && /^\d{8}T\d{6}Z$/.test(r.run_id)
+                    ? `${r.run_id.slice(0,4)}-${r.run_id.slice(4,6)}-${r.run_id.slice(6,8)} ${r.run_id.slice(9,11)}:${r.run_id.slice(11,13)} UTC`
+                    : r.run_id;
                 return (
                   <Chip key={r.run_id} active={runId === r.run_id} onClick={() => { setRunId(r.run_id === runId ? undefined : r.run_id); resetPage(); }}>
                     {ts} · {r.count}
@@ -1024,8 +1069,8 @@ export default function VlmPage() {
               const isSel = selectedId === o.id;
               const rowIsVehicle = o.preset === 'vehicle_prompts';
               const rowIsDumping = o.preset === 'illegal_dumping';
-              const dCol = o.density_zone ? DENSITY_COLOR[o.density_zone] : 'var(--border)';
-              const rCol = o.risk_level ? RISK_COLOR[o.risk_level] : 'var(--border)';
+              const dCol = (o.density_zone && DENSITY_COLOR[o.density_zone]) || 'var(--border)';
+              const rCol = (o.risk_level && RISK_COLOR[o.risk_level]) || 'var(--border)';
               const crowdThreat = o.has_imminent_threat || o.weapons_visible || o.medical_emergency || o.fire_smoke || o.fallen_person || o.physical_altercation || o.unsupervised_children;
               const vehSubtitle = o.vehicle_description
                 ? `🚗 ${o.vehicle_description.slice(0, 48)}${o.vehicle_description.length > 48 ? '…' : ''}`
@@ -1091,6 +1136,7 @@ export default function VlmPage() {
                         {o.vehicle_tamper && <Badge color={VEH_COLLISION}>TAMPER</Badge>}
                         {o.building_contact && <Badge color={VEH_COLLISION}>BUILDING-HIT</Badge>}
                         {o.pedestrian_struck && <Badge color={VEH_COLLISION}>PED-STRUCK</Badge>}
+                        {o.pedestrian_near_miss && <Badge color={VEH_SPEEDING}>PED-NEAR-MISS</Badge>}
                         {o.child_struck && <Badge color={VEH_COLLISION}>CHILD-STRUCK</Badge>}
                         {(o.no_plate_count ?? 0) > 0 && <Badge color="#F5B731">NO-PLATE×{o.no_plate_count}</Badge>}
                       </>
@@ -1102,7 +1148,7 @@ export default function VlmPage() {
                         {o.water_proximity && <Badge color={DMP_WATER}>WATER PROX</Badge>}
                         {o.gutter_alley && <Badge color={DMP_GUTTER}>GUTTER</Badge>}
                         {o.priority && <Badge color={PRIORITY_COLOR[o.priority] ?? 'var(--muted)'}>{o.priority}</Badge>}
-                        {o.severity !== null && o.severity !== undefined && <Badge color={PRIORITY_COLOR.HIGH}>SEV {o.severity}</Badge>}
+                        {o.severity !== null && o.severity !== undefined && <Badge color={PRIORITY_COLOR.HIGH ?? '#EF4444'}>SEV {o.severity}</Badge>}
                       </>
                     ) : (
                       <>
@@ -1161,7 +1207,14 @@ export default function VlmPage() {
                 {[
                   ['Captured', detail.captured_at?.replace('T', ' ') ?? '—'],
                   ['Processed', detail.processed_at?.slice(0, 19).replace('T', ' ') ?? '—'],
-                  ['Batch', detail.run_started_at ? `${detail.run_started_at.replace('T', ' ').slice(0, 16)} UTC` : detail.run_id],
+                  // Prefer parsed ISO timestamp; fall back to a humanized
+                  // version of the run_id (YYYYMMDDTHHMMSSZ → YYYY-MM-DD HH:MM UTC)
+                  // so we never display the raw compact code.
+                  ['Batch', detail.run_started_at
+                    ? `${detail.run_started_at.replace('T', ' ').slice(0, 16)} UTC`
+                    : detail.run_id && /^\d{8}T\d{6}Z$/.test(detail.run_id)
+                      ? `${detail.run_id.slice(0,4)}-${detail.run_id.slice(4,6)}-${detail.run_id.slice(6,8)} ${detail.run_id.slice(9,11)}:${detail.run_id.slice(11,13)} UTC`
+                      : detail.run_id || '—'],
                   ['Image', detail.image_name],
                   ['Model', detail.model],
                   ['Latency', detail.total_seconds ? `${detail.total_seconds.toFixed(2)}s` : '—'],
@@ -1187,6 +1240,7 @@ export default function VlmPage() {
                       {detail.vehicle_tamper && <Badge color={VEH_COLLISION}>TAMPER</Badge>}
                       {detail.building_contact && <Badge color={VEH_COLLISION}>BUILDING-HIT</Badge>}
                       {detail.pedestrian_struck && <Badge color={VEH_COLLISION}>PED-STRUCK</Badge>}
+                      {detail.pedestrian_near_miss && <Badge color={VEH_SPEEDING}>PED-NEAR-MISS</Badge>}
                       {detail.child_struck && <Badge color={VEH_COLLISION}>CHILD-STRUCK</Badge>}
                       {(detail.no_plate_count ?? 0) > 0 && <Badge color="#F5B731">NO-PLATE×{detail.no_plate_count}</Badge>}
                       {(detail.near_miss_count ?? 0) > 0 && <Badge color="#F97316">NEAR-MISS×{detail.near_miss_count}</Badge>}
@@ -1199,14 +1253,14 @@ export default function VlmPage() {
                       {detail.water_proximity && <Badge color={DMP_WATER}>WATER PROX</Badge>}
                       {detail.gutter_alley && <Badge color={DMP_GUTTER}>GUTTER</Badge>}
                       {detail.priority && <Badge color={PRIORITY_COLOR[detail.priority] ?? 'var(--muted)'}>{detail.priority}</Badge>}
-                      {detail.severity !== null && detail.severity !== undefined && <Badge color={PRIORITY_COLOR.HIGH}>SEV {detail.severity}</Badge>}
+                      {detail.severity !== null && detail.severity !== undefined && <Badge color={PRIORITY_COLOR.HIGH ?? '#EF4444'}>SEV {detail.severity}</Badge>}
                       {detail.ordinance && <Badge color="#4A9EF5">{detail.ordinance}</Badge>}
                       {detail.waste_type && <Badge color="#A78BFA">{detail.waste_type.slice(0, 16)}</Badge>}
                     </>
                   ) : (
                     <>
-                      {detail.density_zone && <Badge color={DENSITY_COLOR[detail.density_zone]}>{detail.density_zone}</Badge>}
-                      {detail.risk_level && <Badge color={RISK_COLOR[detail.risk_level]}>RISK {detail.risk_level}</Badge>}
+                      {detail.density_zone && <Badge color={DENSITY_COLOR[detail.density_zone] ?? 'var(--border)'}>{detail.density_zone}</Badge>}
+                      {detail.risk_level && <Badge color={RISK_COLOR[detail.risk_level] ?? 'var(--border)'}>RISK {detail.risk_level}</Badge>}
                       {detail.pedestrian_count !== null && <Badge color="#2DC9A8">👣 {detail.pedestrian_count}</Badge>}
                       {detail.weapons_visible && <Badge color="#EF4444">WEAPON</Badge>}
                       {detail.medical_emergency && <Badge color="#A78BFA">MEDICAL</Badge>}

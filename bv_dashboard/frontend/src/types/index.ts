@@ -175,8 +175,9 @@ export interface VlmObservation {
   wrong_way: boolean;
   building_contact: boolean;
   no_plate_count: number | null;
-  pedestrian_struck: boolean;
-  child_struck: boolean;
+  pedestrian_struck: boolean;            // Q15 — actual strike
+  pedestrian_near_miss: boolean;         // Q16 — near miss only
+  child_struck: boolean;                 // Q17 — prompt merges struck + near-miss
   vehicle_description: string | null;
   // illegal_dumping fields (null/false for non-dumping frames)
   dumping_present: boolean;
@@ -220,6 +221,7 @@ export interface VlmVehicleStats {
   building_contact: number;
   person_near_vehicle: number;
   pedestrian_struck: number;
+  pedestrian_near_miss: number;
   child_struck: number;
   no_plate_frames: number;
 }
