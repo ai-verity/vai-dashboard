@@ -852,6 +852,50 @@ def _compute_feeds_summary(rows: list[VlmObservation]) -> list[dict]:
     return sorted(by_feed.values(), key=lambda f: -f["count"])
 
 
+# Group threat/event flags into a small set of "incident types" suitable
+# for a stacked-by-month chart. Each predicate returns True when the
+# observation flags at least one signal in that group. A single
+# observation can match multiple groups — that's intentional, since a
+# fire + collision frame should appear in both buckets.
+_INCIDENT_TYPE_GROUPS: list[tuple[str, str]] = [
+    ("Threat/Weapon",     "threat_weapon"),
+    ("Medical",           "medical"),
+    ("Fire/Smoke",        "fire_smoke"),
+    ("Crowd Safety",      "crowd_safety"),
+    ("Collision",         "collision"),
+    ("Traffic Violation", "traffic_violation"),
+    ("Property Damage",   "property_damage"),
+    ("Illegal Dumping",   "illegal_dumping"),
+]
+
+
+def _matches_type(obs: VlmObservation, key: str) -> bool:
+    if key == "threat_weapon":
+        return obs.has_imminent_threat or obs.weapons_visible
+    if key == "medical":
+        return obs.medical_emergency
+    if key == "fire_smoke":
+        return obs.fire_smoke
+    if key == "crowd_safety":
+        return obs.fallen_person or obs.unsupervised_children or obs.physical_altercation
+    if key == "collision":
+        return obs.collision or obs.pedestrian_struck or obs.child_struck
+    if key == "traffic_violation":
+        return obs.speeding or obs.fire_lane_violation or obs.wrong_way or obs.erratic_maneuver
+    if key == "property_damage":
+        return obs.vehicle_tamper or obs.building_contact
+    if key == "illegal_dumping":
+        return obs.dumping_present
+    return False
+
+
+def _is_actionable(obs: VlmObservation) -> bool:
+    """True when the observation flagged at least one actionable event.
+    Used by the location/period aggregator to filter "incidents" out of
+    the broader observation stream."""
+    return any(_matches_type(obs, key) for _, key in _INCIDENT_TYPE_GROUPS)
+
+
 def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     """Pre-computed aggregates for VLM charts.
 
@@ -868,6 +912,10 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
       vehicle_feed_issue:      [{feed_id, feed_label, collisions, speeding, fire_lane,
                                  other, total}]
       vehicle_daily_collision: [{date, collisions, total, share}]
+      monthly_by_type:         [{month, <type1>, <type2>, …}] — counts per
+                                "incident type" per calendar month
+      weekly_by_location:      {buckets, locations, data}
+      monthly_by_location:     {buckets, locations, data}
     """
     hour_risk = [{"hour": h, "LOW": 0, "MODERATE": 0, "HIGH": 0} for h in range(24)]
     veh_hour = [{"hour": h, "collisions": 0, "speeding": 0, "fire_lane": 0} for h in range(24)]
@@ -987,6 +1035,10 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     for d in dmp_daily_list:
         d["share"] = round(d["dumping"] / d["total"], 4) if d["total"] else 0.0
 
+    monthly_by_type = _aggregate_monthly_by_type(rows)
+    weekly_by_location = _aggregate_by_period_location(rows, "week")
+    monthly_by_location = _aggregate_by_period_location(rows, "month")
+
     return {
         "hour_risk": hour_risk,
         "feed_density": feeds_top,
@@ -998,6 +1050,79 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
         "dumping_waste_type": dmp_waste_top,
         "dumping_feed": dmp_feeds_top,
         "dumping_daily": dmp_daily_list,
+        "monthly_by_type": monthly_by_type,
+        "weekly_by_location": weekly_by_location,
+        "monthly_by_location": monthly_by_location,
+    }
+
+
+def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
+    """Stacked-by-incident-type counts per calendar month (YYYY-MM)."""
+    by_month: dict[str, dict[str, int]] = {}
+    for o in rows:
+        if not o.captured_at:
+            continue
+        try:
+            month = datetime.fromisoformat(o.captured_at).strftime("%Y-%m")
+        except ValueError:
+            continue
+        slot = by_month.setdefault(month, {key: 0 for _, key in _INCIDENT_TYPE_GROUPS})
+        for _, key in _INCIDENT_TYPE_GROUPS:
+            if _matches_type(o, key):
+                slot[key] += 1
+    out: list[dict] = []
+    for month in sorted(by_month.keys()):
+        row = {"month": month}
+        row.update(by_month[month])
+        out.append(row)
+    return out
+
+
+def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> dict:
+    """Incident counts per (time-bucket, location). period ∈ {"week","month"}.
+    Limits to the top 10 locations by total to keep the chart legible."""
+    bucket_keys: list[str] = []
+    bucket_set: set[str] = set()
+    loc_label: dict[str, str] = {}
+    counts: dict[tuple[str, str], int] = {}
+    for o in rows:
+        if not _is_actionable(o):
+            continue
+        if not o.captured_at:
+            continue
+        try:
+            dt = datetime.fromisoformat(o.captured_at)
+        except ValueError:
+            continue
+        if period == "week":
+            iso_year, iso_week, _ = dt.isocalendar()
+            bucket = f"{iso_year}-W{iso_week:02d}"
+        else:
+            bucket = dt.strftime("%Y-%m")
+        if bucket not in bucket_set:
+            bucket_set.add(bucket)
+            bucket_keys.append(bucket)
+        # Prefer the canonical location_id when available so a feed that
+        # was relabelled doesn't fragment the location row.
+        loc_id = o.location_id or o.feed_id
+        loc_label[loc_id] = o.feed_label or loc_id
+        counts[(bucket, loc_id)] = counts.get((bucket, loc_id), 0) + 1
+
+    bucket_keys.sort()
+    loc_totals: dict[str, int] = {}
+    for (_, loc_id), n in counts.items():
+        loc_totals[loc_id] = loc_totals.get(loc_id, 0) + n
+    top_locs = sorted(loc_totals.keys(), key=lambda l: -loc_totals[l])[:10]
+    locations = [{"location_id": l, "label": loc_label[l], "total": loc_totals[l]} for l in top_locs]
+    data = [
+        {"bucket": b, "location_id": l, "count": counts.get((b, l), 0)}
+        for b in bucket_keys for l in top_locs
+    ]
+    return {
+        "period": period,
+        "buckets": bucket_keys,
+        "locations": locations,
+        "data": data,
     }
 
 

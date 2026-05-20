@@ -1,11 +1,12 @@
 // pages/ChartsPage.tsx
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
-  useMonthly, useByCategory, useByLocation,
+  useMonthly, useByCategory,
   useSeverityDist, useHeatmap, useTypeRanking,
 } from '../hooks/useApi';
-import { CAT_META, sevColor } from '../types';
-import type { Category, MonthlyData, LocationData, SeverityTier, HeatmapCell, TypeRankingItem, CategoryData } from '../types';
+import { useIncidentsContext } from '../hooks/IncidentsProvider';
+import { CAT_META, sevColor, sevLabel } from '../types';
+import type { Category, MonthlyData, SeverityTier, HeatmapCell, TypeRankingItem, CategoryData, Incident } from '../types';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
 import { useTheme } from '../hooks/useTheme';
 
@@ -252,47 +253,317 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
   );
 }
 
-// ─── 4. Top Locations (horizontal bars) ──────────────────────────
-function TopLocations({ data }: { data: LocationData[] }) {
-  const top8 = data.slice(0, 8);
+// ─── 4. Hotspot Locations — stacked by category ──────────────────
+//
+// Replaces the old "total incidents per location" bar chart with a
+// stacked horizontal bar showing the category mix at each hotspot.
+// Reads the live incidents list from the IncidentsProvider context so
+// the breakdown stays in sync with filters elsewhere.
+
+type LocBreakdownRow = {
+  id: string;
+  name: string;
+  cats: Record<Category, number>;
+  total: number;
+};
+
+function useLocationBreakdown(): LocBreakdownRow[] {
+  const { incidents } = useIncidentsContext();
+  return useMemo(() => {
+    const map = new Map<string, LocBreakdownRow>();
+    for (const inc of incidents) {
+      let row = map.get(inc.location_id);
+      if (!row) {
+        row = {
+          id: inc.location_id,
+          name: inc.location_name,
+          cats: { VIOLENT: 0, HEALTH: 0, ENVIRON: 0, ORDER: 0, SECURITY: 0 },
+          total: 0,
+        };
+        map.set(inc.location_id, row);
+      }
+      row.cats[inc.cat] += 1;
+      row.total += 1;
+    }
+    return Array.from(map.values())
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 8);
+  }, [incidents]);
+}
+
+function HotspotBreakdown({
+  selectedLocation, onSelect,
+}: {
+  selectedLocation: string | null;
+  onSelect: (locationId: string | null) => void;
+}) {
+  const rows = useLocationBreakdown();
   const { tick } = useTheme();
+  // Hit boxes per row — refilled on every redraw, consulted by onClick.
+  const hitsRef = useRef<Array<{ id: string; x0: number; x1: number; y0: number; y1: number }>>([]);
+
   const ref = useCanvas(cv => {
-    const g = setupCanvas(cv, 195);
+    const g = setupCanvas(cv, 215);
     if (!g) return;
     const { ctx, W, H } = g;
-    const { TEXT } = chartColors();
-    const mx = top8[0]?.count ?? 1;
-    const p: Padding = { l: 112, r: 12, t: 12, b: 12 };
-    const rowH = (H - p.t - p.b) / Math.max(top8.length, 1);
-    top8.forEach((loc, i) => {
-      const col = sevColor(loc.avg_sev);
+    const { TEXT, MUTED } = chartColors();
+    const mx = rows[0]?.total ?? 1;
+    const p: Padding = { l: 134, r: 50, t: 14, b: 12 };
+    const rowH = (H - p.t - p.b) / Math.max(rows.length, 1);
+
+    hitsRef.current = [];
+
+    rows.forEach((row, i) => {
       const y = p.t + i * rowH;
-      const bw = Math.round((loc.count / mx) * (W - p.l - p.r));
-      ctx.fillStyle = col + '20';
-      ctx.fillRect(p.l, y + 2, W - p.l - p.r, rowH - 4);
-      ctx.fillStyle = col + '88';
-      ctx.fillRect(p.l, y + 2, bw, rowH - 4);
-      ctx.fillStyle = TEXT;
-      ctx.font = '9px Barlow, sans-serif';
+      const fullW = Math.round((row.total / mx) * (W - p.l - p.r));
+      const isSel = selectedLocation === row.id;
+
+      // Selection highlight — soft accent wash on the full row.
+      if (isSel) {
+        ctx.fillStyle = 'rgba(232,93,47,0.10)';
+        ctx.fillRect(0, y, W, rowH);
+      }
+
+      // Stack each category as a contiguous segment inside the bar.
+      let xCursor = p.l;
+      CATS.forEach((cat, ci) => {
+        const n = row.cats[cat];
+        if (!n) return;
+        const segW = Math.round((n / row.total) * fullW);
+        ctx.fillStyle = COLORS[ci];
+        ctx.globalAlpha = 0.85;
+        ctx.fillRect(xCursor, y + 3, segW, rowH - 6);
+        ctx.globalAlpha = 1;
+        xCursor += segW;
+      });
+
+      // Faint outline so even short bars are findable.
+      ctx.strokeStyle = isSel ? ACCENT : 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(p.l + 0.5, y + 3.5, fullW, rowH - 6);
+
+      // Location label on the left.
+      ctx.fillStyle = isSel ? ACCENT : TEXT;
+      ctx.font = isSel ? 'bold 10px Barlow, sans-serif' : '10px Barlow, sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText(loc.location_name.substring(0, 18), p.l - 3, y + rowH / 2 + 3);
-      ctx.fillStyle = col;
-      ctx.font = 'bold 9px DM Mono, monospace';
+      ctx.fillText(row.name.substring(0, 22), p.l - 6, y + rowH / 2 + 3);
+
+      // Total on the right.
+      ctx.fillStyle = isSel ? ACCENT : MUTED;
+      ctx.font = 'bold 10px DM Mono, monospace';
       ctx.textAlign = 'left';
-      ctx.fillText(String(loc.count), p.l + bw + 3, y + rowH / 2 + 3);
+      ctx.fillText(String(row.total), p.l + fullW + 5, y + rowH / 2 + 3);
+
+      hitsRef.current.push({
+        id: row.id,
+        x0: 0, x1: W,
+        y0: y, y1: y + rowH,
+      });
     });
-  }, [data, tick]);
+  }, [rows, tick, selectedLocation]);
+
+  function onClick(e: React.MouseEvent<HTMLCanvasElement>) {
+    const cv = e.currentTarget;
+    const rect = cv.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const hit = hitsRef.current.find(h => x >= h.x0 && x <= h.x1 && y >= h.y0 && y <= h.y1);
+    if (!hit) return;
+    onSelect(hit.id === selectedLocation ? null : hit.id);
+  }
 
   return (
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
-          <div style={S.title}>Top 8 Hotspot Locations</div>
-          <div style={S.sub}>Total incidents · color = avg severity</div>
+          <div style={S.title}>Top 8 Hotspot Locations — Type Mix</div>
+          <div style={S.sub}>Stacked by category · click a row to filter the list below</div>
         </div>
+        {selectedLocation && (
+          <button
+            onClick={() => onSelect(null)}
+            style={{
+              fontFamily: 'var(--mono)', fontSize: 9,
+              padding: '3px 9px', borderRadius: 3, cursor: 'pointer',
+              background: 'rgba(232,93,47,0.10)',
+              border: '1px solid var(--accent)',
+              color: 'var(--accent)',
+            }}
+          >
+            Clear filter
+          </button>
+        )}
       </div>
       <div style={S.body}>
-        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 195 }} />
+        <canvas
+          ref={ref}
+          onClick={onClick}
+          style={{ display: 'block', width: '100%', height: 215, cursor: 'pointer' }}
+        />
+        {/* HTML legend below — keeps the canvas free of overlapping labels */}
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: '4px 14px',
+          marginTop: 8,
+        }}>
+          {CATS.map((c, ci) => (
+            <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9 }}>
+              <span style={{ width: 9, height: 9, background: COLORS[ci], borderRadius: 1 }} />
+              <span style={{ fontFamily: 'var(--mono)', color: 'var(--dim)' }}>{CAT_META[c].label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Searchable / filterable incident list ────────────────────────
+//
+// Sits below the chart grid. Filters live on the same incident dataset
+// the chart reads. Plain HTML — no canvas, so it's accessible and
+// theme-aware for free.
+
+function IncidentSearchList({
+  selectedLocation, onLocationClear,
+}: {
+  selectedLocation: string | null;
+  onLocationClear: () => void;
+}) {
+  const { incidents } = useIncidentsContext();
+  const [query, setQuery] = useState('');
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return incidents.filter(inc => {
+      if (selectedLocation && inc.location_id !== selectedLocation) return false;
+      if (!q) return true;
+      return (
+        inc.type.toLowerCase().includes(q) ||
+        inc.location_name.toLowerCase().includes(q) ||
+        inc.desc.toLowerCase().includes(q) ||
+        inc.cat.toLowerCase().includes(q) ||
+        inc.date.includes(q)
+      );
+    });
+  }, [incidents, query, selectedLocation]);
+
+  // Resolve the selected-location label from the first matching incident.
+  const selectedName = useMemo(() => {
+    if (!selectedLocation) return null;
+    return incidents.find(i => i.location_id === selectedLocation)?.location_name ?? selectedLocation;
+  }, [incidents, selectedLocation]);
+
+  return (
+    <div style={S.panel}>
+      <div style={S.hdr}>
+        <div>
+          <div style={S.title}>Incidents at Selected Location</div>
+          <div style={S.sub}>
+            {selectedLocation
+              ? <>Filtered to <b>{selectedName}</b> · {filtered.length} of {incidents.length} incidents</>
+              : <>All incidents · {filtered.length} match {query ? `“${query}”` : 'current filter'}</>
+            }
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {selectedLocation && (
+            <button
+              onClick={onLocationClear}
+              style={{
+                fontFamily: 'var(--mono)', fontSize: 9,
+                padding: '3px 9px', borderRadius: 3, cursor: 'pointer',
+                background: 'rgba(232,93,47,0.10)',
+                border: '1px solid var(--accent)',
+                color: 'var(--accent)',
+              }}
+            >
+              Clear location filter
+            </button>
+          )}
+          <input
+            value={query}
+            onChange={e => setQuery(e.target.value)}
+            placeholder="search type, location, date, description…"
+            aria-label="Search incidents"
+            style={{
+              fontFamily: 'var(--mono)', fontSize: 10,
+              padding: '4px 10px', borderRadius: 3,
+              border: '1px solid var(--border)',
+              background: 'var(--s0)', color: 'var(--text)',
+              minWidth: 280,
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Scrollable list */}
+      <div style={{
+        maxHeight: 360,
+        overflowY: 'auto',
+        background: 'var(--s0)',
+      }}>
+        {filtered.length === 0 ? (
+          <div style={{
+            padding: '24px 16px',
+            textAlign: 'center',
+            fontFamily: 'var(--mono)', fontSize: 10,
+            color: 'var(--muted)',
+          }}>
+            No incidents match the current filter{query ? ` and search “${query}”` : ''}.
+          </div>
+        ) : filtered.map((inc: Incident) => {
+          const col = sevColor(inc.sev);
+          return (
+            <div
+              key={inc.id}
+              className="row-hover-faint"
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'auto 1fr auto auto',
+                gap: 10,
+                alignItems: 'center',
+                padding: '8px 16px',
+                borderBottom: '1px solid var(--b2)',
+                fontSize: 11,
+                borderLeft: `2px solid ${col}`,
+              }}
+            >
+              <span style={{ fontSize: 14 }}>{inc.icon}</span>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ display: 'flex', gap: 6, alignItems: 'baseline' }}>
+                  <span style={{ fontWeight: 600 }}>{inc.type}</span>
+                  <span style={{
+                    fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)',
+                  }}>
+                    {inc.location_name}
+                  </span>
+                </div>
+                <div style={{
+                  fontSize: 10, color: 'var(--dim)',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                  marginTop: 2,
+                }}>
+                  {inc.desc}
+                </div>
+              </div>
+              <span style={{
+                fontFamily: 'var(--mono)', fontSize: 9,
+                padding: '1px 6px', borderRadius: 3,
+                background: col + '22', color: col,
+                border: `1px solid ${col}55`,
+                whiteSpace: 'nowrap',
+              }}>
+                {sevLabel(inc.sev)} · {inc.sev.toFixed(2)}
+              </span>
+              <span style={{
+                fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)',
+                whiteSpace: 'nowrap',
+              }}>
+                {inc.date}
+              </span>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -547,9 +818,9 @@ function SkeletonPanel({ title }: { title: string }) {
 
 export default function ChartsPage() {
   const [mode, setMode] = useState<Mode>('monthly');
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const { data: monthly } = useMonthly();
   const { data: severity } = useSeverityDist();
-  const { data: locations } = useByLocation();
   const { data: heatmap } = useHeatmap();
   const { data: types } = useTypeRanking();
   const { data: byCategory } = useByCategory();
@@ -598,12 +869,20 @@ export default function ChartsPage() {
         <div style={{ gridColumn: 'span 2' }}>
           {monthly ? <StackedCategory data={monthly} /> : <SkeletonPanel title="Category Breakdown by Month" />}
         </div>
-        {locations ? <TopLocations data={locations} /> : <SkeletonPanel title="Top 8 Hotspot Locations" />}
+        <HotspotBreakdown selectedLocation={selectedLocation} onSelect={setSelectedLocation} />
 
         {/* Row 3 */}
         {heatmap ? <TimeHeatmap data={heatmap} /> : <SkeletonPanel title="Time-of-Day Heatmap" />}
         {monthly ? <SeverityTrend data={monthly} /> : <SkeletonPanel title="Avg Severity Trend" />}
         {types ? <TypeRanking data={types} /> : <SkeletonPanel title="Incident Type Ranking" />}
+
+        {/* Row 4 — full-width searchable list, follows the chart's selection */}
+        <div style={{ gridColumn: 'span 3' }}>
+          <IncidentSearchList
+            selectedLocation={selectedLocation}
+            onLocationClear={() => setSelectedLocation(null)}
+          />
+        </div>
       </div>
 
       <InsightCards monthly={monthly} cat={byCategory} />

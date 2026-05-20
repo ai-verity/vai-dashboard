@@ -45,7 +45,7 @@ export default function CategoryPanel({ onFilter }: Props) {
               >
                 <div style={{ fontSize: 13, width: 20, textAlign: 'center', flexShrink: 0 }}>{meta.icon}</div>
                 <div style={{ fontSize: 10.5, flex: 1 }}>{meta.label}</div>
-                <div style={{ width: 70, height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 1, overflow: 'hidden' }}>
+                <div style={{ width: 70, height: 3, background: 'var(--b2)', borderRadius: 1, overflow: 'hidden' }}>
                   <div style={{ height: '100%', borderRadius: 1, background: meta.color, width: `${pct}%`, transition: 'width 1.2s cubic-bezier(.4,0,.2,1)' }} />
                 </div>
                 <div style={{ fontFamily: 'var(--mono)', fontSize: 9.5, color: 'var(--muted)', minWidth: 26, textAlign: 'right' }}>{row.count}</div>

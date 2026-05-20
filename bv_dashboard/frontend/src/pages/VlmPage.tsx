@@ -3,8 +3,8 @@ import { useMemo, useState } from 'react';
 import {
   useVlmList, useVlmFeeds, useVlmStats, useVlmPrompts, useVlmOne, useVlmAggregates, useVlmRuns,
 } from '../hooks/useApi';
-import { API_BASE } from '../types';
-import type { VlmAggregates } from '../types';
+import { API_BASE, VLM_TYPE_GROUPS } from '../types';
+import type { VlmAggregates, VlmPeriodLocationAggregate } from '../types';
 import type { VlmListParams } from '../hooks/useApi';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
 import { useTheme } from '../hooks/useTheme';
@@ -691,6 +691,251 @@ function DumpingDailyChart({ data }: { data: VlmAggregates['dumping_daily'] }) {
   return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
 }
 
+// ─── Cross-preset charts ──────────────────────────────────────────
+// These two roll up every preset (crowd + vehicle + dumping) so the
+// viewer sees the overall incident pattern. Mounted above the
+// preset-specific charts on VlmPage.
+
+function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 200);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    const p = { l: 36, r: 12, t: 14, b: 26 };
+
+    const totals = data.map(row => {
+      let sum = 0;
+      VLM_TYPE_GROUPS.forEach(g_ => { sum += (row[g_.key] as number) || 0; });
+      return sum;
+    });
+    const mx = Math.max(...totals, 1);
+
+    // grid + y labels
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(String(Math.round(mx * i / 4)), p.l - 4, y + 3);
+    }
+
+    if (data.length === 0) return;
+
+    const colW = (W - p.l - p.r) / data.length;
+    const barW = Math.max(8, Math.min(46, colW * 0.62));
+
+    data.forEach((row, mi) => {
+      const cx = p.l + colW * mi + colW / 2;
+      const x = cx - barW / 2;
+      let yBase = H - p.b;
+      VLM_TYPE_GROUPS.forEach(group => {
+        const n = (row[group.key] as number) || 0;
+        if (!n) return;
+        const hh = (n / mx) * (H - p.t - p.b);
+        ctx.fillStyle = group.color;
+        ctx.globalAlpha = 0.86;
+        ctx.fillRect(x, yBase - hh, barW, hh);
+        ctx.globalAlpha = 1;
+        yBase -= hh;
+      });
+      ctx.fillStyle = MUTED;
+      ctx.font = '8.5px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(String(row.month), cx, H - 10);
+      // Total on top of stack
+      if (totals[mi] > 0) {
+        const yTop = p.t + (H - p.t - p.b) * (1 - totals[mi] / mx);
+        ctx.fillStyle = 'var(--text)';
+        ctx.font = 'bold 9px DM Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(totals[mi]), cx, Math.max(yTop - 4, p.t + 8));
+      }
+    });
+  }, [data, tick]);
+  return (
+    <div>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 200 }} />
+      {/* HTML legend below — wraps gracefully and updates with theme */}
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '4px 14px', marginTop: 10,
+      }}>
+        {VLM_TYPE_GROUPS.map(g_ => (
+          <div key={g_.key} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9 }}>
+            <span style={{ width: 9, height: 9, background: g_.color, borderRadius: 1 }} />
+            <span style={{ fontFamily: 'var(--mono)', color: 'var(--dim)' }}>{g_.label}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PeriodByLocationChart({ data }: { data: VlmPeriodLocationAggregate }) {
+  const { tick } = useTheme();
+
+  // Pre-shape the data: count matrix [bucket][location] for quick lookup.
+  const lookup = useMemo(() => {
+    const m: Record<string, Record<string, number>> = {};
+    for (const d of data.data) {
+      (m[d.bucket] ??= {})[d.location_id] = d.count;
+    }
+    return m;
+  }, [data]);
+
+  const locColors = [
+    '#EF4444', '#A78BFA', '#4A9EF5', '#F5B731', '#2DC9A8',
+    '#F97316', '#06B6D4', '#A855F7', '#FB7185', '#6B7280',
+  ];
+
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 200);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    const p = { l: 36, r: 12, t: 14, b: 26 };
+
+    const totalsPerBucket = data.buckets.map(b => {
+      let sum = 0;
+      data.locations.forEach(loc => { sum += lookup[b]?.[loc.location_id] ?? 0; });
+      return sum;
+    });
+    const mx = Math.max(...totalsPerBucket, 1);
+
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(String(Math.round(mx * i / 4)), p.l - 4, y + 3);
+    }
+
+    if (data.buckets.length === 0) return;
+
+    const colW = (W - p.l - p.r) / data.buckets.length;
+    const barW = Math.max(8, Math.min(46, colW * 0.62));
+
+    data.buckets.forEach((bucket, bi) => {
+      const cx = p.l + colW * bi + colW / 2;
+      const x = cx - barW / 2;
+      let yBase = H - p.b;
+      data.locations.forEach((loc, li) => {
+        const n = lookup[bucket]?.[loc.location_id] ?? 0;
+        if (!n) return;
+        const hh = (n / mx) * (H - p.t - p.b);
+        ctx.fillStyle = locColors[li % locColors.length];
+        ctx.globalAlpha = 0.86;
+        ctx.fillRect(x, yBase - hh, barW, hh);
+        ctx.globalAlpha = 1;
+        yBase -= hh;
+      });
+      ctx.fillStyle = MUTED;
+      ctx.font = '8.5px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      // Shorter label for weekly buckets (YYYY-Www → Www).
+      const lbl = bucket.includes('-W') ? bucket.split('-')[1] : bucket.slice(5);
+      ctx.fillText(lbl, cx, H - 10);
+    });
+  }, [data, lookup, tick]);
+
+  return (
+    <div>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 200 }} />
+      <div style={{
+        display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginTop: 10,
+        maxHeight: 80, overflowY: 'auto',
+      }}>
+        {data.locations.map((loc, li) => (
+          <div key={loc.location_id} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 9, minWidth: 0 }}>
+            <span style={{
+              width: 9, height: 9, borderRadius: 1, flexShrink: 0,
+              background: locColors[li % locColors.length],
+            }} />
+            <span style={{
+              fontFamily: 'var(--mono)', color: 'var(--dim)',
+              whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+              maxWidth: 220,
+            }} title={loc.label}>
+              {loc.label} <span style={{ color: 'var(--muted)' }}>({loc.total})</span>
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function CrossPresetCharts({ aggregates }: { aggregates: VlmAggregates | null }) {
+  const [period, setPeriod] = useState<'week' | 'month'>('week');
+  const locationsAgg = aggregates
+    ? (period === 'week' ? aggregates.weekly_by_location : aggregates.monthly_by_location)
+    : null;
+
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1,
+      background: 'var(--border)', borderBottom: '1px solid var(--border)',
+    }}>
+      <ChartCard
+        title="Incidents per Month — by Type"
+        sub="Stacked counts of VLM-flagged events across all presets, grouped by category"
+      >
+        {aggregates
+          ? <MonthlyByTypeChart data={aggregates.monthly_by_type} />
+          : <div className="skeleton" style={{ width: '100%', height: 200 }} />}
+      </ChartCard>
+
+      <div style={{ background: 'var(--s0)' }}>
+        {/* Custom header here so we can host the week/month toggle inline. */}
+        <div style={{
+          padding: '10px 14px', borderBottom: '1px solid var(--border)',
+          background: 'var(--s1)',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+          gap: 12,
+        }}>
+          <div>
+            <div style={{ fontFamily: 'var(--cond)', fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              Incidents per Location — by {period === 'week' ? 'Week' : 'Month'}
+            </div>
+            <div style={{ fontSize: 9, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 2 }}>
+              Top 10 locations · stacked counts of actionable VLM events
+            </div>
+          </div>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {(['week', 'month'] as const).map(p => (
+              <button
+                key={p}
+                onClick={() => setPeriod(p)}
+                style={{
+                  fontFamily: 'var(--mono)', fontSize: 9,
+                  padding: '3px 9px', borderRadius: 3, cursor: 'pointer',
+                  background: period === p ? 'rgba(74,158,245,0.12)' : 'transparent',
+                  border: `1px solid ${period === p ? 'var(--blue)' : 'var(--border)'}`,
+                  color: period === p ? 'var(--blue)' : 'var(--muted)',
+                  letterSpacing: '0.06em',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {p}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{ padding: '10px 14px' }}>
+          {locationsAgg
+            ? <PeriodByLocationChart data={locationsAgg} />
+            : <div className="skeleton" style={{ width: '100%', height: 200 }} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ChartCard({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
   return (
     <div style={{ background: 'var(--s0)' }}>
@@ -906,6 +1151,11 @@ export default function VlmPage() {
           <StatCell label="Fire / Smoke" value={stats?.fire_smoke ?? 0} color="var(--orange)" />
         </div>
       )}
+
+      {/* Cross-preset summary charts — visible regardless of which preset
+          filter is active. Roll up incident-type breakdown by month and
+          incident counts by location across weeks / months. */}
+      <CrossPresetCharts aggregates={aggregates} />
 
       {/* Aggregate charts — swap to vehicle / dumping versions per preset. */}
       {isVehicleView ? (
