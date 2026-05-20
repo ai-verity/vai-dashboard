@@ -2,26 +2,67 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&display=swap');
 
 :root {
-  --bg:     #07090e;
-  --s0:     #0b0d14;
-  --s1:     #10131c;
-  --s2:     #171a24;
-  --border: rgba(255,255,255,0.07);
-  --b2:     rgba(255,255,255,0.04);
-  --text:   #d8d5cc;
-  --muted:  #5e5d58;
-  --dim:    #8a887f;
-  --red:    #e84040;
-  --orange: #f27a30;
-  --amber:  #f5b731;
-  --green:  #2ec98a;
-  --blue:   #4a9ef5;
-  --purple: #a07cf0;
-  --teal:   #2dc9a8;
-  --accent: #e85d2f;
+  /* Dark theme (default). Override with [data-theme="light"] below. */
+  --bg:           #07090e;
+  --s0:           #0b0d14;
+  --s1:           #10131c;
+  --s2:           #171a24;
+  --border:       rgba(255,255,255,0.07);
+  --b2:           rgba(255,255,255,0.04);
+  --text:         #d8d5cc;
+  --muted:        #5e5d58;
+  --dim:          #8a887f;
+  --red:          #e84040;
+  --orange:       #f27a30;
+  --amber:        #f5b731;
+  --green:        #2ec98a;
+  --blue:         #4a9ef5;
+  --purple:       #a07cf0;
+  --teal:         #2dc9a8;
+  --accent:       #e85d2f;
+
+  /* Chart-specific tokens (consumed by canvas.ts at draw time). Keeping
+     them separate from the surface palette lets charts pick a single
+     contrasting tone without having to derive one. */
+  --chart-bg:        #0b0d14;
+  --chart-grid:      rgba(255,255,255,0.05);
+  --chart-grid-soft: rgba(255,255,255,0.04);
+  --chart-text:      rgba(216,213,204,.9);
+  --chart-muted:     rgba(94,93,88,.85);
+  --scanlines:       rgba(0,0,0,0.022);
+
   --mono:   'DM Mono', monospace;
   --body:   'Barlow', sans-serif;
   --cond:   'Barlow Condensed', sans-serif;
+}
+
+:root[data-theme="light"] {
+  --bg:           #f4f3ee;
+  --s0:           #ffffff;
+  --s1:           #f7f6f1;
+  --s2:           #ebeae3;
+  --border:       rgba(0,0,0,0.10);
+  --b2:           rgba(0,0,0,0.04);
+  --text:         #1a1a1a;
+  --muted:        #6b6a64;
+  --dim:          #44443f;
+  /* Brand accents stay legible on white but nudged toward print-friendly
+     darker shades so they don't glow on a light surface. */
+  --red:          #c93030;
+  --orange:       #d96b20;
+  --amber:        #b8861a;
+  --green:        #1f9a68;
+  --blue:         #2e7ad6;
+  --purple:       #7d5fce;
+  --teal:         #18a48a;
+  --accent:       #d44a1f;
+
+  --chart-bg:        #ffffff;
+  --chart-grid:      rgba(0,0,0,0.08);
+  --chart-grid-soft: rgba(0,0,0,0.05);
+  --chart-text:      rgba(26,26,26,0.85);
+  --chart-muted:     rgba(70,69,64,0.85);
+  --scanlines:       rgba(0,0,0,0);  /* hide the dark-mode scanline texture in light mode */
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +79,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background: repeating-linear-gradient(180deg, transparent 0px, transparent 3px, rgba(0,0,0,0.022) 3px, rgba(0,0,0,0.022) 4px);
+  background: repeating-linear-gradient(180deg, transparent 0px, transparent 3px, var(--scanlines) 3px, var(--scanlines) 4px);
   pointer-events: none;
   z-index: 9000;
 }

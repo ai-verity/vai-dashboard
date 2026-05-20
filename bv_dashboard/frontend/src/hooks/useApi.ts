@@ -5,6 +5,7 @@ import type {
   Incident, KpiData, MonthlyData, CategoryData, LocationData,
   SeverityTier, HeatmapCell, TypeRankingItem, Location,
   VlmObservation, VlmDetail, VlmFeed, VlmStats, VlmPrompt, VlmAggregates, VlmRun,
+  AiSummary, AiByClass, AiComparison, AiHistory, AiPeriod,
 } from '../types';
 
 function useFetch<T>(url: string) {
@@ -130,11 +131,22 @@ export interface VlmListParams {
   feed_id?: string;
   run_id?: string;
   location_id?: string;
+  preset?: string;                  // crowd_behavior | vehicle_prompts
   density?: string;
   risk?: string;
   min_risk?: string;
   only_threats?: boolean;
   has_pedestrians?: boolean;
+  only_vehicle_issues?: boolean;
+  collision?: boolean;
+  speeding?: boolean;
+  fire_lane?: boolean;
+  // illegal_dumping filters
+  only_dumping?: boolean;
+  chronic_site?: boolean;
+  water_proximity?: boolean;
+  priority?: string;             // LOW / MEDIUM / HIGH
+  waste_type?: string;
   search?: string;
   limit?: number;
   offset?: number;
@@ -232,6 +244,24 @@ export function useVlmOne(id: string | null) {
   }, [id]);
 
   return { data, loading, error };
+}
+
+// ─── AI Model Metrics hooks ──────────────────────────────────────────────
+
+export function useAiSummary() {
+  return useFetch<AiSummary>('/api/ai_metrics/summary');
+}
+
+export function useAiByClass() {
+  return useFetch<AiByClass>('/api/ai_metrics/by_class');
+}
+
+export function useAiComparison(period: AiPeriod) {
+  return useFetch<AiComparison>(`/api/ai_metrics/comparison?period=${period}`);
+}
+
+export function useAiHistory(period: AiPeriod) {
+  return useFetch<AiHistory>(`/api/ai_metrics/history?period=${period}`);
 }
 
 // Streaming AI analysis

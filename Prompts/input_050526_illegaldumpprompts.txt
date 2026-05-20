@@ -1,0 +1,31 @@
+Does this image show waste, refuse, or discarded materials deposited on a vacant lot, alley, gutter, or private property in an urban Texas setting outside of an authorized collection container?
+
+Is there evidence that litter or solid waste has been deposited on this property in violation of a municipal dumping ordinance — such as bags, furniture, tires, construction debris, or loose garbage left outside of a bin or collection point?
+
+Does this street-level or aerial image show an improper dumpsite on private or vacant property, as opposed to an authorized trash collection point?
+
+Classify the type of illegally dumped waste visible in this image. Categories: (1) household garbage/bags, (2) construction debris/rubble, (3) furniture/bulky items, (4) tires/auto parts, (5) yard waste/brush, (6) hazardous materials (chemicals, drums), (7) electronics/e-waste, (8) mixed waste. Select the best match.
+
+What types of materials have been illegally dumped here? Describe each waste category visible and estimate its approximate volume (small = fits in a pickup truck, medium = requires a dump truck, large = requires heavy equipment).
+
+Is the dumped material consistent with commercial/contractor waste (construction debris, large volumes) or residential waste (household garbage, furniture)? This distinction matters for Brownsville Sec. 82 solid waste enforcement.
+
+Describe the property type where this waste is located: (a) occupied private property, (b) vacant lot, (c) public right-of-way/gutter/parkway, (d) alley, (e) roadside/caliche road, (f) drainage channel or resaca bank. Identify any visible address markers, street signs, or utility poles.
+
+Is the location in this image a vacant or unoccupied lot? Are there signs of repeated dumping (multiple layers of waste, worn paths, varied decomposition states) suggesting a chronic dumping hotspot?
+
+Does this image show waste in or near a gutter, parkway, or the half-alley adjacent to private property — violations under Brownsville Sec. 46-45?
+
+Are there any identifying features in this image that could help enforcement officers identify the responsible party? Look for: visible license plates, vehicle make/model/color, contractor signage on vehicles, business names on bags or boxes, or any individuals present.
+
+Describe any vehicles visible in or near the dumping site. Provide color, body style (pickup truck, van, box truck, SUV), and any readable text on the vehicle.
+
+Is there any packaging, labeling, mail, or identifying material visible within the dumped waste that could identify the origin of the material or the responsible party?
+
+Rate the severity of this illegal dumping incident on a scale of 1–5, where: 1 = minor litter (under 1 bag), 3 = moderate dump (furniture or several bags), 5 = large-scale dump (construction debris, hazardous materials, or evidence of organized dumping). Justify your rating.
+
+Does this image show evidence of a chronic dumping site (accumulated layers, multiple waste types, vegetation growing through waste) or a fresh single-incident dump? Chronic sites require escalated enforcement under Brownsville ordinances.
+
+Are there any signs of hazardous or environmental impact — waste near a resaca, drainage canal, or water feature — that would elevate this beyond a standard Sec. 46-46 violation toward environmental enforcement?
+
+Generate a brief enforcement report summary based on this image. Include: (1) whether illegal dumping is present (yes/no), (2) location type, (3) waste type and estimated volume, (4) applicable Brownsville ordinance section (Sec. 46-45 for property owner liability or Sec. 46-46 for deposit on vacant lots), (5) any identifying evidence present, and (6) recommended priority (low/medium/high). Format as a structured list.

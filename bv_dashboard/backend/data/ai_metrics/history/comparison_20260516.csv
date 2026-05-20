@@ -1,0 +1,4 @@
+class,metric,before,after,delta
+all,Precision,0.886,0.932,+0.046
+all,Recall,0.474,0.472,-0.002
+all,F1,0.621,0.632,+0.011

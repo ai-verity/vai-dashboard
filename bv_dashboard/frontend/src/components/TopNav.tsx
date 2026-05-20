@@ -1,5 +1,6 @@
 // components/TopNav.tsx
 import { useState, useEffect } from 'react';
+import ThemeToggle from './ThemeToggle';
 
 type ViewKey = 'dashboard' | 'charts' | 'vlm';
 
@@ -65,7 +66,21 @@ export default function TopNav({ activeView, onViewChange }: Props) {
       </div>
 
       {/* Right */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <ThemeToggle compact />
+        <a
+          href="#/ai-metrics"
+          title="Open the AI Model Metrics dashboard (standalone)"
+          style={{
+            fontFamily: 'var(--mono)', fontSize: 9,
+            padding: '5px 10px', borderRadius: 3,
+            border: '1px solid var(--border)',
+            color: 'var(--blue)', textDecoration: 'none',
+            letterSpacing: '0.08em', textTransform: 'uppercase',
+          }}
+        >
+          🧠 AI Model Metrics
+        </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--green)', letterSpacing: '0.12em' }}>
           <div style={{ width: 6, height: 6, background: 'var(--green)', borderRadius: '50%', animation: 'blink 1.6s ease-in-out infinite' }} />
           LIVE

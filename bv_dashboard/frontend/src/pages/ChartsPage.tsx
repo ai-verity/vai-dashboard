@@ -6,7 +6,8 @@ import {
 } from '../hooks/useApi';
 import { CAT_META, sevColor } from '../types';
 import type { Category, MonthlyData, LocationData, SeverityTier, HeatmapCell, TypeRankingItem, CategoryData } from '../types';
-import { setupCanvas, useCanvas, BG, MUTED, TEXT } from '../utils/canvas';
+import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
+import { useTheme } from '../hooks/useTheme';
 
 const CATS: Category[] = ['VIOLENT', 'HEALTH', 'ENVIRON', 'ORDER', 'SECURITY'];
 const COLORS = ['#EF4444', '#A78BFA', '#4A9EF5', '#F5B731', '#2DC9A8'];
@@ -16,9 +17,10 @@ const ACCENT = '#e85d2f';
 type Padding = { l: number; r: number; t: number; b: number };
 
 function drawGrid(ctx: CanvasRenderingContext2D, W: number, H: number, p: Padding, mx: number, steps = 5) {
+  const { MUTED, GRID } = chartColors();
   for (let i = 0; i <= steps; i++) {
     const y = p.t + (H - p.t - p.b) * (1 - i / steps);
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.strokeStyle = GRID;
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(p.l, y);
@@ -53,11 +55,13 @@ const S = {
 function MonthlyVolume({ data }: { data: MonthlyData[] }) {
   const totals = data.map(m => m.total);
   const delta = totals[totals.length - 1] - totals[0];
+  const { tick } = useTheme();
 
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 200);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { BG, MUTED, TEXT } = chartColors();
     const p: Padding = { l: 38, r: 18, t: 18, b: 28 };
     const mx = Math.max(...totals, 1);
     drawGrid(ctx, W, H, p, mx);
@@ -98,7 +102,7 @@ function MonthlyVolume({ data }: { data: MonthlyData[] }) {
       ctx.font = '9px DM Mono, monospace';
       ctx.fillText(MONTHS[i], x, H - 7);
     });
-  }, [data]);
+  }, [data, tick]);
 
   return (
     <div style={S.panel}>
@@ -121,12 +125,14 @@ function MonthlyVolume({ data }: { data: MonthlyData[] }) {
 // ─── 2. Severity Donut (square canvas, center total) ─────────────
 function SeverityDonut({ data }: { data: SeverityTier[] }) {
   const total = data.reduce((s, t) => s + t.count, 0);
+  const { tick } = useTheme();
 
   const ref = useCanvas(cv => {
     const side = Math.min(cv.offsetWidth || 200, 200);
     const g = setupCanvas(cv, side);
     if (!g) return;
     const { ctx } = g;
+    const { BG, MUTED, TEXT } = chartColors();
     const cx = side / 2, cy = side / 2;
     const outer = side * 0.42, inner = side * 0.26;
     const tot = total || 1;
@@ -152,7 +158,7 @@ function SeverityDonut({ data }: { data: SeverityTier[] }) {
     ctx.fillStyle = MUTED;
     ctx.font = '8px DM Mono, monospace';
     ctx.fillText('total', cx, cy + 18);
-  }, [data, total]);
+  }, [data, total, tick]);
 
   return (
     <div style={S.panel}>
@@ -179,10 +185,12 @@ function SeverityDonut({ data }: { data: SeverityTier[] }) {
 }
 // ─── 3. Stacked Area by Category ─────────────────────────────────
 function StackedCategory({ data }: { data: MonthlyData[] }) {
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 195);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { MUTED } = chartColors();
     const p: Padding = { l: 38, r: 16, t: 16, b: 28 };
     const series: number[][] = CATS.map(c => data.map(m => (m[c.toLowerCase() as keyof MonthlyData] as number) || 0));
     const totals = data.map((_, mi) => series.reduce((s, d) => s + d[mi], 0));
@@ -227,7 +235,7 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
       ctx.textAlign = 'left';
       ctx.fillText(CAT_META[c].label, x + 11, H - p.b + 21);
     });
-  }, [data]);
+  }, [data, tick]);
 
   return (
     <div style={S.panel}>
@@ -247,10 +255,12 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
 // ─── 4. Top Locations (horizontal bars) ──────────────────────────
 function TopLocations({ data }: { data: LocationData[] }) {
   const top8 = data.slice(0, 8);
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 195);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { TEXT } = chartColors();
     const mx = top8[0]?.count ?? 1;
     const p: Padding = { l: 112, r: 12, t: 12, b: 12 };
     const rowH = (H - p.t - p.b) / Math.max(top8.length, 1);
@@ -262,7 +272,7 @@ function TopLocations({ data }: { data: LocationData[] }) {
       ctx.fillRect(p.l, y + 2, W - p.l - p.r, rowH - 4);
       ctx.fillStyle = col + '88';
       ctx.fillRect(p.l, y + 2, bw, rowH - 4);
-      ctx.fillStyle = 'rgba(216,213,204,.88)';
+      ctx.fillStyle = TEXT;
       ctx.font = '9px Barlow, sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(loc.location_name.substring(0, 18), p.l - 3, y + rowH / 2 + 3);
@@ -271,7 +281,7 @@ function TopLocations({ data }: { data: LocationData[] }) {
       ctx.textAlign = 'left';
       ctx.fillText(String(loc.count), p.l + bw + 3, y + rowH / 2 + 3);
     });
-  }, [data]);
+  }, [data, tick]);
 
   return (
     <div style={S.panel}>
@@ -290,10 +300,12 @@ function TopLocations({ data }: { data: LocationData[] }) {
 
 // ─── 5. Time-of-Day Heatmap ──────────────────────────────────────
 function TimeHeatmap({ data }: { data: HeatmapCell[] }) {
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 195);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { MUTED, TEXT } = chartColors();
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const hourLabels = [0, 3, 6, 9, 12, 15, 18, 21];
     const sumByCell: number[][] = Array.from({ length: 8 }, () => Array(7).fill(0));
@@ -320,25 +332,25 @@ function TimeHeatmap({ data }: { data: HeatmapCell[] }) {
       ctx.fillStyle = `rgba(239,68,68,${(norm * 0.82).toFixed(2)})`;
       ctx.fillRect(x + 1, y + 1, cW - 2, rH - 2);
       if (cnt > 0) {
-        ctx.fillStyle = 'rgba(255,255,255,.7)';
+        ctx.fillStyle = TEXT;
         ctx.font = '7.5px DM Mono, monospace';
         ctx.textAlign = 'center';
         ctx.fillText(String(cnt), x + cW / 2, y + rH / 2 + 3);
       }
     }));
     days.forEach((d, i) => {
-      ctx.fillStyle = 'rgba(94,93,88,.9)';
+      ctx.fillStyle = MUTED;
       ctx.font = '8px Barlow, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(d, p.l + i * cW + cW / 2, p.t - 6);
     });
     hourLabels.forEach((h, i) => {
-      ctx.fillStyle = 'rgba(94,93,88,.9)';
+      ctx.fillStyle = MUTED;
       ctx.font = '8px DM Mono, monospace';
       ctx.textAlign = 'right';
       ctx.fillText(`${String(h).padStart(2, '0')}h`, p.l - 2, p.t + i * rH + rH / 2 + 3);
     });
-  }, [data]);
+  }, [data, tick]);
 
   return (
     <div style={S.panel}>
@@ -357,10 +369,12 @@ function TimeHeatmap({ data }: { data: HeatmapCell[] }) {
 
 // ─── 6. Avg Severity Trend (multi-line) ──────────────────────────
 function SeverityTrend({ data }: { data: MonthlyData[] }) {
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 195);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { MUTED } = chartColors();
     const p: Padding = { l: 36, r: 14, t: 16, b: 30 };
     const series: (number | null)[][] = CATS.map(c => data.map(m => {
       const key = `${c.toLowerCase()}_avg_sev` as keyof MonthlyData;
@@ -400,12 +414,12 @@ function SeverityTrend({ data }: { data: MonthlyData[] }) {
       const x = p.l + (ci * (W - p.l - p.r)) / CATS.length;
       ctx.fillStyle = COLORS[ci];
       ctx.fillRect(x, H - p.b + 18, 8, 6);
-      ctx.fillStyle = 'rgba(94,93,88,.9)';
+      ctx.fillStyle = MUTED;
       ctx.font = '8px DM Mono, monospace';
       ctx.textAlign = 'left';
       ctx.fillText(CAT_META[c].label, x + 11, H - p.b + 25);
     });
-  }, [data]);
+  }, [data, tick]);
 
   return (
     <div style={S.panel}>
@@ -425,10 +439,12 @@ function SeverityTrend({ data }: { data: MonthlyData[] }) {
 // ─── 7. Incident Type Ranking ────────────────────────────────────
 function TypeRanking({ data }: { data: TypeRankingItem[] }) {
   const top10 = data.slice(0, 10);
+  const { tick } = useTheme();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 195);
     if (!g) return;
     const { ctx, W, H } = g;
+    const { TEXT } = chartColors();
     const mx = top10[0]?.count ?? 1;
     const p: Padding = { l: 128, r: 10, t: 10, b: 10 };
     const rowH = (H - p.t - p.b) / Math.max(top10.length, 1);
@@ -439,7 +455,7 @@ function TypeRanking({ data }: { data: TypeRankingItem[] }) {
       ctx.fillRect(p.l, y + 2, W - p.l - p.r, rowH - 4);
       ctx.fillStyle = it.color + '88';
       ctx.fillRect(p.l, y + 2, bw, rowH - 4);
-      ctx.fillStyle = 'rgba(216,213,204,.9)';
+      ctx.fillStyle = TEXT;
       ctx.font = '9px Barlow, sans-serif';
       ctx.textAlign = 'right';
       ctx.fillText(`${it.icon} ${it.type.substring(0, 19)}`, p.l - 3, y + rowH / 2 + 3);
@@ -448,7 +464,7 @@ function TypeRanking({ data }: { data: TypeRankingItem[] }) {
       ctx.textAlign = 'left';
       ctx.fillText(String(it.count), p.l + bw + 3, y + rowH / 2 + 3);
     });
-  }, [data]);
+  }, [data, tick]);
 
   return (
     <div style={S.panel}>

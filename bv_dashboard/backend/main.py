@@ -19,6 +19,7 @@ import httpx
 import json
 
 import vlm
+import ai_metrics
 
 # Optional rate-limit. slowapi is only required for production deployments;
 # dev installs (fastapi + uvicorn + httpx + pydantic) work without it. When
@@ -604,18 +605,40 @@ async def analyze_incident(
 
 # ─── VLM endpoints ───────────────────────────────────────────────────────────
 PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "data", "vlm_prompts.json")
+VEHICLE_PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "data", "vlm_vehicle_prompts.json")
+DUMPING_PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "data", "vlm_illegal_dumping_prompts.json")
+# (path, preset_id) pairs. The frontend filters prompts by the observation's
+# preset, so each prompt entry needs to carry its preset.
+_PROMPT_FILES = [
+    (PROMPTS_PATH, "crowd_behavior"),
+    (VEHICLE_PROMPTS_PATH, "vehicle_prompts"),
+    (DUMPING_PROMPTS_PATH, "illegal_dumping"),
+]
 
 
 def _load_prompts_cached() -> list:
-    """Tiny prompt catalog loaded once at startup. Returns [] if missing."""
-    if not os.path.exists(PROMPTS_PATH):
-        return []
-    try:
-        with open(PROMPTS_PATH, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except (OSError, json.JSONDecodeError):
-        logger.exception("failed to load %s", PROMPTS_PATH)
-        return []
+    """Merged prompt catalog (crowd + vehicle), each entry tagged with preset.
+
+    Missing files are skipped silently; malformed JSON is logged and skipped.
+    Prompt `id`s are namespaced per preset on the wire so they stay unique
+    when both catalogs are concatenated.
+    """
+    merged: list = []
+    for path, preset in _PROMPT_FILES:
+        if not os.path.exists(path):
+            continue
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                entries = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            logger.exception("failed to load %s", path)
+            continue
+        for e in entries:
+            e = dict(e)
+            e["preset"] = preset
+            e["id"] = f"{preset}:{e.get('id')}"
+            merged.append(e)
+    return merged
 
 
 _PROMPTS_CACHE: list = []
@@ -702,11 +725,22 @@ def vlm_list(
     feed_id: Optional[str] = None,
     run_id: Optional[str] = None,
     location_id: Optional[str] = None,
+    preset: Optional[str] = None,          # crowd_behavior | vehicle_prompts
     density: Optional[str] = None,         # SPARSE / MODERATE / DENSE
     risk: Optional[str] = None,            # exact tier match
     min_risk: Optional[str] = None,        # tier threshold (MODERATE = MEDIUM band)
-    only_threats: bool = False,            # any threat flag
+    only_threats: bool = False,            # any crowd threat flag
     has_pedestrians: bool = False,
+    only_vehicle_issues: bool = False,     # any vehicle issue flag
+    collision: bool = False,
+    speeding: bool = False,
+    fire_lane: bool = False,
+    # illegal_dumping filters
+    only_dumping: bool = False,            # require dumping_present
+    chronic_site: bool = False,
+    water_proximity: bool = False,
+    priority: Optional[str] = None,        # LOW / MEDIUM / HIGH
+    waste_type: Optional[str] = None,      # case-insensitive substring match
     search: Optional[str] = None,
     limit: int = Query(100, le=500),
     offset: int = 0,
@@ -721,6 +755,8 @@ def vlm_list(
         items = [o for o in items if o.run_id == run_id]
     if location_id:
         items = [o for o in items if o.location_id == location_id]
+    if preset:
+        items = [o for o in items if o.preset == preset]
     if density:
         d = density.upper()
         items = [o for o in items if (o.density_zone or "") == d]
@@ -739,6 +775,31 @@ def vlm_list(
         ]
     if has_pedestrians:
         items = [o for o in items if (o.pedestrian_count or 0) > 0]
+    if only_vehicle_issues:
+        items = [
+            o for o in items
+            if o.collision or o.speeding or o.fire_lane_violation or o.erratic_maneuver
+               or o.wrong_way or o.vehicle_tamper or o.building_contact
+               or o.pedestrian_struck or o.pedestrian_near_miss or o.child_struck
+        ]
+    if collision:
+        items = [o for o in items if o.collision]
+    if speeding:
+        items = [o for o in items if o.speeding]
+    if fire_lane:
+        items = [o for o in items if o.fire_lane_violation]
+    if only_dumping:
+        items = [o for o in items if o.dumping_present]
+    if chronic_site:
+        items = [o for o in items if o.chronic_site]
+    if water_proximity:
+        items = [o for o in items if o.water_proximity]
+    if priority:
+        p = priority.upper()
+        items = [o for o in items if (o.priority or "") == p]
+    if waste_type:
+        wt = waste_type.lower()
+        items = [o for o in items if wt in (o.waste_type or "").lower()]
     if search:
         q = search.lower()
         items = [o for o in items if q in (o.feed_label.lower() + " " + o.image_name.lower() + " " + o.full_caption.lower())]
@@ -756,12 +817,69 @@ def vlm_list(
     }
 
 
+# ─── AI Model Metrics endpoints ─────────────────────────────────────────────
+# Per-class Precision / Recall / F1 captured by the daily training
+# pipeline. comparison.csv carries before/after for the latest run;
+# additional comparison_YYYYMMDD.csv files in data/ai_metrics/history/
+# are picked up automatically as the pipeline accumulates daily runs.
+
+
+@app.get("/api/ai_metrics/summary")
+def ai_metrics_summary():
+    return ai_metrics.summary()
+
+
+@app.get("/api/ai_metrics/by_class")
+def ai_metrics_by_class():
+    return ai_metrics.by_class()
+
+
+@app.get("/api/ai_metrics/comparison")
+def ai_metrics_comparison(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.comparison(period)
+
+
+@app.get("/api/ai_metrics/history")
+def ai_metrics_history(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.history(period)
+
+
+@app.get("/api/ai_metrics/state")
+def ai_metrics_state():
+    return ai_metrics.state()
+
+
+@app.post("/api/ai_metrics/reload")
+@rate_limit(_RELOAD_RATE)
+async def ai_metrics_reload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    x_reload_token: Optional[str] = Header(default=None),
+):
+    """Re-read AI Model Metrics files from disk.
+
+    Same fail-closed token contract as /api/vlm/reload: requires
+    BV_RELOAD_TOKEN env var on the server and a matching X-Reload-Token
+    request header.
+    """
+    expected = os.getenv("BV_RELOAD_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="reload disabled: set BV_RELOAD_TOKEN on the server to enable",
+        )
+    if not x_reload_token or not hmac.compare_digest(x_reload_token, expected):
+        raise HTTPException(status_code=401, detail="invalid reload token")
+    await run_in_threadpool(ai_metrics.load)
+    return ai_metrics.state()
+
+
 @app.get("/api/health")
 def health():
     return {
         "status": "ok",
         "incidents": len(ALL_INCIDENTS),
         "vlm_observations": vlm.load_info().get("row_count", 0),
+        "ai_metrics_runs": ai_metrics.state().get("runs", 0),
         "timestamp": datetime.now().isoformat(),
     }
 
