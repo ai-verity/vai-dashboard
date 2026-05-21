@@ -2,20 +2,20 @@
 AI Model Metrics loader.
 
 Reads the daily training-pipeline output (per-class Precision/Recall/F1
-plus mAP) from backend/data/ai_metrics/ and exposes structured views
-consumed by the /api/ai_metrics/* endpoints.
+plus mAP) from backend/data/ai_model_metrics/ and exposes structured
+views consumed by the /api/ai_metrics/* endpoints.
 
-Data layout expected:
+Data layout expected (flat — all files live in one directory):
 
-  backend/data/ai_metrics/
-    comparison.csv         per-class before/after metrics for the most
-                           recent training run (columns: class, metric,
-                           before, after, delta)
-    class_mapping.json     run metadata: timestamp_utc, run_name, model,
-                           instance counts per class
-    history/               (optional) one comparison_YYYYMMDD.csv per
-                           past run, picked up automatically as the
-                           pipeline accumulates daily runs
+  backend/data/ai_model_metrics/
+    comparison_YYYYMMDD.csv                       per-class before/after
+    compare_YYYYMMDD_HHMMSS_comparison.csv        timestamped pipeline output
+    YYYYMMDD_HHMMSS_stream_class_mapping.txt      per-run dataset summary
+
+The most recent comparison file (by run-date / timestamp) becomes the
+"current" snapshot exposed to the dashboard; older files become history.
+Per-date collisions are broken by the wall-clock timestamp in the
+filename (date-only files lose ties to timestamped files).
 
 Weekly / monthly history is intentionally derived only from real files
 on disk — when fewer than 7 / 30 daily runs are present the endpoints
@@ -34,20 +34,27 @@ from dataclasses import dataclass, asdict, field
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "ai_metrics")
-HISTORY_DIR = os.path.join(DATA_DIR, "history")
+# Flat layout: all comparison CSVs + class_mapping.txt files live in one
+# directory. The two history-file regexes and the class-mapping regex
+# all match against this same flat listing, so files at the same level
+# co-exist without nested subfolders.
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "ai_model_metrics")
+HISTORY_DIR = DATA_DIR
+CLASS_MAPPING_DIR = DATA_DIR
 
 METRICS = ("Precision", "Recall", "F1")
 EXTRA_METRICS = ("mAP@0.5", "mAP@0.5:0.95")
 
-# Accepts two filename shapes inside history/:
+# Accepts three filename shapes in DATA_DIR:
 #   comparison_YYYYMMDD.csv                       (date-only — legacy / manual entries)
+#   comparison-<model>-YYYYMMDD.csv               (model-tagged date-only — e.g. comparison-rtdetr34-20260519.csv)
 #   compare_YYYYMMDD_HHMMSS_comparison.csv        (wall-clock timestamped — pipeline output)
-# Both are parsed; when more than one file covers a single date, the
-# latest timestamp wins (date-only files are treated as "00:00:00").
+# All three are parsed; when more than one file covers a single date,
+# the latest timestamp wins (date-only files are treated as "00:00:00").
 _HISTORY_FILE_RES = (
     re.compile(r"^comparison_(\d{4})(\d{2})(\d{2})\.csv$"),
     re.compile(r"^compare_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})_comparison\.csv$"),
+    re.compile(r"^comparison-[A-Za-z0-9_]+-(\d{4})(\d{2})(\d{2})\.csv$"),
 )
 
 
@@ -80,6 +87,39 @@ class RunSnapshot:
     instance_counts: dict[str, dict[str, int]] = field(default_factory=dict)
 
 
+@dataclass
+class DatasetSnapshot:
+    """Per-run training-dataset summary parsed from a class_mapping.txt.
+
+    All counts are pulled from the COCO/YOLO instances JSON the pipeline
+    emits; per-class numbers are box instances (not unique images — one
+    image can contribute multiple boxes). Image-level fields (total /
+    annotated / background) are unique images."""
+
+    run_date: str
+    run_timestamp: Optional[str]
+    run_name: Optional[str]
+    model: Optional[str]
+    train_images: int
+    val_images: int
+    train_empty_bg: int
+    val_empty_bg: int
+    dropped_regions: int       # boxes whose VIA class isn't in the project mapping
+    by_class: list[dict]       # [{cls, train, val, total}]
+
+    @property
+    def total_images(self) -> int:
+        return self.train_images + self.val_images
+
+    @property
+    def empty_bg_images(self) -> int:
+        return self.train_empty_bg + self.val_empty_bg
+
+    @property
+    def annotated_images(self) -> int:
+        return max(self.total_images - self.empty_bg_images, 0)
+
+
 # ─── Loader (process-wide, thread-safe) ─────────────────────────────────────
 
 
@@ -88,6 +128,7 @@ _STATE: dict = {
     "loaded_at": None,
     "current": None,       # RunSnapshot for the latest available run
     "history": [],         # list[RunSnapshot] sorted ascending by run_date
+    "dataset": [],         # list[DatasetSnapshot] sorted ascending by run_date
 }
 
 
@@ -189,6 +230,7 @@ def load() -> None:
                 ts_key = ""
                 m_legacy = _HISTORY_FILE_RES[0].match(name)
                 m_stamped = _HISTORY_FILE_RES[1].match(name)
+                m_tagged = _HISTORY_FILE_RES[2].match(name)
                 if m_stamped:
                     y, mo, d, hh, mm, ss = m_stamped.groups()
                     run_date = f"{y}-{mo}-{d}"
@@ -197,6 +239,10 @@ def load() -> None:
                     y, mo, d = m_legacy.groups()
                     run_date = f"{y}-{mo}-{d}"
                     ts_key = f"{y}{mo}{d}000000"  # midnight — loses ties to any stamped file
+                elif m_tagged:
+                    y, mo, d = m_tagged.groups()
+                    run_date = f"{y}-{mo}-{d}"
+                    ts_key = f"{y}{mo}{d}000000"  # same midnight tie-break as legacy
                 if run_date is None:
                     continue
                 comp_path = os.path.join(HISTORY_DIR, name)
@@ -232,9 +278,201 @@ def load() -> None:
 
         history.sort(key=lambda s: s.run_date)
 
+        dataset = _load_dataset_mappings()
+
+        # Pair each RunSnapshot with the same-date DatasetSnapshot parsed
+        # from `YYYYMMDD_HHMMSS_stream_class_mapping.txt`. This replaces the
+        # old class_mapping.json sidecar — the new flat layout has the txt
+        # files instead, which carry model / run_name / timestamp / per-class
+        # instance counts. Without this join, the UI shows '—' for all four
+        # fields even when the data is present on disk.
+        dataset_by_date = {ds.run_date: ds for ds in dataset}
+        for snap in history:
+            ds = dataset_by_date.get(snap.run_date)
+            if ds is None:
+                continue
+            if snap.model is None:
+                snap.model = ds.model
+            if snap.run_name is None:
+                snap.run_name = ds.run_name
+            if snap.run_timestamp is None:
+                snap.run_timestamp = ds.run_timestamp
+            if not snap.instance_counts:
+                snap.instance_counts = {
+                    row["cls"]: {"train": row["train"], "val": row["val"], "total": row["total"]}
+                    for row in ds.by_class
+                }
+
         _STATE["history"] = history
         _STATE["current"] = history[-1] if history else None
+        _STATE["dataset"] = dataset
         _STATE["loaded_at"] = datetime.now(timezone.utc).isoformat()
+
+
+# ─── class_mapping.txt parser ──────────────────────────────────────────────
+#
+# Each file is the human-readable summary the training pipeline emits per
+# run. Format (relevant lines):
+#
+#   Class mapping  (2026-05-19T13:57:14+00:00)
+#   Run     : exp
+#   Model   : rtv2_r34vd_120e_coco
+#   ...
+#   Dropped class regions (no entry in mapping):
+#                           78
+#     _background_images    2966
+#
+#   Class instance counts (...):
+#     class                    train     val   total
+#     ──────────────────────────────────────────────
+#     person                  317696   78462  396158
+#     ...
+#     total boxes             603882  145442  749324
+#     image files              69153   17288   86441
+#       of which empty bg       2342     643    2985
+
+_MAPPING_FILENAME_RE = re.compile(r"^(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})_stream_class_mapping\.txt$")
+_MAPPING_TIMESTAMP_RE = re.compile(r"\(([^)]+)\)")
+_MAPPING_INT3 = re.compile(r"^\s*(\S[^\s]*(?:\s+\S+)*?)\s+(\d+)\s+(\d+)\s+(\d+)\b")
+_MAPPING_INT1 = re.compile(r"^\s*(\S[^\s]*(?:\s+\S+)*?)\s+(\d+)\b")
+
+
+def _parse_class_mapping_txt(path: str, fallback_run_date: str,
+                              fallback_ts: Optional[str]) -> Optional[DatasetSnapshot]:
+    try:
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.readlines()
+    except OSError:
+        return None
+
+    run_timestamp: Optional[str] = fallback_ts
+    run_name: Optional[str] = None
+    model: Optional[str] = None
+    dropped_regions = 0
+    train_empty_bg = val_empty_bg = 0
+    train_images = val_images = 0
+    by_class: list[dict] = []
+    in_instance_block = False
+
+    for raw in lines:
+        line = raw.rstrip()
+        if line.startswith("Class mapping"):
+            m = _MAPPING_TIMESTAMP_RE.search(line)
+            if m:
+                run_timestamp = m.group(1).strip()
+        elif line.startswith("Run "):
+            run_name = line.split(":", 1)[1].strip() if ":" in line else None
+        elif line.startswith("Model"):
+            model = line.split(":", 1)[1].strip() if ":" in line else None
+        elif "Dropped class regions" in line:
+            in_instance_block = False
+            # Next non-empty, non-divider line carries the unnamed dropped-count
+            # (e.g. "                        78"); _background_images follows.
+        elif line.strip().startswith("_background_images"):
+            mi = _MAPPING_INT1.match(line)
+            if mi:
+                # _background_images has only one value (total background); we
+                # don't see a train/val split here, so leave per-split fields
+                # to the "of which empty bg" row below.
+                pass
+        elif "Class instance counts" in line:
+            in_instance_block = True
+            continue
+        elif "image files" in line:
+            mi = _MAPPING_INT3.match(line)
+            if mi:
+                train_images = int(mi.group(2))
+                val_images = int(mi.group(3))
+        elif "of which empty bg" in line:
+            mi = _MAPPING_INT3.match(line)
+            if mi:
+                train_empty_bg = int(mi.group(2))
+                val_empty_bg = int(mi.group(3))
+        elif in_instance_block:
+            stripped = line.strip()
+            if not stripped or stripped.startswith(("class", "──", "total boxes")):
+                continue
+            mi = _MAPPING_INT3.match(line)
+            if mi:
+                cls = mi.group(1).strip()
+                # Filter out arrows / labels the pipeline adds for hints.
+                if "←" in cls or "→" in cls:
+                    cls = cls.split("←")[0].split("→")[0].strip()
+                # Skip non-class anchor rows.
+                if cls in {"total boxes", "image files"}:
+                    continue
+                by_class.append({
+                    "cls":   cls,
+                    "train": int(mi.group(2)),
+                    "val":   int(mi.group(3)),
+                    "total": int(mi.group(4)),
+                })
+
+    # Pull the dropped-regions number from the first all-digits line that
+    # appears directly after the "Dropped class regions" heading. The
+    # column is unlabelled, which is awkward to anchor in a single pass —
+    # do a second scan for it specifically.
+    seen_drop_heading = False
+    for raw in lines:
+        line = raw.rstrip()
+        if "Dropped class regions" in line:
+            seen_drop_heading = True
+            continue
+        if seen_drop_heading:
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith("_background_images"):
+                break  # passed the dropped count without finding a number
+            try:
+                dropped_regions = int(stripped)
+                break
+            except ValueError:
+                # Hit a labelled row first — no anonymous dropped count.
+                break
+
+    if train_images == 0 and val_images == 0 and not by_class:
+        return None
+
+    return DatasetSnapshot(
+        run_date=fallback_run_date,
+        run_timestamp=run_timestamp,
+        run_name=run_name,
+        model=model,
+        train_images=train_images,
+        val_images=val_images,
+        train_empty_bg=train_empty_bg,
+        val_empty_bg=val_empty_bg,
+        dropped_regions=dropped_regions,
+        by_class=by_class,
+    )
+
+
+def _load_dataset_mappings() -> list[DatasetSnapshot]:
+    """Scan class-mapping/*.txt, parse each, and return one snapshot per
+    date (latest timestamp wins on collision)."""
+    if not os.path.isdir(CLASS_MAPPING_DIR):
+        return []
+    candidates: dict[str, tuple[str, DatasetSnapshot]] = {}  # date -> (ts_key, snap)
+    for name in sorted(os.listdir(CLASS_MAPPING_DIR)):
+        m = _MAPPING_FILENAME_RE.match(name)
+        if not m:
+            continue
+        y, mo, d, hh, mm, ss = m.groups()
+        run_date = f"{y}-{mo}-{d}"
+        ts_key = f"{y}{mo}{d}{hh}{mm}{ss}"
+        fallback_ts = f"{y}-{mo}-{d}T{hh}:{mm}:{ss}+00:00"
+        snap = _parse_class_mapping_txt(
+            os.path.join(CLASS_MAPPING_DIR, name),
+            fallback_run_date=run_date,
+            fallback_ts=fallback_ts,
+        )
+        if snap is None:
+            continue
+        existing = candidates.get(run_date)
+        if existing is None or ts_key > existing[0]:
+            candidates[run_date] = (ts_key, snap)
+    return sorted((snap for _, snap in candidates.values()), key=lambda s: s.run_date)
 
 
 # ─── Aggregation helpers ────────────────────────────────────────────────────
@@ -309,8 +547,40 @@ def state() -> dict:
     return {
         "loaded_at": _STATE["loaded_at"],
         "runs": len(_STATE["history"]),
+        "dataset_runs": len(_STATE["dataset"]),
         "current_run_date": _STATE["current"].run_date if _STATE["current"] else None,
         "current_model": _STATE["current"].model if _STATE["current"] else None,
+    }
+
+
+def dataset_by_date() -> dict:
+    """Per-run training-dataset summary derived from class_mapping.txt
+    files. One entry per date (latest timestamp wins on collision)."""
+    snaps: list[DatasetSnapshot] = _STATE["dataset"]
+    points: list[dict] = []
+    for snap in snaps:
+        points.append({
+            "run_date": snap.run_date,
+            "run_timestamp": snap.run_timestamp,
+            "run_name": snap.run_name,
+            "model": snap.model,
+            "total_images": snap.total_images,
+            "annotated_images": snap.annotated_images,
+            "empty_bg_images": snap.empty_bg_images,
+            "train_images": snap.train_images,
+            "val_images": snap.val_images,
+            "dropped_regions": snap.dropped_regions,
+            # NOTE auto-labeled images aren't currently emitted by the
+            # pipeline — surface as null so the UI can show "—" rather
+            # than silently zero. Once the pipeline includes the field
+            # this becomes a real number.
+            "auto_labeled_images": None,
+            "by_class": snap.by_class,
+        })
+    return {
+        "available": len(points) > 0,
+        "points": points,
+        "latest": points[-1] if points else None,
     }
 
 

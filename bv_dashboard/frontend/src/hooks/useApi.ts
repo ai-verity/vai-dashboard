@@ -5,7 +5,7 @@ import type {
   Incident, KpiData, MonthlyData, CategoryData, LocationData,
   SeverityTier, HeatmapCell, TypeRankingItem, Location,
   VlmObservation, VlmDetail, VlmFeed, VlmStats, VlmPrompt, VlmAggregates, VlmRun,
-  AiSummary, AiByClass, AiComparison, AiHistory, AiPeriod,
+  AiSummary, AiByClass, AiComparison, AiHistory, AiPeriod, AiDataset,
 } from '../types';
 
 function useFetch<T>(url: string) {
@@ -262,6 +262,10 @@ export function useAiComparison(period: AiPeriod) {
 
 export function useAiHistory(period: AiPeriod) {
   return useFetch<AiHistory>(`/api/ai_metrics/history?period=${period}`);
+}
+
+export function useAiDataset() {
+  return useFetch<AiDataset>('/api/ai_metrics/dataset');
 }
 
 // Streaming AI analysis

@@ -429,6 +429,35 @@ export interface AiHistory {
   points_required: number;
 }
 
+// Per-class image-instance counts (boxes, not unique images).
+export interface AiDatasetClassRow {
+  cls: string;
+  train: number;
+  val: number;
+  total: number;
+}
+
+export interface AiDatasetPoint {
+  run_date: string;
+  run_timestamp: string | null;
+  run_name: string | null;
+  model: string | null;
+  total_images: number;
+  annotated_images: number;
+  empty_bg_images: number;
+  train_images: number;
+  val_images: number;
+  dropped_regions: number;
+  auto_labeled_images: number | null;
+  by_class: AiDatasetClassRow[];
+}
+
+export interface AiDataset {
+  available: boolean;
+  points: AiDatasetPoint[];
+  latest: AiDatasetPoint | null;
+}
+
 export const AI_METRIC_COLORS: Record<AiMetricName, string> = {
   Precision: '#4A9EF5',
   Recall:    '#2DC9A8',

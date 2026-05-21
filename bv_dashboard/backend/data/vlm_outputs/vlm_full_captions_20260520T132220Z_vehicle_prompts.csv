@@ -1,0 +1,6667 @@
+run_id,file_name,source,local_path,minio_key,preset,status,started_at,upload_seconds,caption_seconds,total_seconds,total_tokens,model,full_caption
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T000000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T000000.jpg,vehicle_prompts,done,2026-05-20T13:23:14.198529+00:00,0.162,1.248,1.433,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T001000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T001000.jpg,vehicle_prompts,done,2026-05-20T13:23:14.198952+00:00,0.162,1.197,1.382,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T002000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T002000.jpg,vehicle_prompts,done,2026-05-20T13:23:14.200073+00:00,0.154,0.892,1.074,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T003000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T003000.jpg,vehicle_prompts,done,2026-05-20T13:23:14.201579+00:00,0.153,0.938,1.118,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T004000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T004000.jpg,vehicle_prompts,done,2026-05-20T13:23:15.277360+00:00,0.043,0.781,0.827,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T005000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T005000.jpg,vehicle_prompts,done,2026-05-20T13:23:15.322212+00:00,0.05,0.859,0.911,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T010000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T010000.jpg,vehicle_prompts,done,2026-05-20T13:23:15.582694+00:00,0.041,0.9,0.944,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T011000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T011000.jpg,vehicle_prompts,done,2026-05-20T13:23:15.635359+00:00,0.046,0.914,0.962,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T012000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T012000.jpg,vehicle_prompts,done,2026-05-20T13:23:16.107049+00:00,0.042,0.674,0.718,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T013000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T013000.jpg,vehicle_prompts,done,2026-05-20T13:23:16.235625+00:00,0.041,0.749,0.793,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T014000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T014000.jpg,vehicle_prompts,done,2026-05-20T13:23:16.534980+00:00,0.063,0.755,0.821,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T015000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T015000.jpg,vehicle_prompts,done,2026-05-20T13:23:16.599756+00:00,0.047,0.911,0.961,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T020000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T020000.jpg,vehicle_prompts,done,2026-05-20T13:23:16.827427+00:00,0.046,0.867,0.915,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T021000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T021000.jpg,vehicle_prompts,done,2026-05-20T13:23:17.030741+00:00,0.039,0.814,0.855,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T022000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T022000.jpg,vehicle_prompts,done,2026-05-20T13:23:17.359473+00:00,0.046,0.663,0.712,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T023000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T023000.jpg,vehicle_prompts,done,2026-05-20T13:23:17.563395+00:00,0.044,0.648,0.695,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T024000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T024000.jpg,vehicle_prompts,done,2026-05-20T13:23:17.744760+00:00,0.041,0.704,0.747,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T025000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T025000.jpg,vehicle_prompts,done,2026-05-20T13:23:17.887948+00:00,0.037,0.752,0.791,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T030000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T030000.jpg,vehicle_prompts,done,2026-05-20T13:23:18.074013+00:00,0.041,0.775,0.818,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T031000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T031000.jpg,vehicle_prompts,done,2026-05-20T13:23:18.261121+00:00,0.043,0.751,0.796,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T032000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T032000.jpg,vehicle_prompts,done,2026-05-20T13:23:18.494344+00:00,0.036,0.708,0.746,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T033000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T033000.jpg,vehicle_prompts,done,2026-05-20T13:23:18.681321+00:00,0.043,0.725,0.77,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T034000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T034000.jpg,vehicle_prompts,done,2026-05-20T13:23:18.894567+00:00,0.04,0.718,0.761,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T035000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T035000.jpg,vehicle_prompts,done,2026-05-20T13:23:19.059901+00:00,0.042,0.783,0.827,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T040000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T040000.jpg,vehicle_prompts,done,2026-05-20T13:23:19.242233+00:00,0.034,0.813,0.849,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T041000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T041000.jpg,vehicle_prompts,done,2026-05-20T13:23:19.453835+00:00,0.042,0.725,0.769,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T042000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T042000.jpg,vehicle_prompts,done,2026-05-20T13:23:19.657763+00:00,0.037,0.721,0.76,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T043000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T043000.jpg,vehicle_prompts,done,2026-05-20T13:23:19.889647+00:00,0.044,0.658,0.704,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T044000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T044000.jpg,vehicle_prompts,done,2026-05-20T13:23:20.094184+00:00,0.041,0.717,0.76,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T045000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T045000.jpg,vehicle_prompts,done,2026-05-20T13:23:20.224772+00:00,0.046,0.765,0.813,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T050000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T050000.jpg,vehicle_prompts,done,2026-05-20T13:23:20.419816+00:00,0.042,0.796,0.84,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T051000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T051000.jpg,vehicle_prompts,done,2026-05-20T13:23:20.596528+00:00,0.043,0.756,0.801,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T052000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T052000.jpg,vehicle_prompts,done,2026-05-20T13:23:20.857263+00:00,0.046,0.71,0.758,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T053000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T053000.jpg,vehicle_prompts,done,2026-05-20T13:23:21.039703+00:00,0.042,0.704,0.749,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T054000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T054000.jpg,vehicle_prompts,done,2026-05-20T13:23:21.262675+00:00,0.042,0.719,0.763,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T055000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T055000.jpg,vehicle_prompts,done,2026-05-20T13:23:21.399708+00:00,0.043,0.809,0.854,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T060000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T060000.jpg,vehicle_prompts,done,2026-05-20T13:23:21.617940+00:00,0.049,0.797,0.848,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T061000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T061000.jpg,vehicle_prompts,done,2026-05-20T13:23:21.791206+00:00,0.048,0.777,0.828,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T062000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T062000.jpg,vehicle_prompts,done,2026-05-20T13:23:22.028103+00:00,0.045,0.703,0.75,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T063000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T063000.jpg,vehicle_prompts,done,2026-05-20T13:23:22.257147+00:00,0.049,0.653,0.705,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T064000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T064000.jpg,vehicle_prompts,done,2026-05-20T13:23:22.468623+00:00,0.041,0.685,0.729,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T065000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T065000.jpg,vehicle_prompts,done,2026-05-20T13:23:22.621980+00:00,0.046,0.735,0.783,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T070000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T070000.jpg,vehicle_prompts,done,2026-05-20T13:23:22.780357+00:00,0.041,0.738,0.781,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T071000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T071000.jpg,vehicle_prompts,done,2026-05-20T13:23:22.964364+00:00,0.044,0.772,0.817,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T072000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T072000.jpg,vehicle_prompts,done,2026-05-20T13:23:23.200182+00:00,0.041,0.73,0.774,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T073000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T073000.jpg,vehicle_prompts,done,2026-05-20T13:23:23.407801+00:00,0.037,0.74,0.779,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T074000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T074000.jpg,vehicle_prompts,done,2026-05-20T13:23:23.564870+00:00,0.048,0.729,0.779,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T075000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T075000.jpg,vehicle_prompts,done,2026-05-20T13:23:23.784364+00:00,0.039,0.766,0.807,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T080000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T080000.jpg,vehicle_prompts,done,2026-05-20T13:23:23.976315+00:00,0.037,0.719,0.758,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T081000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T081000.jpg,vehicle_prompts,done,2026-05-20T13:23:24.189113+00:00,0.043,0.75,0.795,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T082000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T082000.jpg,vehicle_prompts,done,2026-05-20T13:23:24.346097+00:00,0.037,0.758,0.797,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T083000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T083000.jpg,vehicle_prompts,done,2026-05-20T13:23:24.593844+00:00,0.043,0.734,0.779,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T084000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T084000.jpg,vehicle_prompts,done,2026-05-20T13:23:24.736933+00:00,0.034,1.404,1.44,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T085000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T085000.jpg,vehicle_prompts,done,2026-05-20T13:23:24.987215+00:00,0.051,1.759,1.813,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T090000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T090000.jpg,vehicle_prompts,done,2026-05-20T13:23:25.145909+00:00,0.042,1.29,1.335,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T091000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T091000.jpg,vehicle_prompts,done,2026-05-20T13:23:25.375932+00:00,0.04,1.29,1.343,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T092000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T092000.jpg,vehicle_prompts,done,2026-05-20T13:23:26.179892+00:00,0.04,0.794,0.837,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T093000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T093000.jpg,vehicle_prompts,done,2026-05-20T13:23:26.482992+00:00,0.043,0.739,0.783,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T094000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T094000.jpg,vehicle_prompts,done,2026-05-20T13:23:26.720954+00:00,0.042,0.71,0.755,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T095000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T095000.jpg,vehicle_prompts,done,2026-05-20T13:23:26.802422+00:00,0.042,0.806,0.85,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T100000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T100000.jpg,vehicle_prompts,done,2026-05-20T13:23:27.018844+00:00,0.045,0.75,0.797,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T101000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T101000.jpg,vehicle_prompts,done,2026-05-20T13:23:27.269911+00:00,0.045,0.687,0.734,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T102000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T102000.jpg,vehicle_prompts,done,2026-05-20T13:23:27.478540+00:00,0.043,0.695,0.74,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T103000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T103000.jpg,vehicle_prompts,done,2026-05-20T13:23:27.655129+00:00,0.048,0.745,0.795,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T104000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T104000.jpg,vehicle_prompts,done,2026-05-20T13:23:27.818393+00:00,0.045,0.774,0.821,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T105000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T105000.jpg,vehicle_prompts,done,2026-05-20T13:23:28.005807+00:00,0.038,0.764,0.805,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T110000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T110000.jpg,vehicle_prompts,done,2026-05-20T13:23:28.220833+00:00,0.04,0.769,0.811,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T111000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T111000.jpg,vehicle_prompts,done,2026-05-20T13:23:28.453041+00:00,0.046,0.715,0.763,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T112000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T112000.jpg,vehicle_prompts,done,2026-05-20T13:23:28.641948+00:00,0.035,0.764,0.801,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T113000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T113000.jpg,vehicle_prompts,done,2026-05-20T13:23:28.812740+00:00,0.037,0.76,0.8,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T114000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T114000.jpg,vehicle_prompts,done,2026-05-20T13:23:29.033672+00:00,0.041,0.784,0.828,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T115000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T115000.jpg,vehicle_prompts,done,2026-05-20T13:23:29.217878+00:00,0.047,0.742,0.792,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T120000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T120000.jpg,vehicle_prompts,done,2026-05-20T13:23:29.446191+00:00,0.048,0.774,0.825,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Black
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T121000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T121000.jpg,vehicle_prompts,done,2026-05-20T13:23:29.614656+00:00,0.038,0.749,0.79,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T122000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T122000.jpg,vehicle_prompts,done,2026-05-20T13:23:29.864089+00:00,0.044,0.733,0.78,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T123000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T123000.jpg,vehicle_prompts,done,2026-05-20T13:23:30.011897+00:00,0.039,0.828,0.869,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T124000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T124000.jpg,vehicle_prompts,done,2026-05-20T13:23:30.274461+00:00,0.044,0.725,0.771,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T125000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T125000.jpg,vehicle_prompts,done,2026-05-20T13:23:30.406540+00:00,0.039,0.773,0.815,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T130000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T130000.jpg,vehicle_prompts,done,2026-05-20T13:23:30.646425+00:00,0.045,0.725,0.772,,nvidia/cosmos-reason2-8b," GENERAL VEHICLE SAFETY
+1. Not visible
+2. Not visible
+
+COLLISIONS & NEAR MISSES
+3. Not visible
+4. Not visible
+
+PARKING & ACCESS VIOLATIONS
+5. Not visible
+6. Not visible
+7. Not visible
+
+SUSPICIOUS VEHICLE BEHAVIOR
+8. Not visible
+9. Not visible
+10. Not visible
+
+VEHICLE IDENTIFICATION
+11. Not visible
+12. Not visible
+13. Not visible
+
+PEDESTRIAN & CHILD SAFETY
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T131000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T131000.jpg,vehicle_prompts,done,2026-05-20T13:23:30.883205+00:00,0.035,0.69,0.728,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T132000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T132000.jpg,vehicle_prompts,done,2026-05-20T13:23:31.047270+00:00,0.036,0.765,0.804,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T133000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T133000.jpg,vehicle_prompts,done,2026-05-20T13:23:31.223520+00:00,0.035,0.772,0.809,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T134000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T134000.jpg,vehicle_prompts,done,2026-05-20T13:23:31.420828+00:00,0.034,0.842,0.878,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T135000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T135000.jpg,vehicle_prompts,done,2026-05-20T13:23:31.613249+00:00,0.041,0.737,0.78,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T140000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T140000.jpg,vehicle_prompts,done,2026-05-20T13:23:31.853097+00:00,0.049,0.68,0.731,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T141000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T141000.jpg,vehicle_prompts,done,2026-05-20T13:23:32.034818+00:00,0.041,0.698,0.741,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T142000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T142000.jpg,vehicle_prompts,done,2026-05-20T13:23:32.301303+00:00,0.047,0.701,0.75,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T143000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T143000.jpg,vehicle_prompts,done,2026-05-20T13:23:32.396054+00:00,0.04,0.833,0.874,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T144000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T144000.jpg,vehicle_prompts,done,2026-05-20T13:23:32.586348+00:00,0.036,0.841,0.879,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T145000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T145000.jpg,vehicle_prompts,done,2026-05-20T13:23:32.778251+00:00,0.036,0.794,0.832,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T150000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T150000.jpg,vehicle_prompts,done,2026-05-20T13:23:33.054048+00:00,0.049,0.724,0.775,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T151000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T151000.jpg,vehicle_prompts,done,2026-05-20T13:23:33.272798+00:00,0.043,0.719,0.764,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T152000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T152000.jpg,vehicle_prompts,done,2026-05-20T13:23:33.467228+00:00,0.044,0.745,0.791,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T153000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T153000.jpg,vehicle_prompts,done,2026-05-20T13:23:33.612546+00:00,0.039,0.822,0.863,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T154000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T154000.jpg,vehicle_prompts,done,2026-05-20T13:23:33.831522+00:00,0.041,0.804,0.847,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T155000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T155000.jpg,vehicle_prompts,done,2026-05-20T13:23:34.038870+00:00,0.039,0.755,0.796,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T160000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T160000.jpg,vehicle_prompts,done,2026-05-20T13:23:34.260920+00:00,0.05,0.724,0.776,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T161000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T161000.jpg,vehicle_prompts,done,2026-05-20T13:23:34.478456+00:00,0.04,0.702,0.744,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T162000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T162000.jpg,vehicle_prompts,done,2026-05-20T13:23:34.681498+00:00,0.041,0.734,0.777,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T163000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T163000.jpg,vehicle_prompts,done,2026-05-20T13:23:34.836692+00:00,0.034,0.795,0.832,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T164000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T164000.jpg,vehicle_prompts,done,2026-05-20T13:23:35.038845+00:00,0.038,0.782,0.822,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T165000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T165000.jpg,vehicle_prompts,done,2026-05-20T13:23:35.225028+00:00,0.042,0.741,0.785,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T170000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T170000.jpg,vehicle_prompts,done,2026-05-20T13:23:35.461484+00:00,0.046,0.702,0.76,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T171000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T171000.jpg,vehicle_prompts,done,2026-05-20T13:23:35.671091+00:00,0.048,0.805,0.856,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T172000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T172000.jpg,vehicle_prompts,done,2026-05-20T13:23:35.863524+00:00,0.037,0.732,0.771,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T173000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T173000.jpg,vehicle_prompts,done,2026-05-20T13:23:36.012508+00:00,0.05,0.73,0.782,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T174000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T174000.jpg,vehicle_prompts,done,2026-05-20T13:23:36.224162+00:00,0.046,0.73,0.778,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T175000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T175000.jpg,vehicle_prompts,done,2026-05-20T13:23:36.529216+00:00,0.046,0.706,0.754,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T180000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T180000.jpg,vehicle_prompts,done,2026-05-20T13:23:36.637132+00:00,0.043,0.791,0.835,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T181000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T181000.jpg,vehicle_prompts,done,2026-05-20T13:23:36.796798+00:00,0.041,0.833,0.877,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T182000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T182000.jpg,vehicle_prompts,done,2026-05-20T13:23:37.005069+00:00,0.037,0.787,0.826,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T183000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T183000.jpg,vehicle_prompts,done,2026-05-20T13:23:37.286292+00:00,0.046,0.711,0.759,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T184000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T184000.jpg,vehicle_prompts,done,2026-05-20T13:23:37.475693+00:00,0.044,0.733,0.779,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T185000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T185000.jpg,vehicle_prompts,done,2026-05-20T13:23:37.676943+00:00,0.04,0.776,0.819,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T190000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T190000.jpg,vehicle_prompts,done,2026-05-20T13:23:37.833714+00:00,0.043,0.76,0.805,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T191000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T191000.jpg,vehicle_prompts,done,2026-05-20T13:23:38.047803+00:00,0.046,0.789,0.838,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T192000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T192000.jpg,vehicle_prompts,done,2026-05-20T13:23:38.256985+00:00,0.045,0.785,0.832,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T193000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T193000.jpg,vehicle_prompts,done,2026-05-20T13:23:38.498077+00:00,0.039,0.729,0.771,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T194000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T194000.jpg,vehicle_prompts,done,2026-05-20T13:23:38.641231+00:00,0.04,0.759,0.801,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T195000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T195000.jpg,vehicle_prompts,done,2026-05-20T13:23:38.887672+00:00,0.048,0.72,0.771,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T200000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T200000.jpg,vehicle_prompts,done,2026-05-20T13:23:39.091302+00:00,0.039,0.705,0.747,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T201000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T201000.jpg,vehicle_prompts,done,2026-05-20T13:23:39.272390+00:00,0.04,0.751,0.793,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T202000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T202000.jpg,vehicle_prompts,done,2026-05-20T13:23:39.444961+00:00,0.039,0.784,0.825,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T203000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T203000.jpg,vehicle_prompts,done,2026-05-20T13:23:39.660818+00:00,0.051,0.769,0.822,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T204000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T204000.jpg,vehicle_prompts,done,2026-05-20T13:23:39.840339+00:00,0.04,0.795,0.839,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T205000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T205000.jpg,vehicle_prompts,done,2026-05-20T13:23:40.068550+00:00,0.043,0.733,0.779,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T210000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T210000.jpg,vehicle_prompts,done,2026-05-20T13:23:40.272599+00:00,0.046,0.733,0.781,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T211000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T211000.jpg,vehicle_prompts,done,2026-05-20T13:23:40.484994+00:00,0.032,0.73,0.764,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T212000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T212000.jpg,vehicle_prompts,done,2026-05-20T13:23:40.681541+00:00,0.043,0.763,0.808,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T213000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T213000.jpg,vehicle_prompts,done,2026-05-20T13:23:40.850069+00:00,0.04,0.731,0.773,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T214000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T214000.jpg,vehicle_prompts,done,2026-05-20T13:23:41.056022+00:00,0.046,0.781,0.829,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T215000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T215000.jpg,vehicle_prompts,done,2026-05-20T13:23:41.251867+00:00,0.036,0.724,0.762,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T220000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T220000.jpg,vehicle_prompts,done,2026-05-20T13:23:41.491351+00:00,0.041,0.717,0.76,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T221000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T221000.jpg,vehicle_prompts,done,2026-05-20T13:23:41.625245+00:00,0.041,0.719,0.762,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T222000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T222000.jpg,vehicle_prompts,done,2026-05-20T13:23:41.887426+00:00,0.037,0.718,0.756,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T223000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T223000.jpg,vehicle_prompts,done,2026-05-20T13:23:42.016021+00:00,0.036,0.756,0.794,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T224000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T224000.jpg,vehicle_prompts,done,2026-05-20T13:23:42.254222+00:00,0.053,0.829,0.885,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T225000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T225000.jpg,vehicle_prompts,done,2026-05-20T13:23:42.389037+00:00,0.04,0.756,0.798,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T230000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T230000.jpg,vehicle_prompts,done,2026-05-20T13:23:42.646133+00:00,0.041,0.704,0.747,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T231000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T231000.jpg,vehicle_prompts,done,2026-05-20T13:23:42.812435+00:00,0.046,0.784,0.832,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T232000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T232000.jpg,vehicle_prompts,done,2026-05-20T13:23:43.141202+00:00,0.048,0.988,1.038,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T233000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T233000.jpg,vehicle_prompts,done,2026-05-20T13:23:43.189710+00:00,0.037,0.835,0.874,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T234000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T234000.jpg,vehicle_prompts,done,2026-05-20T13:23:43.395264+00:00,0.033,0.895,0.93,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_3_20260519T235000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_3/AP_Gate_7_Camera_3_20260519T235000.jpg,vehicle_prompts,done,2026-05-20T13:23:43.646754+00:00,0.033,0.786,0.821,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T005000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T005000.jpg,vehicle_prompts,done,2026-05-20T13:24:19.056878+00:00,0.145,0.968,1.129,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T010000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T010000.jpg,vehicle_prompts,done,2026-05-20T13:24:19.057679+00:00,0.145,0.813,0.974,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T011000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T011000.jpg,vehicle_prompts,done,2026-05-20T13:24:19.058233+00:00,0.144,1.265,1.424,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T054000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T054000.jpg,vehicle_prompts,done,2026-05-20T13:24:19.059389+00:00,0.145,1.157,1.317,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T064000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T064000.jpg,vehicle_prompts,done,2026-05-20T13:24:20.033911+00:00,0.04,0.658,0.7,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T065000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T065000.jpg,vehicle_prompts,done,2026-05-20T13:24:20.188258+00:00,0.038,0.779,0.819,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T070000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T070000.jpg,vehicle_prompts,done,2026-05-20T13:24:20.378381+00:00,0.044,0.734,0.779,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T071000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T071000.jpg,vehicle_prompts,done,2026-05-20T13:24:20.484899+00:00,0.038,0.843,0.884,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T072000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T072000.jpg,vehicle_prompts,done,2026-05-20T13:24:20.737424+00:00,0.042,0.747,0.791,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T073000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T073000.jpg,vehicle_prompts,done,2026-05-20T13:24:21.009443+00:00,0.044,0.681,0.727,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T074000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T074000.jpg,vehicle_prompts,done,2026-05-20T13:24:21.160388+00:00,0.044,0.719,0.766,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T075000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T075000.jpg,vehicle_prompts,done,2026-05-20T13:24:21.371779+00:00,0.041,0.834,0.877,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T080000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T080000.jpg,vehicle_prompts,done,2026-05-20T13:24:21.531562+00:00,0.047,0.782,0.831,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T081000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T081000.jpg,vehicle_prompts,done,2026-05-20T13:24:21.738673+00:00,0.039,0.77,0.811,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T082000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T082000.jpg,vehicle_prompts,done,2026-05-20T13:24:21.928365+00:00,0.041,0.754,0.797,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T083000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T083000.jpg,vehicle_prompts,done,2026-05-20T13:24:22.250965+00:00,0.045,0.644,0.691,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T084000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T084000.jpg,vehicle_prompts,done,2026-05-20T13:24:22.365129+00:00,0.038,0.807,0.846,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T085000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T085000.jpg,vehicle_prompts,done,2026-05-20T13:24:22.552107+00:00,0.048,0.792,0.841,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T090000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T090000.jpg,vehicle_prompts,done,2026-05-20T13:24:22.727685+00:00,0.045,0.815,0.862,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T091000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T091000.jpg,vehicle_prompts,done,2026-05-20T13:24:22.943866+00:00,0.042,0.733,0.777,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T092000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T092000.jpg,vehicle_prompts,done,2026-05-20T13:24:23.213803+00:00,0.046,0.689,0.737,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T093000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T093000.jpg,vehicle_prompts,done,2026-05-20T13:24:23.395588+00:00,0.037,0.715,0.754,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T094000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T094000.jpg,vehicle_prompts,done,2026-05-20T13:24:23.592321+00:00,0.04,0.756,0.798,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T095000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T095000.jpg,vehicle_prompts,done,2026-05-20T13:24:23.723287+00:00,0.045,0.813,0.86,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T100000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T100000.jpg,vehicle_prompts,done,2026-05-20T13:24:23.953679+00:00,0.045,0.719,0.766,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T101000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T101000.jpg,vehicle_prompts,done,2026-05-20T13:24:24.151734+00:00,0.052,0.725,0.78,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T102000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T102000.jpg,vehicle_prompts,done,2026-05-20T13:24:24.393569+00:00,0.045,0.729,0.777,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T103000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T103000.jpg,vehicle_prompts,done,2026-05-20T13:24:24.586035+00:00,0.041,0.698,0.741,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T104000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T104000.jpg,vehicle_prompts,done,2026-05-20T13:24:24.721943+00:00,0.036,0.745,0.782,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T105000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T105000.jpg,vehicle_prompts,done,2026-05-20T13:24:24.934170+00:00,0.039,0.749,0.79,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T110000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T110000.jpg,vehicle_prompts,done,2026-05-20T13:24:25.173130+00:00,0.042,0.697,0.742,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T111000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T111000.jpg,vehicle_prompts,done,2026-05-20T13:24:25.329136+00:00,0.038,0.724,0.764,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T112000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T112000.jpg,vehicle_prompts,done,2026-05-20T13:24:25.506378+00:00,0.041,0.767,0.81,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T113000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T113000.jpg,vehicle_prompts,done,2026-05-20T13:24:25.726492+00:00,0.042,1.335,1.38,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T114000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T114000.jpg,vehicle_prompts,done,2026-05-20T13:24:25.916812+00:00,0.046,1.592,1.651,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T115000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T115000.jpg,vehicle_prompts,done,2026-05-20T13:24:26.095787+00:00,0.042,1.649,1.693,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T120000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T120000.jpg,vehicle_prompts,done,2026-05-20T13:24:26.318185+00:00,0.042,1.324,1.367,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T121000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T121000.jpg,vehicle_prompts,done,2026-05-20T13:24:27.108981+00:00,0.041,0.795,0.839,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T122000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T122000.jpg,vehicle_prompts,done,2026-05-20T13:24:27.571217+00:00,0.041,0.719,0.762,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T123000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T123000.jpg,vehicle_prompts,done,2026-05-20T13:24:27.687512+00:00,0.042,0.835,0.878,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T124000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T124000.jpg,vehicle_prompts,done,2026-05-20T13:24:27.790737+00:00,0.04,0.981,1.035,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T125000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T125000.jpg,vehicle_prompts,done,2026-05-20T13:24:27.950253+00:00,0.044,0.903,0.949,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T130000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T130000.jpg,vehicle_prompts,done,2026-05-20T13:24:28.336122+00:00,0.041,0.705,0.748,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T131000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T131000.jpg,vehicle_prompts,done,2026-05-20T13:24:28.568546+00:00,0.052,0.678,0.732,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T132000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T132000.jpg,vehicle_prompts,done,2026-05-20T13:24:28.827666+00:00,0.055,0.679,0.736,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T133000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T133000.jpg,vehicle_prompts,done,2026-05-20T13:24:28.901463+00:00,0.034,1.06,1.096,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T134000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T134000.jpg,vehicle_prompts,done,2026-05-20T13:24:29.087419+00:00,0.051,0.724,0.777,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T135000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T135000.jpg,vehicle_prompts,done,2026-05-20T13:24:29.302853+00:00,0.051,0.779,0.832,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T140000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T140000.jpg,vehicle_prompts,done,2026-05-20T13:24:29.566002+00:00,0.043,0.746,0.792,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T141000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T141000.jpg,vehicle_prompts,done,2026-05-20T13:24:29.866698+00:00,0.04,0.657,0.699,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T142000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T142000.jpg,vehicle_prompts,done,2026-05-20T13:24:30.000020+00:00,0.042,0.756,0.8,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T143000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T143000.jpg,vehicle_prompts,done,2026-05-20T13:24:30.137303+00:00,0.041,0.823,0.866,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T144000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T144000.jpg,vehicle_prompts,done,2026-05-20T13:24:30.360412+00:00,0.046,0.762,0.81,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T145000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T145000.jpg,vehicle_prompts,done,2026-05-20T13:24:30.568456+00:00,0.042,0.733,0.777,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T150000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T150000.jpg,vehicle_prompts,done,2026-05-20T13:24:30.803665+00:00,0.049,0.673,0.725,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T151000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T151000.jpg,vehicle_prompts,done,2026-05-20T13:24:31.005921+00:00,0.045,0.654,0.713,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T152000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T152000.jpg,vehicle_prompts,done,2026-05-20T13:24:31.173250+00:00,0.044,0.701,0.747,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T153000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T153000.jpg,vehicle_prompts,done,2026-05-20T13:24:31.348111+00:00,0.045,0.89,0.938,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T154000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T154000.jpg,vehicle_prompts,done,2026-05-20T13:24:31.531011+00:00,0.051,0.767,0.821,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T155000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T155000.jpg,vehicle_prompts,done,2026-05-20T13:24:31.721636+00:00,0.038,0.819,0.858,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T160000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T160000.jpg,vehicle_prompts,done,2026-05-20T13:24:31.923136+00:00,0.049,0.782,0.832,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T161000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T161000.jpg,vehicle_prompts,done,2026-05-20T13:24:32.289314+00:00,0.042,0.736,0.781,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T162000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T162000.jpg,vehicle_prompts,done,2026-05-20T13:24:32.353759+00:00,0.05,0.849,0.901,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T163000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T163000.jpg,vehicle_prompts,done,2026-05-20T13:24:32.582449+00:00,0.045,0.783,0.83,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T164000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T164000.jpg,vehicle_prompts,done,2026-05-20T13:24:32.758490+00:00,0.048,0.758,0.808,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T165000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T165000.jpg,vehicle_prompts,done,2026-05-20T13:24:33.072275+00:00,0.045,0.665,0.713,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T170000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T170000.jpg,vehicle_prompts,done,2026-05-20T13:24:33.257740+00:00,0.047,0.682,0.743,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T171000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T171000.jpg,vehicle_prompts,done,2026-05-20T13:24:33.414434+00:00,0.038,0.851,0.89,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T172000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T172000.jpg,vehicle_prompts,done,2026-05-20T13:24:33.569395+00:00,0.046,0.84,0.889,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T173000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T173000.jpg,vehicle_prompts,done,2026-05-20T13:24:33.787529+00:00,0.046,0.827,0.875,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T174000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T174000.jpg,vehicle_prompts,done,2026-05-20T13:24:34.003508+00:00,0.04,0.789,0.831,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T175000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T175000.jpg,vehicle_prompts,done,2026-05-20T13:24:34.307149+00:00,0.042,0.689,0.733,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T180000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T180000.jpg,vehicle_prompts,done,2026-05-20T13:24:34.461030+00:00,0.04,0.731,0.773,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T181000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T181000.jpg,vehicle_prompts,done,2026-05-20T13:24:34.665330+00:00,0.041,0.719,0.763,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T182000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T182000.jpg,vehicle_prompts,done,2026-05-20T13:24:34.836707+00:00,0.046,0.736,0.784,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T183000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T183000.jpg,vehicle_prompts,done,2026-05-20T13:24:35.042787+00:00,0.037,0.776,0.814,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T184000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T184000.jpg,vehicle_prompts,done,2026-05-20T13:24:35.236275+00:00,0.03,0.735,0.767,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T185000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T185000.jpg,vehicle_prompts,done,2026-05-20T13:24:35.430538+00:00,0.039,0.78,0.833,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T190000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T190000.jpg,vehicle_prompts,done,2026-05-20T13:24:35.623271+00:00,0.047,0.749,0.798,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T191000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T191000.jpg,vehicle_prompts,done,2026-05-20T13:24:35.860445+00:00,0.047,0.706,0.755,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T192000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T192000.jpg,vehicle_prompts,done,2026-05-20T13:24:36.005670+00:00,0.039,0.803,0.844,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T193000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T193000.jpg,vehicle_prompts,done,2026-05-20T13:24:36.265828+00:00,0.036,0.683,0.722,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T194000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T194000.jpg,vehicle_prompts,done,2026-05-20T13:24:36.422977+00:00,0.047,0.713,0.762,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T195000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T195000.jpg,vehicle_prompts,done,2026-05-20T13:24:36.617452+00:00,0.041,0.711,0.754,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T200000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T200000.jpg,vehicle_prompts,done,2026-05-20T13:24:36.851479+00:00,0.048,0.679,0.729,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T201000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T201000.jpg,vehicle_prompts,done,2026-05-20T13:24:36.989604+00:00,0.041,0.718,0.761,,nvidia/cosmos-reason2-8b,"[date]
+
+[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T202000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T202000.jpg,vehicle_prompts,done,2026-05-20T13:24:37.186990+00:00,0.04,0.734,0.777,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T233000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T233000.jpg,vehicle_prompts,done,2026-05-20T13:24:37.374916+00:00,0.04,0.719,0.762,,nvidia/cosmos-reason2-8b,"### [GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+### [COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+### [PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+### [SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+### [VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+### [PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"
+20260520T132220Z,AP_Gate_7_Camera_4_20260519T234000.jpg,,,dataset_20260520_005431/AP_Gate_7_Camera_4/AP_Gate_7_Camera_4_20260519T234000.jpg,vehicle_prompts,done,2026-05-20T13:24:37.583541+00:00,0.039,0.701,0.742,,nvidia/cosmos-reason2-8b,"[GENERAL VEHICLE SAFETY]
+1. Not visible
+2. Not visible
+
+[COLLISIONS & NEAR MISSES]
+3. Not visible
+4. Not visible
+
+[PARKING & ACCESS VIOLATIONS]
+5. Not visible
+6. Not visible
+7. Not visible
+
+[SUSPICIOUS VEHICLE BEHAVIOR]
+8. Not visible
+9. Not visible
+10. Not visible
+
+[VEHICLE IDENTIFICATION]
+11. Not visible
+12. Not visible
+13. Not visible
+
+[PEDESTRIAN & CHILD SAFETY]
+14. Not visible
+15. Not visible
+16. Not visible
+17. Not visible"

@@ -17,7 +17,7 @@ from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 from typing import Optional
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "vlm_outputs")
 
 # Filename suffix encoding capture time. Two formats in the wild:
 #   ..._03-27-2026-01-09-40-pm.jpg   (legacy: MM-DD-YYYY-HH-MM-SS-am/pm)
