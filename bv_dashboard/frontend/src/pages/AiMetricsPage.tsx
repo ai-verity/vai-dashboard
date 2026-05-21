@@ -12,10 +12,10 @@ import {
   useAiSummary, useAiComparison, useAiByClass, useAiHistory, useAiDataset,
 } from '../hooks/useApi';
 import type {
-  AiPeriod, AiHeadlineRow, AiPerClassRow, AiByClassRow, AiHistoryPoint,
-  AiDatasetPoint,
+  AiPeriod, AiHeadlineRow, AiPerClassRow, AiByClassRow,
+  AiDatasetPoint, AiHistory,
 } from '../types';
-import { AI_METRIC_COLORS } from '../types';
+import { AI_METRIC_COLORS, AI_CLASS_COLORS } from '../types';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
 import { useTheme } from '../hooks/useTheme';
 import ThemeToggle from '../components/ThemeToggle';
@@ -141,16 +141,34 @@ function HeadlineCards({
 }
 
 // ─── Time-series chart (multi-line P/R/F1 across runs) ──────────────
+type HistoryMode = 'macro' | 'per_class';
+type MetricChoice = 'Precision' | 'Recall' | 'F1';
+
 function HistoryChart({
-  points, pointsRequired, period, aggregateOnly,
+  history, period,
 }: {
-  points: AiHistoryPoint[];
-  pointsRequired: number;
+  history: AiHistory;
   period: AiPeriod;
-  aggregateOnly: boolean;
 }) {
+  const points = history.points;
+  const byClass = history.by_class ?? [];
+  const pointsRequired = history.points_required;
   const enough = points.length >= 2;
   const { tick } = useTheme();
+  const [mode, setMode] = useState<HistoryMode>('macro');
+  const [classMetric, setClassMetric] = useState<MetricChoice>('F1');
+
+  // Per-class mode needs at least one class with at least one non-null
+  // value for the chosen metric. Without that we fall back to the
+  // empty-state callout below.
+  const perClassSeries = useMemo(() => {
+    if (mode !== 'per_class') return [] as { cls: string; values: (number | null)[] }[];
+    return byClass.map(s => ({
+      cls: s.cls,
+      values: s.points.map(p => p[classMetric]),
+    })).filter(s => s.values.some(v => v !== null));
+  }, [mode, byClass, classMetric]);
+
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 240);
     if (!g) return;
@@ -181,7 +199,7 @@ function HistoryChart({
     };
     const yFor = (v: number) => p.t + (H - p.t - p.b) * (1 - v);
 
-    // x-axis labels
+    // x-axis labels (one per run, ticked from points which both modes share)
     points.forEach((pt, i) => {
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
@@ -189,23 +207,22 @@ function HistoryChart({
       ctx.fillText(pt.run_date.slice(5), xFor(i), H - 12);
     });
 
-    METRICS.forEach(metric => {
-      const col = AI_METRIC_COLORS[metric];
-      const xs = points.map((_, i) => xFor(i));
-      const ys = points.map(p2 => {
-        const v = p2[metric];
-        return v === null ? null : yFor(v);
-      });
+    // Helper: stroke a polyline that BREAKS on null points (separate
+    // sub-paths) so motorcycle/bus's null-score days don't draw straight
+    // through zero on the chart.
+    const drawSeries = (values: (number | null)[], col: string) => {
+      const xs = values.map((_, i) => xFor(i));
+      const ys = values.map(v => (v === null ? null : yFor(v)));
 
-      ctx.beginPath();
-      let first = true;
-      ys.forEach((y, i) => {
-        if (y === null) return;
-        if (first) { ctx.moveTo(xs[i], y); first = false; }
-        else ctx.lineTo(xs[i], y);
-      });
       ctx.strokeStyle = col;
       ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      let pendingMove = true;
+      ys.forEach((y, i) => {
+        if (y === null) { pendingMove = true; return; }
+        if (pendingMove) { ctx.moveTo(xs[i], y); pendingMove = false; }
+        else ctx.lineTo(xs[i], y);
+      });
       ctx.stroke();
 
       ys.forEach((y, i) => {
@@ -218,51 +235,96 @@ function HistoryChart({
         ctx.lineWidth = 1.5;
         ctx.stroke();
       });
-    });
+    };
 
-    // Legend (top-right)
-    METRICS.forEach((m, mi) => {
-      const x = W - p.r - 200 + mi * 70;
-      const y = p.t - 4;
-      ctx.fillStyle = AI_METRIC_COLORS[m];
-      ctx.fillRect(x, y, 8, 8);
-      ctx.fillStyle = TEXT;
-      ctx.font = '10px DM Mono, monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(m, x + 12, y + 7);
-    });
-  }, [points, tick]);
+    if (mode === 'macro') {
+      METRICS.forEach(metric => {
+        const col = AI_METRIC_COLORS[metric];
+        drawSeries(points.map(p2 => p2[metric]), col);
+      });
+
+      // Legend (top-right) — the 3 metrics
+      METRICS.forEach((m, mi) => {
+        const x = W - p.r - 200 + mi * 70;
+        const y = p.t - 4;
+        ctx.fillStyle = AI_METRIC_COLORS[m];
+        ctx.fillRect(x, y, 8, 8);
+        ctx.fillStyle = TEXT;
+        ctx.font = '10px DM Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(m, x + 12, y + 7);
+      });
+    } else {
+      perClassSeries.forEach(s => {
+        const col = AI_CLASS_COLORS[s.cls] ?? '#888';
+        drawSeries(s.values, col);
+      });
+
+      // Legend — one swatch per visible class, wrapped to two rows if needed.
+      const swatchW = 78;
+      perClassSeries.forEach((s, ci) => {
+        const x = W - p.r - swatchW * Math.min(perClassSeries.length, 4) + (ci % 4) * swatchW;
+        const y = p.t - 4 + Math.floor(ci / 4) * 12;
+        ctx.fillStyle = AI_CLASS_COLORS[s.cls] ?? '#888';
+        ctx.fillRect(x, y, 8, 8);
+        ctx.fillStyle = TEXT;
+        ctx.font = '10px DM Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(s.cls, x + 12, y + 7);
+      });
+    }
+  }, [mode, classMetric, points, perClassSeries, tick]);
+
+  const toggleBtn = (active: boolean, label: string, onClick: () => void) => (
+    <button
+      onClick={onClick}
+      style={{
+        fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.06em',
+        padding: '4px 10px', borderRadius: 3,
+        border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+        background: active ? 'rgba(232,93,47,0.10)' : 'transparent',
+        color: active ? 'var(--accent)' : 'var(--muted)',
+        cursor: 'pointer',
+      }}
+    >{label}</button>
+  );
 
   return (
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
-          <div style={S.title}>
-            Metric Trend
-            {aggregateOnly && (
-              <span
-                title="Trend reflects macro-averaged values across all 6 project classes — no per-class series for these runs"
-                style={{
-                  marginLeft: 10, fontSize: 8, letterSpacing: '0.1em',
-                  padding: '2px 6px', borderRadius: 2,
-                  background: 'rgba(74,158,245,0.12)',
-                  color: 'var(--blue)',
-                  border: '1px solid rgba(74,158,245,0.35)',
-                  verticalAlign: 'middle',
-                }}
-              >
-                ALL CLASSES
-              </span>
-            )}
-          </div>
+          <div style={S.title}>Metric Trend</div>
           <div style={S.sub}>
-            Macro-averaged P / R / F1 across daily training runs
+            {mode === 'macro'
+              ? 'Weighted by val instances across daily training runs'
+              : `Per-class ${classMetric} across daily training runs — line breaks where a class has no data`}
           </div>
         </div>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
-          {points.length} of {pointsRequired} runs captured ({period})
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {toggleBtn(mode === 'macro', 'Macro avg', () => setMode('macro'))}
+            {toggleBtn(mode === 'per_class', 'Per-class', () => setMode('per_class'))}
+          </div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
+            {points.length} of {pointsRequired} runs captured ({period})
+          </div>
         </div>
       </div>
+      {mode === 'per_class' && (
+        <div style={{
+          padding: '6px 18px', borderBottom: '1px solid var(--b2)',
+          display: 'flex', gap: 4, alignItems: 'center',
+        }}>
+          <span style={{
+            fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700,
+            color: 'var(--muted)', letterSpacing: '0.12em',
+            textTransform: 'uppercase', marginRight: 6,
+          }}>Metric</span>
+          {(['F1', 'Precision', 'Recall'] as const).map(m =>
+            toggleBtn(classMetric === m, m, () => setClassMetric(m))
+          )}
+        </div>
+      )}
       <div style={S.body}>
         <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
         {!enough && (
@@ -274,6 +336,16 @@ function HistoryChart({
             Trend line activates once at least 2 daily runs are on disk.
             The first run is plotted as a single point above; subsequent
             pipeline executions will extend the chart automatically.
+          </div>
+        )}
+        {enough && mode === 'per_class' && perClassSeries.length === 0 && (
+          <div style={{
+            marginTop: 10, padding: '10px 14px',
+            border: '1px dashed var(--border)', borderRadius: 4,
+            fontSize: 11, color: 'var(--dim)', fontFamily: 'var(--mono)',
+          }}>
+            No per-class series for {classMetric}. Try Precision or Recall, or
+            switch back to Macro avg.
           </div>
         )}
       </div>
@@ -974,12 +1046,7 @@ export default function AiMetricsPage() {
         {/* Row 1: history (wide) */}
         <div style={{ gridColumn: 'span 2' }}>
           {history ? (
-            <HistoryChart
-              points={history.points}
-              pointsRequired={history.points_required}
-              period={period}
-              aggregateOnly={aggregateOnly}
-            />
+            <HistoryChart history={history} period={period} />
           ) : (
             <SkeletonPanel title="Metric Trend" />
           )}

@@ -281,11 +281,13 @@ def load() -> None:
         dataset = _load_dataset_mappings()
 
         # Pair each RunSnapshot with the same-date DatasetSnapshot parsed
-        # from `YYYYMMDD_HHMMSS_stream_class_mapping.txt`. This replaces the
-        # old class_mapping.json sidecar — the new flat layout has the txt
-        # files instead, which carry model / run_name / timestamp / per-class
-        # instance counts. Without this join, the UI shows '—' for all four
-        # fields even when the data is present on disk.
+        # from `YYYYMMDD_HHMMSS_stream_class_mapping.txt` — only for
+        # metadata (model / run_name / run_timestamp). We intentionally do
+        # NOT pull `instance_counts` from the txt here: those values
+        # describe the full COCO training corpus (motorcycle=8019 val),
+        # not the deployed model's validation set (motorcycle=2 val). The
+        # canonical class_mapping.json fallback below is the right source
+        # of weights for the weighted-mean aggregation in _overall().
         dataset_by_date = {ds.run_date: ds for ds in dataset}
         for snap in history:
             ds = dataset_by_date.get(snap.run_date)
@@ -297,11 +299,24 @@ def load() -> None:
                 snap.run_name = ds.run_name
             if snap.run_timestamp is None:
                 snap.run_timestamp = ds.run_timestamp
-            if not snap.instance_counts:
-                snap.instance_counts = {
-                    row["cls"]: {"train": row["train"], "val": row["val"], "total": row["total"]}
-                    for row in ds.by_class
-                }
+
+        # Fallback: if a history snapshot has no per-date class_mapping_*.json,
+        # inherit instance_counts from the canonical class_mapping.json. The
+        # train/val split rarely changes day-to-day, so one file covers most
+        # cases. The per-date sidecar lookup at _snapshot_from_files() already
+        # wins when a same-date JSON exists.
+        canonical_inst: dict = {}
+        canonical_path = os.path.join(DATA_DIR, "class_mapping.json")
+        if os.path.exists(canonical_path):
+            canonical_inst = (
+                _read_class_mapping(canonical_path)
+                .get("instance_counts", {})
+                .get("by_class", {})
+            )
+        if canonical_inst:
+            for snap in history:
+                if not snap.instance_counts:
+                    snap.instance_counts = canonical_inst
 
         _STATE["history"] = history
         _STATE["current"] = history[-1] if history else None
@@ -505,15 +520,19 @@ def _real_classes(snap: RunSnapshot) -> list[str]:
 
 
 def _overall(snap: RunSnapshot, field_name: str) -> dict[str, Optional[float]]:
-    """Macro-average across classes (equal weight per class) for the
-    headline metrics. Macro-average is the right summary when class
-    balance is highly skewed, which it is here (motorcycle/bus have <10
-    instances).
+    """Instance-weighted mean across classes for headline P/R/F1.
 
-    Pseudo-class 'all' in a comparison file shortcuts the average: when
-    present, its value is used verbatim (handy for older runs where the
-    pipeline emitted only aggregate metrics, not the per-class
-    breakdown)."""
+    Weighted by val instance counts when available — the right summary
+    when the validation set is dominated by a few high-frequency classes
+    (person ~38%, bicycle ~42%, car ~20% of val instances; motorcycle/bus
+    together are <0.1%). Macro-averaging gives motorcycle the same weight
+    as person, which conflates 'no validation data' with regression.
+
+    Falls back to macro-average when no instance counts are available.
+
+    The 'all' pseudo-class in a comparison file shortcuts everything:
+    when present with all three METRICS, its values are used verbatim.
+    """
     direct: dict[str, Optional[float]] = {}
     for m in snap.metrics:
         if m.cls.lower() == "all" and m.metric in METRICS:
@@ -523,16 +542,28 @@ def _overall(snap: RunSnapshot, field_name: str) -> dict[str, Optional[float]]:
     if len(direct) == len(METRICS):
         return direct
 
-    buckets: dict[str, list[float]] = {m: [] for m in METRICS}
-    for m in snap.metrics:
-        if m.cls.lower() == "all":
-            continue
-        if m.metric not in buckets:
-            continue
-        v = getattr(m, field_name)
-        if v is not None:
-            buckets[m.metric].append(v)
-    out = {k: _avg(v) for k, v in buckets.items()}
+    inst = snap.instance_counts or {}
+
+    def weight_for(cls: str) -> float:
+        cell = inst.get(cls) or {}
+        # Prefer val; fall back to total; else equal weight.
+        return float(cell.get("val") or cell.get("total") or 1.0)
+
+    out: dict[str, Optional[float]] = {}
+    for metric_name in METRICS:
+        num = 0.0
+        den = 0.0
+        for m in snap.metrics:
+            if m.cls.lower() == "all" or m.metric != metric_name:
+                continue
+            v = getattr(m, field_name)
+            if v is None:
+                continue
+            w = weight_for(m.cls)
+            num += v * w
+            den += w
+        out[metric_name] = (num / den) if den > 0 else None
+
     # Fall back to any 'all'-row values for metrics not derivable from per-class rows.
     for m_name, v in direct.items():
         if out.get(m_name) is None:
@@ -874,9 +905,37 @@ def history(period: str) -> dict:
         "available": True,
         "period": period,
         "points": series,
+        "by_class": _by_class_history(),
         "points_captured": len(series),
         "points_required": points_required,
     }
+
+
+def _by_class_history() -> list[dict]:
+    """One time-series per class — the union of classes seen across all
+    runs, in the order they first appeared. Missing cells stay null so
+    the chart can break the line rather than draw through zero."""
+    seen: set[str] = set()
+    order: list[str] = []
+    for snap in _STATE["history"]:
+        for c in _real_classes(snap):
+            if c not in seen:
+                seen.add(c)
+                order.append(c)
+
+    out: list[dict] = []
+    for cls in order:
+        pts: list[dict] = []
+        for snap in _STATE["history"]:
+            cell = _by_metric(snap, "after").get(cls, {})
+            pts.append({
+                "run_date": snap.run_date,
+                "Precision": cell.get("Precision"),
+                "Recall":    cell.get("Recall"),
+                "F1":        cell.get("F1"),
+            })
+        out.append({"cls": cls, "points": pts})
+    return out
 
 
 # ─── Date helpers ───────────────────────────────────────────────────────────
