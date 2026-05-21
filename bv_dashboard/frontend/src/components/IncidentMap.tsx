@@ -102,7 +102,7 @@ export default function IncidentMap({ onSelect }: Props) {
       </svg>
 
       {/* Legend */}
-      <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(7,9,14,0.88)', border: '1px solid var(--border)', borderRadius: 6, padding: '9px 11px' }}>
+      <div style={{ position: 'absolute', top: 10, right: 10, background: 'var(--overlay-bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '9px 11px' }}>
         <div style={{ fontSize: 8, color: 'var(--muted)', letterSpacing: '0.12em', marginBottom: 6, fontFamily: 'var(--mono)' }}>SEVERITY</div>
         {[['#7f1d1d','Critical ≥0.9'],['#EF4444','High 0.7–0.9'],['#F97316','Moderate 0.5–0.7'],['#F5B731','Low 0.3–0.5'],['#22C55E','Minimal <0.3']].map(([c, l]) => (
           <div key={l} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, fontSize: 8.5 }}>
@@ -119,7 +119,7 @@ export default function IncidentMap({ onSelect }: Props) {
             key={b.key}
             onClick={() => setFilter(b.key)}
             style={{
-              background: filter === b.key ? 'rgba(232,93,47,0.18)' : 'rgba(7,9,14,0.85)',
+              background: filter === b.key ? 'rgba(232,93,47,0.18)' : 'var(--overlay-bg-soft)',
               border: `1px solid ${filter === b.key ? 'var(--accent)' : 'var(--border)'}`,
               color: filter === b.key ? 'var(--accent)' : 'var(--muted)',
               fontFamily: 'var(--mono)', fontSize: 9, padding: '4px 9px', borderRadius: 3, transition: 'all .18s',

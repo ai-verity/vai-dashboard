@@ -31,6 +31,17 @@
   --chart-muted:     rgba(94,93,88,.85);
   --scanlines:       rgba(0,0,0,0.022);
 
+  /* Alert strip — warm amber tint that says "watch this row". Separate
+     from the surface palette so the row reads as an alert in both modes. */
+  --alert-bg:        #0d0804;
+
+  /* Translucent overlay panels that float over the map / canvas. Needs
+     contrast against the underlying surface — dark in dark mode, light
+     in light mode — while staying semi-transparent so the layer
+     beneath shows through. */
+  --overlay-bg:      rgba(7,9,14,0.88);
+  --overlay-bg-soft: rgba(7,9,14,0.85);
+
   --mono:   'DM Mono', monospace;
   --body:   'Barlow', sans-serif;
   --cond:   'Barlow Condensed', sans-serif;
@@ -63,6 +74,9 @@
   --chart-text:      rgba(26,26,26,0.85);
   --chart-muted:     rgba(70,69,64,0.85);
   --scanlines:       rgba(0,0,0,0);  /* hide the dark-mode scanline texture in light mode */
+  --alert-bg:        #fef3e7;        /* warm cream — keeps the "alert" feel on a light surface */
+  --overlay-bg:      rgba(255,255,255,0.92);
+  --overlay-bg-soft: rgba(255,255,255,0.88);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }

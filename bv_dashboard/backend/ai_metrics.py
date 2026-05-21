@@ -40,7 +40,15 @@ HISTORY_DIR = os.path.join(DATA_DIR, "history")
 METRICS = ("Precision", "Recall", "F1")
 EXTRA_METRICS = ("mAP@0.5", "mAP@0.5:0.95")
 
-_HISTORY_FILE_RE = re.compile(r"^comparison_(\d{4})(\d{2})(\d{2})\.csv$")
+# Accepts two filename shapes inside history/:
+#   comparison_YYYYMMDD.csv                       (date-only — legacy / manual entries)
+#   compare_YYYYMMDD_HHMMSS_comparison.csv        (wall-clock timestamped — pipeline output)
+# Both are parsed; when more than one file covers a single date, the
+# latest timestamp wins (date-only files are treated as "00:00:00").
+_HISTORY_FILE_RES = (
+    re.compile(r"^comparison_(\d{4})(\d{2})(\d{2})\.csv$"),
+    re.compile(r"^compare_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})_comparison\.csv$"),
+)
 
 
 # ─── Dataclasses ────────────────────────────────────────────────────────────
@@ -168,15 +176,37 @@ def load() -> None:
     with _LOCK:
         history: list[RunSnapshot] = []
 
-        # History: backend/data/ai_metrics/history/comparison_YYYYMMDD.csv
+        # History: parse every file matching either of the two name shapes,
+        # then keep only the latest file per date (sort key = the file's
+        # full wall-clock timestamp, with date-only files treated as midnight).
+        # This is what lets a 2026-04-28_16:16:46 run supersede a
+        # 2026-04-28_14:41:09 run on the same date without manual cleanup.
         if os.path.isdir(HISTORY_DIR):
+            candidates: dict[str, tuple[str, str, str]] = {}
+            # run_date  -> (timestamp_sort_key, comp_path, file_basename)
             for name in sorted(os.listdir(HISTORY_DIR)):
-                m = _HISTORY_FILE_RE.match(name)
-                if not m:
+                run_date: Optional[str] = None
+                ts_key = ""
+                m_legacy = _HISTORY_FILE_RES[0].match(name)
+                m_stamped = _HISTORY_FILE_RES[1].match(name)
+                if m_stamped:
+                    y, mo, d, hh, mm, ss = m_stamped.groups()
+                    run_date = f"{y}-{mo}-{d}"
+                    ts_key = f"{y}{mo}{d}{hh}{mm}{ss}"
+                elif m_legacy:
+                    y, mo, d = m_legacy.groups()
+                    run_date = f"{y}-{mo}-{d}"
+                    ts_key = f"{y}{mo}{d}000000"  # midnight — loses ties to any stamped file
+                if run_date is None:
                     continue
-                y, mo, d = m.groups()
-                run_date = f"{y}-{mo}-{d}"
                 comp_path = os.path.join(HISTORY_DIR, name)
+                existing = candidates.get(run_date)
+                if existing is None or ts_key > existing[0]:
+                    candidates[run_date] = (ts_key, comp_path, name)
+
+            for run_date, (_ts_key, comp_path, _name) in candidates.items():
+                # Optional class_mapping_YYYYMMDD.json sidecar — purely metadata.
+                y, mo, d = run_date.split("-")
                 mapping_path = os.path.join(HISTORY_DIR, f"class_mapping_{y}{mo}{d}.json")
                 if not os.path.exists(mapping_path):
                     mapping_path = None
@@ -286,13 +316,16 @@ def state() -> dict:
 
 def summary() -> dict:
     """Headline payload: macro-averaged P/R/F1 for the latest run plus
-    the prior-run baseline pulled from comparison.csv 'before' values."""
+    the prior-run baseline. Prior comes from the most recent dated
+    snapshot before `current` when available, otherwise from the current
+    file's own 'before' column."""
     cur = _STATE["current"]
     if cur is None:
         return {"available": False, "reason": "No comparison data on disk."}
 
+    prior = _prior_snapshot(cur)
     after_overall = _overall(cur, "after")
-    before_overall = _overall(cur, "before")
+    before_overall = _overall(prior, "after") if prior is not None else _overall(cur, "before")
 
     headline = []
     for m in METRICS:
@@ -317,14 +350,28 @@ def summary() -> dict:
 
 
 def by_class() -> dict:
-    """Per-class P/R/F1 current + prior + delta for the latest run."""
+    """Per-class P/R/F1 current + prior + delta for the latest run.
+
+    Prior values come from the most recent dated snapshot (so the table
+    shows day-over-day deltas across pipeline runs). When the prior run
+    is aggregate-only ('all' pseudo-class), per-class prior cells are
+    None — the UI renders those as '—'."""
     cur = _STATE["current"]
     if cur is None:
         return {"available": False, "classes": []}
 
+    prior = _prior_snapshot(cur)
     after = _by_metric(cur, "after")
-    before = _by_metric(cur, "before")
-    delta = _by_metric(cur, "delta")
+    before = _by_metric(prior, "after") if prior is not None else _by_metric(cur, "before")
+
+    # Recompute delta against the resolved 'before' rather than the
+    # in-file delta column (which only describes the file's own before/after).
+    delta: dict[str, dict[str, Optional[float]]] = {}
+    for cls, by_m in after.items():
+        delta[cls] = {}
+        for m_name, a in by_m.items():
+            b = before.get(cls, {}).get(m_name)
+            delta[cls][m_name] = (a - b) if (a is not None and b is not None) else None
 
     rows = []
     for cls in _real_classes(cur):
@@ -359,8 +406,10 @@ def by_class() -> dict:
 def comparison(period: str) -> dict:
     """Period-over-period comparison.
 
-    daily   — uses comparison.csv 'before' as the prior-day baseline.
-              Always returns real numbers when comparison.csv is loaded.
+    daily   — preferred baseline is the most recent prior snapshot on
+              disk. Falls back to the current snapshot's own 'before'
+              column when no prior dated run is available (e.g. first
+              run, or pipeline emits before/after in the same CSV).
     weekly  — compares latest run to the run 7 days earlier (or oldest
               available within the last 7 days). Returns awaiting=True
               if fewer than 7 daily runs are on disk.
@@ -374,8 +423,19 @@ def comparison(period: str) -> dict:
     history = _STATE["history"]
 
     if period == "daily":
+        # Pick the most recent prior snapshot as the day-over-day baseline.
+        # If none exists, fall back to the in-file 'before' column (which is
+        # what the original training pipeline reports against its own
+        # previous checkpoint).
+        prior = _prior_snapshot(cur)
         after_overall = _overall(cur, "after")
-        before_overall = _overall(cur, "before")
+        if prior is not None:
+            before_overall = _overall(prior, "after")
+            previous_run_date: Optional[str] = prior.run_date
+        else:
+            before_overall = _overall(cur, "before")
+            previous_run_date = _previous_date_label(cur.run_date, 1)
+
         headline = [
             {
                 "metric": m,
@@ -389,10 +449,14 @@ def comparison(period: str) -> dict:
             }
             for m in METRICS
         ]
-        # Per-class delta for the daily view comes straight from the file.
-        per_class = []
+        # Per-class delta: prefer prior snapshot's per-class values; fall
+        # back to the current file's 'before' column when no prior exists.
         after = _by_metric(cur, "after")
-        before = _by_metric(cur, "before")
+        if prior is not None:
+            before = _by_metric(prior, "after")
+        else:
+            before = _by_metric(cur, "before")
+        per_class = []
         for cls in _real_classes(cur):
             per_class.append({
                 "cls": cls,
@@ -415,7 +479,7 @@ def comparison(period: str) -> dict:
             "period": "daily",
             "awaiting": False,
             "current_run_date": cur.run_date,
-            "previous_run_date": _previous_date_label(cur.run_date, 1),
+            "previous_run_date": previous_run_date,
             "headline": headline,
             "by_class": per_class,
             "runs_in_window": 1,
@@ -554,6 +618,19 @@ def _previous_date_label(run_date: str, days_back: int) -> Optional[str]:
     except ValueError:
         return None
     return (d - timedelta(days=days_back)).isoformat()
+
+
+def _prior_snapshot(current: RunSnapshot) -> Optional[RunSnapshot]:
+    """Return the snapshot immediately before `current` in run_date order,
+    or None if `current` is the oldest (or only) run on disk."""
+    history = _STATE["history"]
+    prior: Optional[RunSnapshot] = None
+    for snap in history:
+        if snap.run_date < current.run_date:
+            prior = snap
+        elif snap.run_date >= current.run_date:
+            break
+    return prior
 
 
 def _snapshot_at_or_before(run_date: str, days_back: int) -> Optional[RunSnapshot]:

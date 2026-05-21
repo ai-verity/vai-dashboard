@@ -280,6 +280,44 @@ export interface VlmFeedDensityRow {
 }
 export interface VlmDailyDenseRow { date: string; dense: number; total: number; share: number; }
 
+// VLM incident-type groupings — must mirror _INCIDENT_TYPE_GROUPS in vlm.py.
+// Keys are the wire field names; labels are what's displayed.
+export const VLM_TYPE_GROUPS: Array<{ key: string; label: string; color: string }> = [
+  { key: 'threat_weapon',     label: 'Threat / Weapon',  color: '#EF4444' },
+  { key: 'medical',           label: 'Medical',          color: '#A78BFA' },
+  { key: 'fire_smoke',        label: 'Fire / Smoke',     color: '#F97316' },
+  { key: 'crowd_safety',      label: 'Crowd Safety',     color: '#F5B731' },
+  { key: 'collision',         label: 'Collision',        color: '#DC2626' },
+  { key: 'traffic_violation', label: 'Traffic Violation', color: '#4A9EF5' },
+  { key: 'property_damage',   label: 'Property Damage',  color: '#6B7280' },
+  { key: 'illegal_dumping',   label: 'Illegal Dumping',  color: '#2DC9A8' },
+];
+
+export interface VlmMonthlyTypeRow {
+  month: string;
+  // dynamic — one numeric field per VLM_TYPE_GROUPS key
+  [key: string]: string | number;
+}
+
+export interface VlmPeriodLocationLocation {
+  location_id: string;
+  label: string;
+  total: number;
+}
+
+export interface VlmPeriodLocationDatum {
+  bucket: string;        // YYYY-MM or YYYY-Www
+  location_id: string;
+  count: number;
+}
+
+export interface VlmPeriodLocationAggregate {
+  period: 'week' | 'month';
+  buckets: string[];
+  locations: VlmPeriodLocationLocation[];
+  data: VlmPeriodLocationDatum[];
+}
+
 export interface VlmVehicleHourRow { hour: number; collisions: number; speeding: number; fire_lane: number; }
 export interface VlmVehicleFeedRow {
   feed_id: string; feed_label: string;
@@ -306,6 +344,9 @@ export interface VlmAggregates {
   dumping_waste_type: VlmDumpingWasteRow[];
   dumping_feed: VlmDumpingFeedRow[];
   dumping_daily: VlmDumpingDailyRow[];
+  monthly_by_type: VlmMonthlyTypeRow[];
+  weekly_by_location: VlmPeriodLocationAggregate;
+  monthly_by_location: VlmPeriodLocationAggregate;
 }
 
 // ─── AI Model Metrics types ─────────────────────────────────────────────────

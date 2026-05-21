@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import TopNav      from './components/TopNav';
 import KpiStrip    from './components/KpiStrip';
 import AlertTicker from './components/AlertTicker';
+import SourcesPanel from './components/SourcesPanel';
 import DashboardPage from './pages/DashboardPage';
 import ChartsPage    from './pages/ChartsPage';
 import VlmPage       from './pages/VlmPage';
@@ -41,6 +42,7 @@ export default function App() {
       <TopNav activeView={view} onViewChange={setView} />
       {view !== 'vlm' && <KpiStrip />}
       {view !== 'vlm' && <AlertTicker />}
+      {view !== 'vlm' && <SourcesPanel />}
       {view === 'dashboard' && <DashboardPage />}
       {view === 'charts' && <ChartsPage />}
       {view === 'vlm' && <VlmPage />}
