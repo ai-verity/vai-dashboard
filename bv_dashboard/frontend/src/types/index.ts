@@ -421,13 +421,59 @@ export interface AiHistoryPoint {
   F1: number | null;
 }
 
+export interface AiHistoryClassSeries {
+  cls: string;
+  points: AiHistoryPoint[];
+}
+
 export interface AiHistory {
   available: boolean;
   period: AiPeriod;
   points: AiHistoryPoint[];
+  by_class?: AiHistoryClassSeries[];
   points_captured: number;
   points_required: number;
 }
+
+// Per-class image-instance counts (boxes, not unique images).
+export interface AiDatasetClassRow {
+  cls: string;
+  train: number;
+  val: number;
+  total: number;
+}
+
+export interface AiDatasetPoint {
+  run_date: string;
+  run_timestamp: string | null;
+  run_name: string | null;
+  model: string | null;
+  total_images: number;
+  annotated_images: number;
+  empty_bg_images: number;
+  train_images: number;
+  val_images: number;
+  dropped_regions: number;
+  auto_labeled_images: number | null;
+  by_class: AiDatasetClassRow[];
+}
+
+export interface AiDataset {
+  available: boolean;
+  points: AiDatasetPoint[];
+  latest: AiDatasetPoint | null;
+}
+
+// Stable per-class palette for the Metric Trend per-class mode. Unknown
+// classes fall back to a neutral grey at the call site.
+export const AI_CLASS_COLORS: Partial<Record<string, string>> = {
+  person:     '#4A9EF5',   // blue
+  bicycle:    '#2DC9A8',   // teal
+  car:        '#F5B731',   // amber
+  motorcycle: '#A78BFA',   // purple
+  bus:        '#EF4444',   // red
+  truck:      '#e85d2f',   // accent orange
+};
 
 export const AI_METRIC_COLORS: Record<AiMetricName, string> = {
   Precision: '#4A9EF5',

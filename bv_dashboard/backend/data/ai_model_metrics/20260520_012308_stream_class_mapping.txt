@@ -1,0 +1,33 @@
+Class mapping  (2026-05-19T13:57:14+00:00)
+Run     : exp
+Model   : rtv2_r34vd_120e_coco
+Weights : /workspace/_staging/weights/rtv2_r34vd_120e_coco.pth
+Layout  : COCO 80-class (rtdetrv4 remap_mscoco_category)
+          COCO 80-class layout; entire pretrained head transfers. Project classes are emitted with their standard COCO category_ids (1-indexed, non-contiguous); the rtdetrv4 loader's remap_mscoco_category=True maps them back to contiguous 0..79 labels so the pretrained head matches without re-init.
+
+VIA class name        →  COCO category_id
+────────────────────────────────────────────
+  person                1
+  bicycle               2
+  car                   3
+  motorcycle            4
+  bus                   6
+  truck                 8
+
+Dropped class regions (no entry in mapping):
+                        78
+  _background_images    2966
+
+Class instance counts (from COCO instances_*.json):
+  class                    train     val   total
+  ──────────────────────────────────────────────
+  person                  317696   78462  396158
+  bicycle                  30536    7065   37601
+  car                     190485   44937  235422
+  motorcycle               35541    8019   43560
+  bus                      10135    2390   12525
+  truck                    19489    4569   24058
+  ──────────────────────────────────────────────
+  total boxes             603882  145442  749324
+  image files              69153   17288   86441
+    of which empty bg       2342     643    2985

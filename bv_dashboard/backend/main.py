@@ -604,9 +604,10 @@ async def analyze_incident(
 
 
 # ─── VLM endpoints ───────────────────────────────────────────────────────────
-PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "data", "vlm_prompts.json")
-VEHICLE_PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "data", "vlm_vehicle_prompts.json")
-DUMPING_PROMPTS_PATH = os.path.join(os.path.dirname(__file__), "data", "vlm_illegal_dumping_prompts.json")
+_PROMPTS_DIR = os.path.join(os.path.dirname(__file__), "data", "vlm_prompts_inputs")
+PROMPTS_PATH = os.path.join(_PROMPTS_DIR, "vlm_prompts.json")
+VEHICLE_PROMPTS_PATH = os.path.join(_PROMPTS_DIR, "vlm_vehicle_prompts.json")
+DUMPING_PROMPTS_PATH = os.path.join(_PROMPTS_DIR, "vlm_illegal_dumping_prompts.json")
 # (path, preset_id) pairs. The frontend filters prompts by the observation's
 # preset, so each prompt entry needs to carry its preset.
 _PROMPT_FILES = [
@@ -847,6 +848,11 @@ def ai_metrics_history(period: str = Query("daily", regex="^(daily|weekly|monthl
 @app.get("/api/ai_metrics/state")
 def ai_metrics_state():
     return ai_metrics.state()
+
+
+@app.get("/api/ai_metrics/dataset")
+def ai_metrics_dataset():
+    return ai_metrics.dataset_by_date()
 
 
 @app.post("/api/ai_metrics/reload")

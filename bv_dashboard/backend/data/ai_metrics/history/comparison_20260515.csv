@@ -1,6 +1,0 @@
-class,metric,before,after,delta
-all,Precision,,0.886,
-all,Recall,,0.474,
-all,F1,,0.621,
-all,mAP@0.5,,0.657,
-all,mAP@0.5:0.95,,0.485,

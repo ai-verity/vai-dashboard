@@ -9,12 +9,13 @@
 import { Fragment, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import {
-  useAiSummary, useAiComparison, useAiByClass, useAiHistory,
+  useAiSummary, useAiComparison, useAiByClass, useAiHistory, useAiDataset,
 } from '../hooks/useApi';
 import type {
-  AiPeriod, AiHeadlineRow, AiPerClassRow, AiByClassRow, AiHistoryPoint,
+  AiPeriod, AiHeadlineRow, AiPerClassRow, AiByClassRow,
+  AiDatasetPoint, AiHistory,
 } from '../types';
-import { AI_METRIC_COLORS } from '../types';
+import { AI_METRIC_COLORS, AI_CLASS_COLORS } from '../types';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
 import { useTheme } from '../hooks/useTheme';
 import ThemeToggle from '../components/ThemeToggle';
@@ -140,16 +141,34 @@ function HeadlineCards({
 }
 
 // ─── Time-series chart (multi-line P/R/F1 across runs) ──────────────
+type HistoryMode = 'macro' | 'per_class';
+type MetricChoice = 'Precision' | 'Recall' | 'F1';
+
 function HistoryChart({
-  points, pointsRequired, period, aggregateOnly,
+  history, period,
 }: {
-  points: AiHistoryPoint[];
-  pointsRequired: number;
+  history: AiHistory;
   period: AiPeriod;
-  aggregateOnly: boolean;
 }) {
+  const points = history.points;
+  const byClass = history.by_class ?? [];
+  const pointsRequired = history.points_required;
   const enough = points.length >= 2;
   const { tick } = useTheme();
+  const [mode, setMode] = useState<HistoryMode>('macro');
+  const [classMetric, setClassMetric] = useState<MetricChoice>('F1');
+
+  // Per-class mode needs at least one class with at least one non-null
+  // value for the chosen metric. Without that we fall back to the
+  // empty-state callout below.
+  const perClassSeries = useMemo(() => {
+    if (mode !== 'per_class') return [] as { cls: string; values: (number | null)[] }[];
+    return byClass.map(s => ({
+      cls: s.cls,
+      values: s.points.map(p => p[classMetric]),
+    })).filter(s => s.values.some(v => v !== null));
+  }, [mode, byClass, classMetric]);
+
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 240);
     if (!g) return;
@@ -180,7 +199,7 @@ function HistoryChart({
     };
     const yFor = (v: number) => p.t + (H - p.t - p.b) * (1 - v);
 
-    // x-axis labels
+    // x-axis labels (one per run, ticked from points which both modes share)
     points.forEach((pt, i) => {
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
@@ -188,23 +207,22 @@ function HistoryChart({
       ctx.fillText(pt.run_date.slice(5), xFor(i), H - 12);
     });
 
-    METRICS.forEach(metric => {
-      const col = AI_METRIC_COLORS[metric];
-      const xs = points.map((_, i) => xFor(i));
-      const ys = points.map(p2 => {
-        const v = p2[metric];
-        return v === null ? null : yFor(v);
-      });
+    // Helper: stroke a polyline that BREAKS on null points (separate
+    // sub-paths) so motorcycle/bus's null-score days don't draw straight
+    // through zero on the chart.
+    const drawSeries = (values: (number | null)[], col: string) => {
+      const xs = values.map((_, i) => xFor(i));
+      const ys = values.map(v => (v === null ? null : yFor(v)));
 
-      ctx.beginPath();
-      let first = true;
-      ys.forEach((y, i) => {
-        if (y === null) return;
-        if (first) { ctx.moveTo(xs[i], y); first = false; }
-        else ctx.lineTo(xs[i], y);
-      });
       ctx.strokeStyle = col;
       ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      let pendingMove = true;
+      ys.forEach((y, i) => {
+        if (y === null) { pendingMove = true; return; }
+        if (pendingMove) { ctx.moveTo(xs[i], y); pendingMove = false; }
+        else ctx.lineTo(xs[i], y);
+      });
       ctx.stroke();
 
       ys.forEach((y, i) => {
@@ -217,51 +235,96 @@ function HistoryChart({
         ctx.lineWidth = 1.5;
         ctx.stroke();
       });
-    });
+    };
 
-    // Legend (top-right)
-    METRICS.forEach((m, mi) => {
-      const x = W - p.r - 200 + mi * 70;
-      const y = p.t - 4;
-      ctx.fillStyle = AI_METRIC_COLORS[m];
-      ctx.fillRect(x, y, 8, 8);
-      ctx.fillStyle = TEXT;
-      ctx.font = '10px DM Mono, monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(m, x + 12, y + 7);
-    });
-  }, [points, tick]);
+    if (mode === 'macro') {
+      METRICS.forEach(metric => {
+        const col = AI_METRIC_COLORS[metric];
+        drawSeries(points.map(p2 => p2[metric]), col);
+      });
+
+      // Legend (top-right) — the 3 metrics
+      METRICS.forEach((m, mi) => {
+        const x = W - p.r - 200 + mi * 70;
+        const y = p.t - 4;
+        ctx.fillStyle = AI_METRIC_COLORS[m];
+        ctx.fillRect(x, y, 8, 8);
+        ctx.fillStyle = TEXT;
+        ctx.font = '10px DM Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(m, x + 12, y + 7);
+      });
+    } else {
+      perClassSeries.forEach(s => {
+        const col = AI_CLASS_COLORS[s.cls] ?? '#888';
+        drawSeries(s.values, col);
+      });
+
+      // Legend — one swatch per visible class, wrapped to two rows if needed.
+      const swatchW = 78;
+      perClassSeries.forEach((s, ci) => {
+        const x = W - p.r - swatchW * Math.min(perClassSeries.length, 4) + (ci % 4) * swatchW;
+        const y = p.t - 4 + Math.floor(ci / 4) * 12;
+        ctx.fillStyle = AI_CLASS_COLORS[s.cls] ?? '#888';
+        ctx.fillRect(x, y, 8, 8);
+        ctx.fillStyle = TEXT;
+        ctx.font = '10px DM Mono, monospace';
+        ctx.textAlign = 'left';
+        ctx.fillText(s.cls, x + 12, y + 7);
+      });
+    }
+  }, [mode, classMetric, points, perClassSeries, tick]);
+
+  const toggleBtn = (active: boolean, label: string, onClick: () => void) => (
+    <button
+      onClick={onClick}
+      style={{
+        fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.06em',
+        padding: '4px 10px', borderRadius: 3,
+        border: `1px solid ${active ? 'var(--accent)' : 'var(--border)'}`,
+        background: active ? 'rgba(232,93,47,0.10)' : 'transparent',
+        color: active ? 'var(--accent)' : 'var(--muted)',
+        cursor: 'pointer',
+      }}
+    >{label}</button>
+  );
 
   return (
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
-          <div style={S.title}>
-            Metric Trend
-            {aggregateOnly && (
-              <span
-                title="Trend reflects macro-averaged values across all 6 project classes — no per-class series for these runs"
-                style={{
-                  marginLeft: 10, fontSize: 8, letterSpacing: '0.1em',
-                  padding: '2px 6px', borderRadius: 2,
-                  background: 'rgba(74,158,245,0.12)',
-                  color: 'var(--blue)',
-                  border: '1px solid rgba(74,158,245,0.35)',
-                  verticalAlign: 'middle',
-                }}
-              >
-                ALL CLASSES
-              </span>
-            )}
-          </div>
+          <div style={S.title}>Metric Trend</div>
           <div style={S.sub}>
-            Macro-averaged P / R / F1 across daily training runs
+            {mode === 'macro'
+              ? 'Weighted by val instances across daily training runs'
+              : `Per-class ${classMetric} across daily training runs — line breaks where a class has no data`}
           </div>
         </div>
-        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
-          {points.length} of {pointsRequired} runs captured ({period})
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ display: 'flex', gap: 4 }}>
+            {toggleBtn(mode === 'macro', 'Macro avg', () => setMode('macro'))}
+            {toggleBtn(mode === 'per_class', 'Per-class', () => setMode('per_class'))}
+          </div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
+            {points.length} of {pointsRequired} runs captured ({period})
+          </div>
         </div>
       </div>
+      {mode === 'per_class' && (
+        <div style={{
+          padding: '6px 18px', borderBottom: '1px solid var(--b2)',
+          display: 'flex', gap: 4, alignItems: 'center',
+        }}>
+          <span style={{
+            fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700,
+            color: 'var(--muted)', letterSpacing: '0.12em',
+            textTransform: 'uppercase', marginRight: 6,
+          }}>Metric</span>
+          {(['F1', 'Precision', 'Recall'] as const).map(m =>
+            toggleBtn(classMetric === m, m, () => setClassMetric(m))
+          )}
+        </div>
+      )}
       <div style={S.body}>
         <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
         {!enough && (
@@ -273,6 +336,16 @@ function HistoryChart({
             Trend line activates once at least 2 daily runs are on disk.
             The first run is plotted as a single point above; subsequent
             pipeline executions will extend the chart automatically.
+          </div>
+        )}
+        {enough && mode === 'per_class' && perClassSeries.length === 0 && (
+          <div style={{
+            marginTop: 10, padding: '10px 14px',
+            border: '1px dashed var(--border)', borderRadius: 4,
+            fontSize: 11, color: 'var(--dim)', fontFamily: 'var(--mono)',
+          }}>
+            No per-class series for {classMetric}. Try Precision or Recall, or
+            switch back to Macro avg.
           </div>
         )}
       </div>
@@ -533,6 +606,205 @@ function EmptyPanel({ title, h = 240, message }: { title: string; h?: number; me
   );
 }
 
+// ─── Dataset KPI strip + charts ─────────────────────────────────────
+//
+// New section driven by the class_mapping.txt files dropped by the
+// training pipeline. Surfaces how the training dataset grew over time
+// (total / annotated / background images per run) and what the latest
+// class mix looks like.
+
+function fmt(n: number | null | undefined): string {
+  if (n === null || n === undefined) return '—';
+  return n.toLocaleString();
+}
+
+function DatasetKpiStrip({ latest }: { latest: AiDatasetPoint | null }) {
+  const cells: Array<{ label: string; value: string; sub?: string; color: string }> = [
+    { label: 'Total Images',     value: fmt(latest?.total_images),     sub: latest ? `train ${fmt(latest.train_images)} · val ${fmt(latest.val_images)}` : '—', color: 'var(--accent)' },
+    { label: 'Annotated',        value: fmt(latest?.annotated_images), sub: latest ? `${((latest.annotated_images / Math.max(latest.total_images, 1)) * 100).toFixed(1)}% of total` : '—', color: 'var(--green)' },
+    { label: 'Unannotated (bg)', value: fmt(latest?.empty_bg_images),  sub: latest ? `${((latest.empty_bg_images / Math.max(latest.total_images, 1)) * 100).toFixed(1)}% of total` : '—', color: 'var(--amber)' },
+    { label: 'Auto-Labeled',     value: latest && latest.auto_labeled_images != null ? fmt(latest.auto_labeled_images) : '—', sub: 'pipeline field not emitted yet', color: 'var(--muted)' },
+    { label: 'Dropped Regions',  value: fmt(latest?.dropped_regions),  sub: 'VIA classes outside mapping', color: 'var(--red)' },
+    { label: 'Captured On',      value: latest?.run_date ?? '—',       sub: latest?.model ?? '', color: 'var(--blue)' },
+  ];
+  return (
+    <div style={{
+      display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 1,
+      background: 'var(--border)',
+    }}>
+      {cells.map(c => (
+        <div key={c.label} style={{ background: 'var(--s0)', padding: '14px 16px' }}>
+          <div style={{
+            fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)',
+            letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 4,
+          }}>
+            {c.label}
+          </div>
+          <div style={{
+            fontFamily: 'var(--mono)', fontSize: 22, color: c.color,
+            lineHeight: 1.05, marginBottom: 3,
+          }}>
+            {c.value}
+          </div>
+          {c.sub && (
+            <div style={{ fontSize: 9, color: 'var(--dim)', fontFamily: 'var(--mono)' }}>
+              {c.sub}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DatasetTrendChart({ points }: { points: AiDatasetPoint[] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCanvas(cv, 240);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID, TEXT } = chartColors();
+    const p = { l: 48, r: 16, t: 14, b: 30 };
+    const mx = Math.max(...points.map(pt => pt.total_images), 1);
+
+    // grid + y labels
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(Math.round(mx * i / 4).toLocaleString(), p.l - 6, y + 3);
+    }
+
+    if (points.length === 0) return;
+    const colW = (W - p.l - p.r) / points.length;
+    const barW = Math.max(8, Math.min(64, colW * 0.62));
+
+    points.forEach((pt, i) => {
+      const cx = p.l + colW * i + colW / 2;
+      const x = cx - barW / 2;
+      const totalH = (pt.total_images / mx) * (H - p.t - p.b);
+      const annH = (pt.annotated_images / mx) * (H - p.t - p.b);
+      const bgH = totalH - annH;
+      // Background (unannotated) — amber, drawn first as the lower portion
+      ctx.fillStyle = '#F5B731';
+      ctx.globalAlpha = 0.75;
+      ctx.fillRect(x, H - p.b - totalH, barW, bgH);
+      // Annotated — green, drawn on top of background
+      ctx.fillStyle = '#2DC9A8';
+      ctx.fillRect(x, H - p.b - totalH + bgH, barW, annH);
+      ctx.globalAlpha = 1;
+      // x-axis date label
+      ctx.fillStyle = MUTED;
+      ctx.font = '8.5px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(pt.run_date.slice(5), cx, H - 12);
+      // Total above bar
+      ctx.fillStyle = TEXT;
+      ctx.font = 'bold 9px DM Mono, monospace';
+      ctx.fillText(pt.total_images.toLocaleString(), cx, Math.max(H - p.b - totalH - 4, p.t + 8));
+    });
+  }, [points, tick]);
+
+  return (
+    <div style={S.panel}>
+      <div style={S.hdr}>
+        <div>
+          <div style={S.title}>Training Images per Run</div>
+          <div style={S.sub}>
+            Stacked: annotated <span style={{ color: '#2DC9A8' }}>■</span> + background <span style={{ color: '#F5B731' }}>■</span> = total images
+          </div>
+        </div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
+          {points.length} run(s)
+        </div>
+      </div>
+      <div style={S.body}>
+        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+      </div>
+    </div>
+  );
+}
+
+function DatasetByClassChart({ latest }: { latest: AiDatasetPoint | null }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCanvas(cv, 240);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID, TEXT } = chartColors();
+    const p = { l: 90, r: 60, t: 14, b: 14 };
+
+    const rows = latest?.by_class ?? [];
+    if (rows.length === 0) {
+      ctx.fillStyle = MUTED;
+      ctx.font = '11px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('No per-class data', W / 2, H / 2);
+      return;
+    }
+
+    const mx = Math.max(...rows.map(r => r.total), 1);
+    const rowH = (H - p.t - p.b) / rows.length;
+
+    // grid
+    for (let i = 0; i <= 4; i++) {
+      const x = p.l + (W - p.l - p.r) * (i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(x, p.t); ctx.lineTo(x, H - p.b); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '8.5px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(Math.round(mx * i / 4).toLocaleString(), x, H - p.b + 12);
+    }
+
+    rows.forEach((r, i) => {
+      const y = p.t + i * rowH;
+      const trainW = (r.train / mx) * (W - p.l - p.r);
+      const valW = (r.val / mx) * (W - p.l - p.r);
+      // train bar — accent
+      ctx.fillStyle = '#4A9EF5';
+      ctx.globalAlpha = 0.85;
+      ctx.fillRect(p.l, y + 4, trainW, rowH - 8);
+      // val stacked on top of train
+      ctx.fillStyle = '#A78BFA';
+      ctx.fillRect(p.l + trainW, y + 4, valW, rowH - 8);
+      ctx.globalAlpha = 1;
+      // class label
+      ctx.fillStyle = TEXT;
+      ctx.font = '10px Barlow, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(r.cls, p.l - 8, y + rowH / 2 + 4);
+      // total right-aligned
+      ctx.fillStyle = MUTED;
+      ctx.font = 'bold 9.5px DM Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(r.total.toLocaleString(), p.l + trainW + valW + 4, y + rowH / 2 + 3);
+    });
+  }, [latest, tick]);
+
+  return (
+    <div style={S.panel}>
+      <div style={S.hdr}>
+        <div>
+          <div style={S.title}>Latest Dataset — Boxes per Class</div>
+          <div style={S.sub}>
+            Train <span style={{ color: '#4A9EF5' }}>■</span> + val <span style={{ color: '#A78BFA' }}>■</span> · counts are box instances, not unique images
+          </div>
+        </div>
+        <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)' }}>
+          {latest?.run_date ?? '—'}
+        </div>
+      </div>
+      <div style={S.body}>
+        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+      </div>
+    </div>
+  );
+}
+
 // ─── Page header (self-contained — does NOT use TopNav) ─────────────
 function AiHeader({
   runDate, model, runName, period, onPeriodChange,
@@ -634,6 +906,7 @@ export default function AiMetricsPage() {
   const { data: comparison } = useAiComparison(period);
   const { data: byClass } = useAiByClass();
   const { data: history } = useAiHistory(period);
+  const { data: dataset } = useAiDataset();
 
   // Use comparison.by_class when available (real prior values); otherwise
   // synthesize zero-previous rows from the latest run so weekly/monthly
@@ -737,6 +1010,34 @@ export default function AiMetricsPage() {
         </div>
       )}
 
+      {/* Training-dataset section — KPI strip + per-run / per-class charts.
+          Source: backend/data/ai_metrics/class-mapping/*.txt files dropped
+          by the pipeline. Auto-labeled count is null until the pipeline
+          starts emitting that field. */}
+      {dataset && dataset.available ? (
+        <>
+          <DatasetKpiStrip latest={dataset.latest} />
+          <div style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1,
+            background: 'var(--border)', borderBottom: '1px solid var(--border)',
+          }}>
+            <DatasetTrendChart points={dataset.points} />
+            <DatasetByClassChart latest={dataset.latest} />
+          </div>
+        </>
+      ) : dataset === null ? (
+        <div style={{
+          display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 1,
+          background: 'var(--border)',
+        }}>
+          {[1,2,3,4,5,6].map(i => (
+            <div key={i} style={{ background: 'var(--s0)', padding: '14px 16px' }}>
+              <div className="skeleton" style={{ height: 56 }} />
+            </div>
+          ))}
+        </div>
+      ) : null}
+
       {/* Grid */}
       <div style={{
         display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1,
@@ -745,12 +1046,7 @@ export default function AiMetricsPage() {
         {/* Row 1: history (wide) */}
         <div style={{ gridColumn: 'span 2' }}>
           {history ? (
-            <HistoryChart
-              points={history.points}
-              pointsRequired={history.points_required}
-              period={period}
-              aggregateOnly={aggregateOnly}
-            />
+            <HistoryChart history={history} period={period} />
           ) : (
             <SkeletonPanel title="Metric Trend" />
           )}

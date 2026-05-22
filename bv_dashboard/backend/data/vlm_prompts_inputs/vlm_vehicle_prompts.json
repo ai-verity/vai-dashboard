@@ -1,0 +1,104 @@
+[
+  {
+    "id": 1,
+    "section": "GENERAL VEHICLE SAFETY",
+    "q_numbers": [1],
+    "prompt": "Are all vehicles present operating at safe speeds and in designated areas, without erratic maneuvers or obstruction of emergency routes?"
+  },
+  {
+    "id": 2,
+    "section": "GENERAL VEHICLE SAFETY",
+    "q_numbers": [2],
+    "prompt": "Is a vehicle traveling at speed clearly above the posted limit or inconsistent with safe yard / parking-lot driving behavior?"
+  },
+  {
+    "id": 3,
+    "section": "COLLISIONS & NEAR MISSES",
+    "q_numbers": [3],
+    "prompt": "Has a vehicle collided with another vehicle, a city asset (fence, building), or struck a pedestrian?"
+  },
+  {
+    "id": 4,
+    "section": "COLLISIONS & NEAR MISSES",
+    "q_numbers": [4],
+    "prompt": "Identify and count vehicles with a near miss that may have collided with another vehicle, a city asset (fence, building), or struck a pedestrian."
+  },
+  {
+    "id": 5,
+    "section": "PARKING & ACCESS VIOLATIONS",
+    "q_numbers": [5],
+    "prompt": "Is a vehicle parked or stationary in a fire lane, emergency access corridor, loading bay, or clearly marked no-stopping zone?"
+  },
+  {
+    "id": 6,
+    "section": "PARKING & ACCESS VIOLATIONS",
+    "q_numbers": [6],
+    "prompt": "Is a vehicle operating in reverse, making unexpected maneuvers, or appearing to pursue a pedestrian in a threatening manner?"
+  },
+  {
+    "id": 7,
+    "section": "PARKING & ACCESS VIOLATIONS",
+    "q_numbers": [7],
+    "prompt": "Is any individual observed crouching, crawling, or passing by a vehicle?"
+  },
+  {
+    "id": 8,
+    "section": "SUSPICIOUS VEHICLE BEHAVIOR",
+    "q_numbers": [8],
+    "prompt": "Does the image show a person making direct contact with a parked vehicle door, window, or trunk in a manner inconsistent with normal entry?"
+  },
+  {
+    "id": 9,
+    "section": "SUSPICIOUS VEHICLE BEHAVIOR",
+    "q_numbers": [9],
+    "prompt": "Is any vehicle traveling in the wrong direction or entering a restricted-access road?"
+  },
+  {
+    "id": 10,
+    "section": "SUSPICIOUS VEHICLE BEHAVIOR",
+    "q_numbers": [10],
+    "prompt": "Is any vehicle making physical contact with, driving alongside, or parking directly against any building or any obstruction?"
+  },
+  {
+    "id": 11,
+    "section": "VEHICLE IDENTIFICATION",
+    "q_numbers": [11],
+    "prompt": "Estimate the number of vehicles having no visible registration plates or plates that are deliberately obscured."
+  },
+  {
+    "id": 12,
+    "section": "VEHICLE IDENTIFICATION",
+    "q_numbers": [12],
+    "prompt": "Provide the registration or license plate for each vehicle visible."
+  },
+  {
+    "id": 13,
+    "section": "VEHICLE IDENTIFICATION",
+    "q_numbers": [13],
+    "prompt": "Provide the color, make, and model for each vehicle visible."
+  },
+  {
+    "id": 14,
+    "section": "PEDESTRIAN & CHILD SAFETY",
+    "q_numbers": [14],
+    "prompt": "Provide additional vehicle identification details (color, make, model) for each vehicle visible."
+  },
+  {
+    "id": 15,
+    "section": "PEDESTRIAN & CHILD SAFETY",
+    "q_numbers": [15],
+    "prompt": "Identify and count individuals that have been struck or injured by a vehicle creating an accident."
+  },
+  {
+    "id": 16,
+    "section": "PEDESTRIAN & CHILD SAFETY",
+    "q_numbers": [16],
+    "prompt": "Identify and count near misses of individuals that could have been struck or injured by a vehicle creating an accident."
+  },
+  {
+    "id": 17,
+    "section": "PEDESTRIAN & CHILD SAFETY",
+    "q_numbers": [17],
+    "prompt": "Identify and count children that have been struck or near-missed by a vehicle creating an accident."
+  }
+]

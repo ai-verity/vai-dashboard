@@ -1,0 +1,15 @@
+{
+  "timestamp_utc": "2026-05-20T01:23:08+00:00",
+  "run_name": "exp",
+  "model": "rtdetr-l",
+  "instance_counts": {
+    "by_class": {
+      "person":     {"train": 6202, "val": 1562, "total": 7764},
+      "bicycle":    {"train": 7072, "val": 1757, "total": 8829},
+      "car":        {"train": 3277, "val": 833,  "total": 4110},
+      "motorcycle": {"train": 4,    "val": 2,    "total": 6},
+      "bus":        {"train": 3,    "val": 1,    "total": 4},
+      "truck":      {"train": 40,   "val": 9,    "total": 49}
+    }
+  }
+}

@@ -1,0 +1,2621 @@
+run_id,file_name,source,local_path,minio_key,preset,status,started_at,upload_seconds,caption_seconds,total_seconds,total_tokens,model,full_caption
+20260511T210207Z,frame_080000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_080000.jpg,crowd_behavior,done,2026-05-11T21:02:07.639367+00:00,0.109,2.163,2.286,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. No crowd is visible in the image.
+2. Not applicable as there are no pedestrians present.
+
+[PEDESTRIAN ACTIVITY]
+3. Zero pedestrians are visible.
+4. Not applicable as there are no pedestrians present.
+
+[RISK ASSESSMENT]
+5. Not applicable as there are no pedestrians present.
+6. LOW; no pedestrians are present.
+7. Not applicable as there are no pedestrians present.
+
+[CROWD SAFETY & SPACING]
+8. Not applicable as there are no pedestrians present.
+9. Not applicable as there are no pedestrians present.
+10. Not applicable as there are no pedestrians present.
+
+[EVENT / VENUE ASSESSMENT]
+11. Zero people are visible.
+12. Not applicable as there are no pedestrians present.
+13. Not applicable as there are no pedestrians present.
+14. Not applicable as there are no pedestrians present.
+15. Not applicable as there are no pedestrians present.
+
+[THREAT & SAFETY]
+16. No.
+17. Zero people are visible.
+18. No.
+19. Zero people are visible.
+20. No.
+21. No.
+
+[HAZARDS & INCIDENTS]
+22. No.
+23. No.
+
+[CRITICAL INCIDENTS]
+24. No.
+25. No.
+26. No.
+27. No.
+28. No.
+29. No."
+20260511T210207Z,frame_080500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_080500.jpg,crowd_behavior,done,2026-05-11T21:02:07.640783+00:00,0.109,2.094,2.215,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. No crowd is visible in the image.
+2. Not applicable.
+
+[PEDESTRIAN ACTIVITY]
+3. Zero pedestrians are visible.
+4. Not applicable.
+
+[RISK ASSESSMENT]
+5. Not applicable.
+6. LOW. No visible risks.
+7. Not applicable.
+
+[CROWD SAFETY & SPACING]
+8. Not applicable.
+9. Not applicable.
+10. Not applicable.
+
+[EVENT / VENUE ASSESSMENT]
+11. Zero people are visible.
+12. Not applicable.
+13. Not applicable.
+14. Not applicable.
+15. Not applicable.
+
+[THREAT & SAFETY]
+16. No.
+17. Not applicable.
+18. No.
+19. Zero civilians are visible.
+20. Not applicable.
+21. Not applicable.
+
+[HAZARDS & INCIDENTS]
+22. No.
+23. No.
+
+[CRITICAL INCIDENTS]
+24. Not applicable.
+25. Not applicable.
+26. Not applicable.
+27. Not applicable.
+28. Not applicable.
+29. Not applicable."
+20260511T210207Z,frame_081000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_081000.jpg,crowd_behavior,done,2026-05-11T21:02:07.642560+00:00,0.11,3.211,3.331,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately two pedestrians visible in the image, with one walking away from the camera and another standing near the red bin. The pedestrian flow direction is not clearly defined due to the limited number of individuals.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage, unusually dense crowd pockets, or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no immediate safety concerns or hazards present.
+7. No unsafe crowd behaviors are observed, such as people climbing barriers or running against crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from each other.
+9. No choke points are evident that could lead to dangerous surges.
+10. No vulnerable individuals are identified, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is low, with only a few individuals present.
+12. The image does not provide enough information to identify specific zones for stage viewing or general circulation.
+13. No unsupervised children are visible in the scene.
+14. The number of unsupervised children is zero.
+15. No groups are observed congregating in the parking lot or moving into the park.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. The total attendance in the visible area for any officer or public safety official is not applicable.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is low, with only a few individuals present.
+20. No threats requiring immediate patrol response are visible.
+21. No activity indicates gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_081500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_081500.jpg,crowd_behavior,done,2026-05-11T21:02:09.858219+00:00,0.038,2.024,2.067,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density is very low, with only a few individuals visible in the scene.
+2. The area is classified as SPARSE (<1 person/m²), with no signs of congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There is one pedestrian visible in the image, walking away from the camera. The pedestrian is moving in a straight path along the sidewalk.
+4. No individuals are shown as having fallen, being separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The scene does not show unusually dense crowd pockets.
+6. The overall risk level is LOW, as there are no visible signs of danger or distress.
+7. There are no unsafe crowd behaviors observed, such as people climbing barriers or running against crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to each other.
+9. There are no choke points visible that could lead to dangerous surges.
+10. One pedestrian is visible, and there are no vulnerable individuals or signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is very low, with only one person present.
+12. There are no stage viewing areas or general circulation zones to assess.
+13. No unsupervised children are visible.
+14. Zero children are unsupervised or more than 10 meters from an adult.
+15. There are no groups congregating in the parking lot or prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is very low, with only one person present.
+20. There are no threats visible that require immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. There are no objects being brandished or pointed as weapons.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. There are no individuals carrying, dragging, or transferring unattended objects suspiciously."
+20260511T210207Z,frame_082000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_082000.jpg,crowd_behavior,done,2026-05-11T21:02:09.927007+00:00,0.036,2.151,2.192,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately two pedestrians visible in the image, with no clear pedestrian flow direction due to the low density.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage, unusually dense crowd pockets, or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no visible signs of distress or unusual activity.
+7. No unsafe crowd behaviors are observed, such as people climbing barriers or running against crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to each other.
+9. No choke points are evident that could lead to dangerous surges.
+10. No individuals are waiting, and no vulnerable individuals are identified.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is low, with only a few individuals present.
+12. No stage viewing area or general circulation zones are identifiable in the image.
+13. No unsupervised children separated from adult groups are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is low, with only a few individuals present.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_082500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_082500.jpg,crowd_behavior,done,2026-05-11T21:02:10.975588+00:00,0.044,2.223,2.27,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area is classified as SPARSE (<1 person/m²), with no visible congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately five pedestrians visible in the image. Pedestrians are seen walking in various directions, but there is no clear flow direction due to the low density.
+4. No individuals are observed to have fallen, be separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The scene does not show unusual density or distress.
+6. The overall risk level is LOW, as there are no immediate threats or hazards present.
+7. There are no unsafe crowd behaviors, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. No individuals are waiting, and there are no vulnerable individuals or signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around five individuals.
+12. The image does not show a stage viewing area or general circulation zones, and there are no clear egress paths.
+13. No unsupervised children are visible.
+14. There are no children more than 10 meters from an adult.
+15. There are no groups congregating in the parking lot or prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is estimated to be around five individuals.
+20. There are no visible threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_083000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_083000.jpg,crowd_behavior,done,2026-05-11T21:02:11.927830+00:00,0.04,1.884,1.933,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no signs of congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately two pedestrians visible in the image, standing near the right side of the frame. They appear stationary, with no clear pedestrian flow direction.
+4. No individuals are shown as having fallen, being separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or suspicious objects are visible. The crowd density is low, and there are no individuals in distress.
+6. The overall risk level is LOW, as there are no visible threats or hazards.
+7. There are no unsafe crowd behaviors observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from each other.
+9. No choke points are evident in the scene.
+10. There are no vulnerable individuals or signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is low, with only a few individuals present.
+12. The scene does not show a stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. There are no children more than 10 meters from an adult.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is low, with only a few individuals present.
+20. There are no visible threats requiring immediate patrol response.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or dangerous objects are being brandished.
+27. No assaults, robberies, or altercations are occurring.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is taking place."
+20260511T210207Z,frame_083500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_083500.jpg,crowd_behavior,done,2026-05-11T21:02:12.121635+00:00,0.032,1.541,1.578,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density is very low, with no visible groups or clusters of people.
+2. The area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are no pedestrians visible in the image.
+4. Not applicable as there are no pedestrians present.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW due to the absence of crowds and potential hazards.
+7. Not applicable as there are no pedestrians present.
+
+[CROWD SAFETY & SPACING]
+8. Not applicable as there are no pedestrians present.
+9. Not applicable as there are no pedestrians present.
+10. Not applicable as there are no pedestrians present.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is zero.
+12. Not applicable as there are no pedestrians present.
+13. Not applicable as there are no pedestrians present.
+14. Not applicable as there are no pedestrians present.
+15. Not applicable as there are no pedestrians present.
+
+[THREAT & SAFETY]
+16. There is no imminent threat visible in the frame.
+17. The total attendance in the visible area is zero.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is zero.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are visible.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. Not applicable as there are no pedestrians present.
+25. Not applicable as there are no pedestrians present.
+26. Not applicable as there are no pedestrians present.
+27. Not applicable as there are no pedestrians present.
+28. Not applicable as there are no pedestrians present.
+29. Not applicable as there are no pedestrians present."
+20260511T210207Z,frame_084000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_084000.jpg,crowd_behavior,done,2026-05-11T21:02:13.248231+00:00,0.041,2.077,2.123,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area is classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately four pedestrians visible in the image. Pedestrians are walking in various directions, but no specific flow direction is dominant.
+4. No individuals are seen falling, separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or suspicious objects are visible. The crowd density is low, and no individuals appear to be in distress.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible threats or distress.
+7. There are no unsafe crowd behaviors observed, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. No vulnerable individuals are identified, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around four individuals.
+12. The scene does not show a clear distinction between stage viewing areas and circulation zones. Egress paths appear clear.
+13. No unsupervised children are visible.
+14. Zero children are unsupervised or more than 10 meters from an adult.
+15. No groups are seen congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around four individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_084500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_084500.jpg,crowd_behavior,done,2026-05-11T21:02:13.701818+00:00,0.035,1.835,1.879,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²), with no visible congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear pedestrian flow direction as they are spread out.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as the scene shows low crowd density and no apparent threats.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals too close to one another.
+9. No choke points are evident in the scene.
+10. No vulnerable individuals are identified, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 individuals.
+12. The scene does not show a designated stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. Not applicable, as no children are present.
+15. No groups are seen congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are present in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 10 individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are evident.
+26. No weapons or dangerous objects are visible.
+27. No assaults, robberies, or altercations are taking place.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is observed."
+20260511T210207Z,frame_085000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_085000.jpg,crowd_behavior,done,2026-05-11T21:02:13.863181+00:00,0.033,1.489,1.526,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear direction of flow.
+4. No individuals appear to have fallen or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or distressed individuals are visible.
+6. The overall risk level is LOW due to low crowd density and no apparent threats.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no signs of unsafe proximity.
+9. No choke points are evident.
+10. No vulnerable individuals are identified.
+
+[EVENT / VENUE ASSESSMENT]
+11. Total attendance in the visible area is estimated at around 10 individuals.
+12. No stage viewing area or egress paths are visible.
+13. No unsupervised children are identified.
+14. Not applicable.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threat is visible.
+17. Not applicable.
+18. No weapons or dangerous objects are visible.
+19. Not applicable.
+20. Not applicable.
+21. Not applicable.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact is observed.
+25. No medical emergencies are present.
+26. No weapons are visible.
+27. No assaults or robberies are observed.
+28. No fallen individuals are present.
+29. No suspicious object handling is observed."
+20260511T210207Z,frame_085500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_085500.jpg,crowd_behavior,done,2026-05-11T21:02:15.373910+00:00,0.045,2.097,2.152,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately two pedestrians visible in the image, with no clear pedestrian flow direction as the number is too small to determine movement patterns.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The scene does not show unusual crowd density or distress.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible threats or distress.
+7. There are no unsafe crowd behaviors observed, as the few individuals present do not exhibit any concerning actions.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no close proximity between individuals that would suggest a lack of safe distancing.
+9. No choke points are evident in the scene.
+10. Only a few individuals are present, and none appear vulnerable or show signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is minimal, with only a few individuals present.
+12. The scene does not show a designated stage viewing area or general circulation zones, as it appears to be an open outdoor space.
+13. No unsupervised children are visible in the frame.
+14. There are no children present in the scene.
+15. No groups are congregating in the parking lot or stationary clusters are observed.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is minimal, with only a few individuals present.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or objects being pointed are visible.
+27. No assaults, robberies, or altercations are taking place.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object carrying or transferring is observed."
+20260511T210207Z,frame_090000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_090000.jpg,crowd_behavior,done,2026-05-11T21:02:15.425621+00:00,0.034,2.114,2.152,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the area.
+2. The entire visible area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately four pedestrians visible, with no clear pedestrian flow direction as they are spread out.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible distress or unusual activity.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to one another.
+9. No choke points are evident in the scene.
+10. No vulnerable individuals or signs of crowd stress are visible.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around four individuals.
+12. The scene does not show a designated stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is estimated to be around four individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are visible.
+26. No weapons or objects being pointed are visible.
+27. No assaults, robberies, or altercations are taking place.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is observed."
+20260511T210207Z,frame_090500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_090500.jpg,crowd_behavior,done,2026-05-11T21:02:15.583064+00:00,0.029,2.371,2.404,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately two pedestrians visible in the image, with no clear pedestrian flow direction as the scene is relatively static.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The scene does not show unusual density or distress.
+6. The overall risk level is LOW, as the scene is calm with no immediate threats or hazards.
+7. There are no unsafe crowd behaviors observed, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. No individuals are waiting, and there are no vulnerable individuals or signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is low, with only a few individuals present.
+12. The scene does not show a stage viewing area or general circulation zones, and there are no egress paths to assess.
+13. There are no unsupervised children separated from adult groups.
+14. No children appear unsupervised or more than 10 meters from an adult.
+15. There are no groups congregating in the parking lot or prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is low, with only a few individuals present.
+20. There are no threats visible that require immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is displaying, brandishing, or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. There are no individuals carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_091000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_091000.jpg,crowd_behavior,done,2026-05-11T21:02:17.528513+00:00,0.046,2.247,2.302,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area is classified as SPARSE (<1 person/m²), with no visible congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately four pedestrians visible in the image. Pedestrians are seen moving in various directions, but there is no clear dominant flow direction.
+4. No individuals are observed to have fallen, be separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The scene does not show unusual density or distress.
+6. The overall risk level is LOW, as the scene is relatively quiet with no immediate threats or hazards.
+7. No unsafe crowd behaviors are observed, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. No individuals are waiting, and no vulnerable individuals are identified. There are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around four individuals.
+12. The image does not show a stage viewing area or general circulation zones, and there are no clear egress paths.
+13. No unsupervised children separated from adult groups are visible.
+14. There are no children more than 10 meters from an adult.
+15. No groups are observed congregating in the parking lot or stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around four individuals.
+20. There are no visible threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_091500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_091500.jpg,crowd_behavior,done,2026-05-11T21:02:17.581100+00:00,0.038,1.903,1.945,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the distance.
+2. The area is classified as SPARSE (<1 person/m²), with no noticeable congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 5-6 pedestrians visible, with no clear direction of flow due to the low density.
+4. No individuals appear to have fallen or are showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no immediate safety concerns.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no close proximity between individuals.
+9. No choke points are evident in the scene.
+10. No vulnerable individuals are identifiable, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 5-6 people.
+12. The scene does not show a designated stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. Zero children are unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are present in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 5-6 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are evident.
+26. No weapons or dangerous objects are visible.
+27. No assaults, robberies, or altercations are taking place.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object carrying or transferring is observed."
+20260511T210207Z,frame_092000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_092000.jpg,crowd_behavior,done,2026-05-11T21:02:17.989408+00:00,0.039,1.7,1.743,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The crowd density is sparse, with no visible congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear direction of flow due to the scattered nature of the crowd.
+4. No individuals are seen falling, separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is low, as the crowd is sparse and there are no visible signs of distress or unusual activity.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals too close to one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. No vulnerable individuals are identified, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is approximately 10 individuals.
+12. There are no designated stage viewing areas or general circulation zones visible.
+13. No unsupervised children are identified.
+14. Not applicable.
+15. No groups are seen congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. Not applicable.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is approximately 10 individuals.
+20. No threats requiring immediate patrol response are visible.
+
+[HAZARDS & INCIDENTS]
+21. Not applicable.
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are visible.
+26. No weapons or dangerous objects are visible.
+27. No assaults, robberies, or altercations are observed.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is observed."
+20260511T210207Z,frame_092500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_092500.jpg,crowd_behavior,done,2026-05-11T21:02:19.528974+00:00,0.036,2.195,2.237,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area is classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately three pedestrians visible in the image. Pedestrian flow is minimal, with individuals seated or standing in various locations.
+4. No individuals are observed falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or suspicious objects are visible. Individuals are seated or standing, with no signs of distress.
+6. The overall risk level is LOW, as there are no immediate threats or hazards present.
+7. No unsafe crowd behaviors are observed; individuals are seated or standing without engaging in risky actions.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. A few individuals are seated, but no vulnerable individuals or signs of crowd stress are apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around three individuals.
+12. The scene does not show a clear distinction between stage viewing areas and circulation zones, but egress paths appear unobstructed.
+13. No unsupervised children are visible in the frame.
+14. There are no children more than 10 meters from an adult.
+15. No groups are observed congregating in the parking lot or forming prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is three individuals.
+20. There are no visible threats requiring immediate patrol response.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_093000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_093000.jpg,crowd_behavior,done,2026-05-11T21:02:19.735249+00:00,0.042,2.132,2.179,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the background.
+2. The area is classified as SPARSE (<1 person/m²), with no noticeable congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 5-6 pedestrians visible, mostly in the background. Pedestrian flow seems minimal, with individuals scattered and not forming a clear direction.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. No individuals are showing signs of distress.
+6. Overall risk level is LOW, as the area is sparsely populated with no immediate threats or hazards.
+7. No unsafe crowd behaviors are observed, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from each other.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals are waiting, but no vulnerable individuals or signs of crowd stress are apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. Total attendance in the visible area is estimated to be around 5-6 people.
+12. The image does not show a stage viewing area or general circulation zones, and egress paths are not clearly identifiable.
+13. No unsupervised children separated from adult groups are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot or stationary clusters are present.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 5-6 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_093500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_093500.jpg,crowd_behavior,done,2026-05-11T21:02:19.832617+00:00,0.032,2.219,2.256,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area is classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately four pedestrians visible in the image, with no clear direction of flow due to the low density.
+4. No individuals are shown as having fallen, being separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The crowd density is too low to identify unusually dense pockets.
+6. The overall risk level is LOW, as there are no visible signs of distress, congestion, or unsafe behaviors.
+7. There are no unsafe crowd behaviors observed, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to one another.
+9. No choke points are evident in the scene.
+10. No individuals are waiting, and there are no vulnerable individuals or signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around four individuals.
+12. The image does not show a stage viewing area or general circulation zones, and there are no clear egress paths.
+13. No unsupervised children are visible.
+14. There are no children more than 10 meters from an adult.
+15. No groups are shown congregating in the parking lot or moving into the park.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around four individuals.
+20. There are no visible threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_094000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_094000.jpg,crowd_behavior,done,2026-05-11T21:02:21.768495+00:00,0.044,2.309,2.358,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately three pedestrians visible in the image. Pedestrians are moving in various directions, but there is no clear flow direction due to the low density.
+4. No individuals are seen falling, separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The crowd density is low, so there are no unusually dense pockets.
+6. The overall risk level is LOW, as the scene shows low crowd density and no visible signs of distress or unusual activity.
+7. There are no unsafe crowd behaviors such as climbing barriers or running against the crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. There are no individuals waiting, and no vulnerable individuals are identifiable. No signs of crowd stress are observed.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is low, with only a few individuals present.
+12. The image does not show a stage viewing area or general circulation zones. Egress paths are not clearly identifiable but appear unobstructed.
+13. No unsupervised children are visible.
+14. There are no children unsupervised or more than 10 meters from an adult.
+15. There are no groups congregating in the parking lot or prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is low, with only a few individuals present.
+20. There are no threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. There are no individuals carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_094500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_094500.jpg,crowd_behavior,done,2026-05-11T21:02:21.918834+00:00,0.039,2.221,2.263,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately four pedestrians visible in the image, with no clear pedestrian flow direction as they are spread out.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no immediate safety concerns or unusual activities.
+7. There are no unsafe crowd behaviors observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from each other.
+9. There are no choke points visible that could lead to dangerous surges.
+10. No vulnerable individuals or signs of crowd stress are apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around four individuals.
+12. The scene does not show a designated stage viewing area or general circulation zones.
+13. No unsupervised children separated from adult groups are visible.
+14. There are no children more than 10 meters from an adult.
+15. No groups are congregating in the parking lot or stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around four individuals.
+20. There are no visible threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. There are no individuals carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_095000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_095000.jpg,crowd_behavior,done,2026-05-11T21:02:22.090717+00:00,0.032,1.936,1.977,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the background.
+2. The area is classified as SPARSE (<1 person/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 3-4 pedestrians visible, moving in various directions but not in a concentrated flow.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no immediate threats or hazards present.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no close proximity between individuals.
+9. No choke points are evident in the scene.
+10. No vulnerable individuals or signs of crowd stress are apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 3-4 people.
+12. The scene does not show a designated stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. Not applicable, as no children are present.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are present in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed is estimated to be around 3-4 people.
+20. No threats requiring immediate patrol response are present.
+21. No indications of gang affiliation, organized crime, or domestic dispute are observed.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or objects being brandished are visible.
+27. No assaults, robberies, or altercations are occurring.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious carrying or transferring of objects is observed."
+20260511T210207Z,frame_095500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_095500.jpg,crowd_behavior,done,2026-05-11T21:02:24.070128+00:00,0.051,1.781,1.842,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The entire visible area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear pedestrian flow direction as they are spread out.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage, unusually dense crowd pockets, or individuals in distress are visible.
+6. The overall risk level is LOW as the crowd is sparse and there are no visible signs of distress or danger.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals too close to each other.
+9. No choke points are visible that could lead to dangerous surges.
+10. No individuals are waiting, and no vulnerable individuals are identified.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is approximately 10 individuals.
+12. No stage viewing area or general circulation zones are visible.
+13. No unsupervised children are identified.
+14. Not applicable.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is approximately 10 individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are visible.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are visible.
+26. No weapons or dangerous objects are visible.
+27. No assault, robbery, or altercation is observed.
+28. No individuals are lying or fallen on the ground.
+29. No suspiciously carried or transferred objects are visible."
+20260511T210207Z,frame_100000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_100000.jpg,crowd_behavior,done,2026-05-11T21:02:24.129303+00:00,0.041,2.324,2.369,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 3-4 pedestrians visible in the image, with no clear pedestrian flow direction as the individuals are spread out.
+4. No individuals are observed to have fallen, be separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The crowd density is low, reducing the risk of sudden surges.
+6. The overall risk level is LOW, as the scene shows minimal activity and no immediate threats.
+7. There are no unsafe crowd behaviors observed, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. No vulnerable individuals or signs of crowd stress are apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 3-4 individuals.
+12. The scene does not show a designated stage viewing area or general circulation zones, and egress paths appear clear.
+13. No unsupervised children separated from adult groups are visible.
+14. There are no children more than 10 meters from an adult.
+15. No groups are observed congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is estimated to be around 3-4 individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals that is clearly not playful or consensual is observed.
+25. No individuals displaying signs of a medical emergency without immediate assistance are visible.
+26. No objects consistent with weapons are being brandished or pointed.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No individuals are carrying, dragging, or transferring unattended objects suspiciously."
+20260511T210207Z,frame_100500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_100500.jpg,crowd_behavior,done,2026-05-11T21:02:24.184314+00:00,0.033,2.135,2.171,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²), with no areas of congestion visible.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 5 pedestrians visible, with no clear pedestrian flow direction as they are spread out.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage, unusually dense crowd pockets, or individuals in distress are visible.
+6. The overall risk level is LOW, as the crowd is sparse and there are no visible signs of distress or unusual activity.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to one another.
+9. No choke points are visible that could lead to dangerous surges.
+10. No individuals are waiting, and no vulnerable individuals are identified.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 5 people.
+12. No stage viewing area or general circulation zones are visible, and egress paths are not applicable.
+13. No unsupervised children are identified.
+14. Not applicable, as there are no children present.
+15. No groups are congregating in the parking lot or moving into the park.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 5 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or dangerous objects are visible.
+27. No assaults, robberies, or altercations are occurring.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object carrying or transferring is observed."
+20260511T210207Z,frame_101000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_101000.jpg,crowd_behavior,done,2026-05-11T21:02:25.914830+00:00,0.039,1.591,1.636,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear direction of flow.
+4. No individuals appear to have fallen or are separated from a group.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or distressed individuals are visible.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible distress.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no signs of overcrowding.
+9. No choke points are evident.
+10. No vulnerable individuals are identified.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The general circulation zones appear clear.
+13. No unsupervised children are visible.
+14. No children are more than 10 meters from an adult.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to public safety are visible.
+17. No public safety officials are present.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed is estimated to be around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation or domestic disputes are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons are being brandished.
+27. No assaults or robberies are occurring.
+28. No individuals are lying on the ground.
+29. No suspicious object transfers are observed."
+20260511T210207Z,frame_101500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_101500.jpg,crowd_behavior,done,2026-05-11T21:02:26.358528+00:00,0.036,1.698,1.738,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The crowd density is sparse, with less than 1 person per square meter.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear direction of flow.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or distressed individuals are visible.
+6. The overall risk level is low due to the sparse crowd and lack of visible distress.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no signs of unsafe proximity.
+9. No choke points are evident in the scene.
+10. No vulnerable individuals are identified, and no signs of crowd stress are present.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The scene does not show a designated stage viewing area or clear egress paths.
+13. No unsupervised children are visible.
+14. Not applicable.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. Not applicable.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or pointed objects are visible.
+27. No assaults, robberies, or altercations are occurring.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object carrying or transferring is observed."
+20260511T210207Z,frame_102000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_102000.jpg,crowd_behavior,done,2026-05-11T21:02:26.500681+00:00,0.036,2.142,2.186,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the area.
+2. The entire visible area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately four pedestrians visible in the image. Pedestrians are spread out, with no clear flow direction observed.
+4. No individuals are seen falling, separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible. The scene does not show unusually dense crowd pockets.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible distress or unusual activity.
+7. No unsafe crowd behaviors are observed; people are not climbing barriers, running against the flow, or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. There are no vulnerable individuals or signs of crowd stress visible.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around four individuals.
+12. The image does not show a stage viewing area or general circulation zones, and egress paths are not clearly identifiable.
+13. No unsupervised children are visible.
+14. Zero children are unsupervised or more than 10 meters from an adult.
+15. No groups are seen congregating in the parking lot or stationary clusters.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. The total attendance in the visible area for any officer or public safety official is not applicable as none are present.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is four individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No activity indicates gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_102500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_102500.jpg,crowd_behavior,done,2026-05-11T21:02:27.553416+00:00,0.044,1.74,1.789,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are a few pedestrians visible, with no clear pedestrian flow direction.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage, unusually dense crowd pockets, or individuals in distress are visible.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible distress.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals too close to one another.
+9. No choke points are evident.
+10. No vulnerable individuals are identified.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is low.
+12. No stage viewing area or general circulation zones are identifiable.
+13. No unsupervised children are visible.
+14. No children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed is low.
+20. No threats requiring immediate patrol response are visible.
+21. No gang affiliation, organized crime, or domestic dispute is indicated.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or dangerous objects are visible.
+27. No assault, robbery, or altercation is observed.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is observed."
+20260511T210207Z,frame_103000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_103000.jpg,crowd_behavior,done,2026-05-11T21:02:28.098804+00:00,0.035,2.076,2.121,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the area but not overly packed.
+2. The zone is classified as MODERATE (1–3 person/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 15 pedestrians visible, with some moving towards the right side of the frame while others are stationary.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. Individuals do not appear to be in distress.
+6. The overall risk level is LOW, as the crowd is moderately dense with no immediate signs of distress or unsafe behavior.
+7. No unsafe crowd behaviors are observed, such as climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining reasonable distances from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals with large bags are visible, but no vulnerable individuals are apparent. No signs of crowd stress are observed.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 15 people.
+12. The general circulation zones appear clear, with no obstructions in the egress paths.
+13. No unsupervised children separated from adult groups are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 15 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are observed.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_103500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_103500.jpg,crowd_behavior,done,2026-05-11T21:02:28.690271+00:00,0.043,2.231,2.277,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density is moderate, with people gathered closely but not excessively packed.
+2. The entire visible area is classified as MODERATE (1-3 persons/m²), with no distinct pockets of congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 20-30 pedestrians, moving in multiple directions, with some individuals walking towards the camera and others moving laterally.
+4. No individuals are observed falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as the crowd is moderately dense but not overcrowded, and there are no immediate signs of distress or dangerous behavior.
+7. No unsafe crowd behaviors are observed; people are not climbing barriers or running against the flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals with large bags are visible, but no vulnerable individuals are apparent, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be between 20-30 people.
+12. The visible area does not clearly distinguish between stage viewing and circulation zones, but egress paths appear clear.
+13. No unsupervised children are visible.
+14. Not applicable, as no unsupervised children are present.
+15. No groups are observed congregating in the parking lot or remaining stationary for extended periods.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is between 20-30 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic disputes are evident.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals that is clearly not playful or consensual is observed.
+25. No individuals displaying signs of a medical emergency without immediate assistance are visible.
+26. No objects consistent with weapons are being brandished or pointed.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No individuals are carrying, dragging, or transferring unattended objects suspiciously."
+20260511T210207Z,frame_104000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_104000.jpg,crowd_behavior,done,2026-05-11T21:02:29.345025+00:00,0.041,2.223,2.268,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the sidewalk and some gathering near the blue structures.
+2. The area is classified as MODERATE (1-3 people/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 15-20 pedestrians visible, with some walking along the sidewalk and others standing near the blue structures.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. Individuals do not appear to be in distress.
+6. The overall risk level is LOW, as the crowd is spread out and there are no immediate safety concerns.
+7. No unsafe crowd behaviors are observed, such as people climbing barriers or running against the crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals with large bags are visible, but no vulnerable individuals are identified. Signs of crowd stress are not apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 15-20 people.
+12. The general circulation zone is clear, with no obstructions in the egress paths.
+13. No unsupervised children separated from adult groups are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is estimated to be around 15-20 people.
+20. No threats requiring immediate patrol response are visible.
+21. No activity indicates gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_104500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_104500.jpg,crowd_behavior,done,2026-05-11T21:02:30.222733+00:00,0.041,2.174,2.219,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with several individuals scattered across the scene but not densely packed.
+2. The area can be classified as MODERATE (1–3/m²), with no distinct pockets of congestion visible.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with some walking along the sidewalk and others standing near the tents. The flow of pedestrians seems to be moving from left to right.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. Individuals do not appear to be in distress.
+6. The overall risk level is LOW, as the crowd is spread out and there are no immediate signs of distress or danger.
+7. There are no unsafe crowd behaviors such as people climbing barriers or running against the crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals with large bags are visible, but no vulnerable individuals are apparent. There are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The general circulation zones appear clear, with no obstructions or blockages.
+13. No unsupervised children separated from adult groups are visible.
+14. There are no children more than 10 meters from an adult.
+15. No groups are congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 10 people.
+20. There are no threats visible that require immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_105000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_105000.jpg,crowd_behavior,done,2026-05-11T21:02:30.969633+00:00,0.042,2.296,2.342,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with several individuals scattered across the area but not densely packed.
+2. The zone is classified as MODERATE (1–3 person/m²). There are no obvious areas of congestion; people are spread out comfortably.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible. Pedestrians are moving in various directions, with some walking towards the camera and others moving away.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. Individuals are not displaying signs of distress.
+6. Overall risk level is LOW. The crowd is spread out, and there are no immediate signs of distress or dangerous behavior.
+7. No unsafe crowd behaviors are observed. People are not climbing barriers, running against the crowd flow, or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. A few individuals are carrying large bags, but no vulnerable individuals are clearly identifiable. No signs of crowd stress are evident.
+
+[EVENT / VENUE ASSESSMENT]
+11. Total attendance in the visible area is estimated to be around 10 people.
+12. The image does not show a stage viewing area or general circulation zones. Egress paths are not clearly visible but appear to be unobstructed.
+13. No unsupervised children separated from adult groups are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot or moving into the park. There are no prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_105500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_105500.jpg,crowd_behavior,done,2026-05-11T21:02:31.616203+00:00,0.037,1.653,1.695,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the sidewalk and some gathering near the blue structures.
+2. The area is classified as MODERATE (1-3 persons/m²), with no obvious congestion pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 15-20 pedestrians visible, with movement primarily along the sidewalk and around the blue structures.
+4. No individuals are seen fallen, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or suspiciously dense pockets are observed. Individuals appear to be engaged in casual activities.
+6. The overall risk level is LOW, as the crowd is dispersed and there are no immediate safety concerns.
+7. No unsafe crowd behaviors are noted; people are not climbing barriers or running against the flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining reasonable distances from one another.
+9. Choke points are not evident, as the sidewalk and surrounding areas appear sufficiently wide.
+10. A few individuals with large bags are present, but no vulnerable persons are clearly identifiable.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 15-20 people.
+12. The general circulation zones are clear, with no obstructions or blockages.
+13. No unsupervised children are visible in the frame.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+18. No weapons or dangerous objects are observed.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire or chemical spills are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed that would suggest an altercation."
+20260511T210207Z,frame_110000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_110000.jpg,crowd_behavior,done,2026-05-11T21:02:32.443805+00:00,0.038,2.074,2.116,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the area but not overly concentrated.
+2. The area can be classified as MODERATE (1–3/m²), with no obvious pockets of congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 15 pedestrians visible, with some walking towards the right side of the frame and others standing or sitting.
+4. No individuals appear to have fallen or are separated from their groups; all seem engaged in normal activities.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as the crowd is spread out and there are no signs of panic or unsafe behavior.
+7. No unsafe crowd behaviors are observed; people are maintaining a reasonable distance from each other and the bicycles.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a safe distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. A few individuals with large bags are present, but they do not appear to be causing any issues.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 15 people.
+12. The general circulation zones appear clear, with no obstructions or blockages.
+13. No unsupervised children are visible.
+14. Not applicable, as no children are present.
+15. No groups are congregating in the parking lot; everyone seems to be in the designated area.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. Not applicable, as no officers or public safety officials are visible.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 15 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or dangerous objects are being brandished.
+27. No assaults, robberies, or altercations are occurring.
+28. No individuals are lying or fallen on the ground in a non-resting posture.
+29. No suspicious carrying or transferring of unattended objects is observed."
+20260511T210207Z,frame_110500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_110500.jpg,crowd_behavior,done,2026-05-11T21:02:33.315341+00:00,0.267,2.028,2.305,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with a few individuals scattered across the area.
+2. The zone is classified as MODERATE (1–3/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 5 pedestrians visible, with no clear pedestrian flow direction due to the sparse distribution.
+4. No individuals are seen falling, separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no immediate safety concerns.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals too close to each other.
+9. No choke points are evident in the scene.
+10. No vulnerable individuals are identified, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 5 people.
+12. The scene does not show a designated stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. Not applicable, as there are no children present.
+15. No groups are seen congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are present in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is estimated to be around 5 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or dangerous objects are visible.
+27. No assaults, robberies, or altercations are taking place.
+28. No individuals are lying or fallen on the ground.
+29. No suspiciously carried or transferred objects are visible."
+20260511T210207Z,frame_111000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_111000.jpg,crowd_behavior,done,2026-05-11T21:02:33.316805+00:00,0.069,2.441,2.514,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with several individuals scattered across the area but not densely packed.
+2. The zone is classified as MODERATE (1–3/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with some walking towards the right side of the frame and others standing or moving casually.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense pockets are visible. Individuals appear to be engaged in normal activities.
+6. The overall risk level is LOW, as there are no immediate threats or unsafe behaviors observed.
+7. No unsafe crowd behaviors are noted; people are not climbing barriers or running against the flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining reasonable distances from one another.
+9. Choke points are not evident, and the flow of pedestrians seems smooth.
+10. A few individuals with large bags are visible, but no vulnerable persons are identified. No signs of crowd stress are apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The area appears to be a general circulation zone with no clear stage viewing area. Egress paths seem clear.
+13. No unsupervised children are visible.
+14. Zero children are unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot or stationary clusters are prolonged.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is estimated to be around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals that is clearly not playful or consensual is observed.
+25. No individuals are displaying signs of a medical emergency without assistance.
+26. No objects consistent with weapons are being brandished or pointed.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No individuals are carrying, dragging, or transferring unattended objects suspiciously."
+20260511T210207Z,frame_111500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_111500.jpg,crowd_behavior,done,2026-05-11T21:02:34.562837+00:00,0.048,1.588,1.645,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The entire visible area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 8 pedestrians visible, with no clear pedestrian flow direction as they are spread out.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage, unusually dense crowd pockets, or individuals in distress are visible.
+6. The overall risk level is LOW as the crowd is sparse and there are no visible signs of distress or unsafe behavior.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from each other.
+9. No choke points are evident in the visible area.
+10. No individuals are waiting, and no vulnerable individuals are identified.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 8 people.
+12. No stage viewing area or general circulation zones are clearly identifiable.
+13. No unsupervised children separated from adult groups are visible.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+18. No weapons or dangerous objects are visible.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No signs of a medical emergency are present.
+26. No weapons or dangerous objects are visible.
+27. No assault, robbery, or altercation is observed.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No suspicious carrying or transferring of objects is observed."
+20260511T210207Z,frame_112000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_112000.jpg,crowd_behavior,done,2026-05-11T21:02:35.624045+00:00,0.042,1.89,1.937,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²), with no visible congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear direction of flow due to the scattered nature of the crowd.
+4. No individuals are observed to have fallen, be separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as the crowd is sparse and there are no immediate safety concerns.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals too close to one another.
+9. No choke points are evident in the current frame.
+10. No vulnerable individuals are identifiable, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 individuals.
+12. The image does not provide enough information to distinguish between stage viewing areas and circulation zones.
+13. No unsupervised children are visible.
+14. Not applicable, as no children are present in the frame.
+15. No groups are observed congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. Not applicable, as no public safety officials are visible.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 10 individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or objects being pointed are visible.
+27. No assaults, robberies, or altercations are observed.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is visible."
+20260511T210207Z,frame_112500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_112500.jpg,crowd_behavior,done,2026-05-11T21:02:35.832741+00:00,0.038,1.64,1.682,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 8 pedestrians, with no clear pedestrian flow direction visible.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no visible signs of distress or unusual behavior.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with no signs of overcrowding.
+9. No choke points are evident.
+10. No vulnerable individuals are identified, and no signs of crowd stress are observed.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 8 individuals.
+12. The image does not provide enough information to identify stage viewing areas or assess egress paths.
+13. No unsupervised children are visible.
+14. Not applicable.
+15. No groups are observed congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. Not applicable.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 8 individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are observed.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are visible.
+26. No weapons or objects being pointed are visible.
+27. No assaults, robberies, or altercations are observed.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is observed."
+20260511T210207Z,frame_113000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_113000.jpg,crowd_behavior,done,2026-05-11T21:02:36.210197+00:00,0.033,2.519,2.556,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the area but not overly packed.
+2. The area can be classified as MODERATE (1–3 persons/m²). There are no obvious pockets of congestion, but the distribution of people suggests a moderate density.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible in the image. Pedestrians are seen walking in various directions, with some moving towards the center of the frame and others heading towards the edges.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. No individuals are seen in distress.
+6. The overall risk level is LOW. The crowd is moderately dense but not overcrowded, and there are no visible signs of distress or unusual behavior.
+7. No unsafe crowd behaviors are observed. People are not climbing barriers, running against the crowd flow, or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining a reasonable distance from one another. There are no signs of unsafe proximity.
+9. Choke points are not immediately apparent, but the layout of the area suggests that movement could be somewhat restricted in certain sections.
+10. A few individuals are seen carrying bags, but no vulnerable individuals (elderly, children, those with large bags) are clearly identifiable. No signs of crowd stress are evident.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The image does not clearly show a designated stage viewing area or general circulation zones. Egress paths are not distinctly visible but appear to be relatively clear.
+13. No unsupervised children separated from adult groups are visible.
+14. Not applicable, as no children are visible in the image.
+15. No groups are seen congregating in the parking lot rather than moving into the park. There are no prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are evident.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards (fire, chemical spill, downed power lines) are visible at the scene.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_113500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_113500.jpg,crowd_behavior,done,2026-05-11T21:02:37.517121+00:00,0.043,2.095,2.142,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the area but not overly congested.
+2. The area can be classified as MODERATE (1–3 person/m²), with no significant pockets of congestion visible.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 15 pedestrians visible, with some walking towards the right side of the frame and others standing or moving casually.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are observed.
+6. The overall risk level is LOW, as the crowd is spread out and there are no immediate safety concerns.
+7. No unsafe crowd behaviors are noted; people are not climbing barriers or running against the flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining reasonable distances from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals with large bags are present, but no signs of crowd stress are observed.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 15 people.
+12. The general circulation zones appear clear, with no obstructions in the egress paths.
+13. No unsupervised children are visible.
+14. Not applicable, as no unsupervised children are present.
+15. No groups are seen congregating in the parking lot or stationary clusters.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 15 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic disputes are observed.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals that is clearly not playful or consensual is observed.
+25. No individuals displaying signs of a medical emergency without immediate assistance are present.
+26. No objects consistent with weapons are being brandished or pointed.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No suspicious carrying, dragging, or transferring of unattended objects is observed."
+20260511T210207Z,frame_114000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_114000.jpg,crowd_behavior,done,2026-05-11T21:02:37.563130+00:00,0.037,2.355,2.395,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the scene but not densely packed.
+2. The area can be classified as MODERATE (1–3 person/m²), with no obvious congestion points.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with some walking towards the right side of the frame and others standing or moving casually.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. Individuals do not appear to be in distress.
+6. The overall risk level is LOW, as the crowd is spread out and there are no immediate signs of distress or danger.
+7. No unsafe crowd behaviors are observed; people are not climbing barriers or running against the crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining reasonable distances from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. A few individuals with large bags are present, but no vulnerable individuals are clearly identifiable. No signs of crowd stress are evident.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The scene does not clearly distinguish between stage viewing areas and circulation zones, but egress paths appear clear.
+13. No unsupervised children separated from adult groups are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are evident.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are present.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No person is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_114500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_114500.jpg,crowd_behavior,done,2026-05-11T21:02:38.769562+00:00,0.047,2.308,2.359,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with several individuals scattered across the scene but not densely packed.
+2. The area can be classified as MODERATE (1–3 person/m²). There are no obvious pockets of congestion, though the sidewalk and open area near the building show some pedestrian activity.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible in the image. Pedestrians are moving in various directions, primarily along the sidewalk and open area.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or suspicious objects are visible. The crowd density is moderate, and there are no individuals in distress.
+6. The overall risk level is LOW. The crowd is spread out, and there are no immediate signs of danger or distress.
+7. No unsafe crowd behaviors are observed. People are not climbing barriers, running against the crowd flow, or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. A few individuals are carrying bags, but no vulnerable individuals are clearly identifiable. There are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The scene does not show a designated stage viewing area. Egress paths appear clear.
+13. No unsupervised children are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_115000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_115000.jpg,crowd_behavior,done,2026-05-11T21:02:39.662007+00:00,0.044,2.21,2.258,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people scattered across the area but not overly concentrated.
+2. The zone is classified as MODERATE (1-3 people/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 15-20 pedestrians visible, with some walking towards the right side of the frame and others standing or sitting.
+4. No individuals appear to have fallen, are separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or unusually dense crowd pockets are visible. Individuals do not appear to be in distress.
+6. The overall risk level is LOW, as the crowd is spread out and there are no immediate signs of distress or danger.
+7. No unsafe crowd behaviors are observed; people are not climbing barriers or running against the crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears adequate, with individuals maintaining a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals are seen waiting, but no vulnerable individuals or signs of crowd stress are apparent.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 15-20 people.
+12. The general circulation zones appear clear, with no obstructions in the egress paths.
+13. No unsupervised children separated from adult groups are visible.
+14. Zero children appear unsupervised or more than 10 meters from an adult.
+15. No groups are congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. No imminent threat to officer or public safety is visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 15-20 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_115500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_115500.jpg,crowd_behavior,done,2026-05-11T21:02:39.960798+00:00,0.042,2.267,2.317,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area and ample space between them.
+2. The zone is classified as SPARSE (<1 person/m²), with no noticeable congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with some walking towards the right side of the frame and others standing or moving casually.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or suspicious objects are visible. The crowd density is low, and no individuals appear to be in distress.
+6. The overall risk level is LOW, as the crowd is sparse, and there are no visible signs of distress or unusual activity.
+7. There are no unsafe crowd behaviors observed, such as climbing barriers or congregating in restricted areas.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. No individuals are waiting in line, and there are no vulnerable individuals or signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The area appears to be a general circulation zone with no clear stage viewing area. Egress paths seem clear.
+13. No unsupervised children are visible.
+14. There are no children unsupervised or more than 10 meters from an adult.
+15. There are no groups congregating in the parking lot or prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 10 people.
+20. There are no visible threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. There are no individuals carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_120000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_120000.jpg,crowd_behavior,done,2026-05-11T21:02:41.131604+00:00,0.043,1.811,1.863,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the area.
+2. The entire visible area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 3 pedestrians visible in the image. Pedestrians are walking in various directions, but no specific flow direction is dominant.
+4. Not applicable; no individuals are shown as having fallen, separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. Risk level is LOW due to the sparse crowd and lack of visible hazards or distress.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no close proximity between individuals.
+9. No choke points are evident in the image.
+10. No vulnerable individuals or signs of crowd stress are visible.
+
+[EVENT / VENUE ASSESSMENT]
+11. Total attendance in the visible area is estimated to be around 3 individuals.
+12. The image does not show a stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. Not applicable; no children are present in the image.
+15. No groups are congregating in the parking lot or stationary clusters.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 3 individuals.
+20. No threats requiring immediate patrol response are visible.
+21. No indications of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are visible.
+26. No weapons or objects being pointed are visible.
+27. No assaults, robberies, or altercations are present.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious carrying or transferring of objects is observed."
+20260511T210207Z,frame_120500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_120500.jpg,crowd_behavior,done,2026-05-11T21:02:41.923018+00:00,0.045,1.853,1.902,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the area.
+2. The entire visible area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 5 pedestrians visible in the image. Pedestrians are seen moving in various directions, but no specific flow direction is dominant.
+4. No individuals are observed to have fallen, be separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible distress or unusual activity.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to one another.
+9. No choke points are evident in the image.
+10. No vulnerable individuals are identifiable, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 5 people.
+12. The image does not provide enough information to distinguish between stage viewing areas and circulation zones.
+13. No unsupervised children are visible.
+14. Not applicable as no children are present.
+15. No groups are observed congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. Not applicable as no public safety officials are visible.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 5 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or dangerous objects are visible.
+27. No assaults, robberies, or altercations are observed.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is observed."
+20260511T210207Z,frame_121000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_121000.jpg,crowd_behavior,done,2026-05-11T21:02:42.280799+00:00,0.036,1.724,1.763,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the background.
+2. The area is classified as SPARSE (<1 person/m²), with no noticeable congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 3-4 pedestrians visible, moving in various directions but not in a concentrated flow.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no immediate safety concerns.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no close proximity between individuals.
+9. No choke points are evident in the scene.
+10. No vulnerable individuals are identified, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 3-4 people.
+12. The scene does not show a designated stage viewing area or general circulation zones.
+13. No unsupervised children are visible.
+14. Not applicable, as there are no children present.
+15. No groups are congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 3-4 people.
+20. No threats requiring immediate patrol response are visible.
+21. No indications of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are evident.
+26. No weapons or objects being pointed are visible.
+27. No assaults, robberies, or altercations are taking place.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object carrying or transferring is observed."
+20260511T210207Z,frame_121500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_121500.jpg,crowd_behavior,done,2026-05-11T21:02:42.997035+00:00,0.04,2.158,2.203,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals visible in the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no signs of congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately three pedestrians visible in the image. They are standing near a bike rack and appear to be engaged in conversation or observing their surroundings. The pedestrian flow is not clearly defined due to the low density of people.
+4. No individuals are seen falling, separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. There are no unattended luggage or unusually dense crowd pockets. No individuals are displaying signs of distress.
+6. The overall risk level is LOW, as there are no visible signs of danger or distress among the pedestrians.
+7. There are no unsafe crowd behaviors such as climbing barriers or running against crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no individuals standing too close to one another.
+9. There are no choke points visible in the scene.
+10. There are no vulnerable individuals or signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is low, with only a few individuals present.
+12. The scene does not show a clear distinction between stage viewing areas and circulation zones. Egress paths appear clear.
+13. There are no unsupervised children separated from adult groups.
+14. There are no children visible in the scene.
+15. There are no groups congregating in the parking lot or prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. There are no public safety officials visible in the frame.
+18. There are no weapons or dangerous objects visible.
+19. The civilian population exposed in this frame is low, with only a few individuals present.
+20. There are no threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. There are no individuals displaying signs of a medical emergency without receiving immediate assistance.
+26. There are no individuals brandishing or pointing objects consistent with weapons.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. There are no individuals lying or fallen on the ground in a non-resting posture.
+29. There are no individuals carrying, dragging, or transferring unattended objects suspiciously."
+20260511T210207Z,frame_122000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_122000.jpg,crowd_behavior,done,2026-05-11T21:02:43.827449+00:00,0.034,2.626,2.664,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The zone is classified as SPARSE (<1 person/m²), with no visible congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 8 pedestrians visible, with no clear direction of flow due to the scattered nature of the crowd.
+4. No individuals are seen falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or suspicious objects are visible. The crowd density is low, and no individuals appear to be in distress.
+6. The overall risk level is LOW, as there are no visible threats or unsafe behaviors.
+7. No unsafe crowd behaviors are observed, such as climbing barriers or running against the flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no choke points visible that could lead to dangerous surges.
+10. No vulnerable individuals are identified, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 8 individuals.
+12. The area appears to be a general circulation zone with no clear stage viewing area. Egress paths seem clear.
+13. No unsupervised children are visible.
+14. There are no children more than 10 meters from an adult.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around 8 individuals.
+20. There are no visible threats requiring immediate patrol response.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_122500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_122500.jpg,crowd_behavior,done,2026-05-11T21:02:44.046591+00:00,0.041,2.616,2.66,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with only a few individuals scattered across the scene.
+2. The area is classified as SPARSE (<1 person/m²), with no visible congestion or dense pockets.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately four pedestrians visible in the image, with no clear pedestrian flow direction as they are spread out.
+4. No individuals are observed to have fallen, be separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as there are no immediate safety concerns or unusual activities.
+7. No unsafe crowd behaviors are observed, such as people climbing barriers or congregating in vehicle clearance zones.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with individuals maintaining a reasonable distance from one another.
+9. There are no identified choke points that could lead to dangerous surges.
+10. No vulnerable individuals are visible, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around four individuals.
+12. The image does not provide enough information to distinguish between stage viewing areas and general circulation zones.
+13. No unsupervised children are visible.
+14. There are no children more than 10 meters from an adult.
+15. No groups are observed congregating in the parking lot rather than moving into the park.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed in this frame is around four individuals.
+20. There are no visible threats requiring immediate patrol response.
+21. There is no indication of gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines.
+23. There are no fire or smoke incidents visible.
+
+[CRITICAL INCIDENTS]
+24. No individuals are engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_123000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_123000.jpg,crowd_behavior,done,2026-05-11T21:02:45.202900+00:00,0.04,2.319,2.363,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears to be very low, with only a few individuals visible in the scene.
+2. The area can be classified as SPARSE (<1 person/m²), with no significant congestion observed.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately two pedestrians visible in the image, and their movement direction is not clearly discernible due to the limited number of individuals.
+4. No individuals are shown as having fallen, being separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible in the image.
+6. The overall risk level is LOW, as there are no apparent safety risks or hazards present.
+7. There are no unsafe crowd behaviors observed, such as people climbing barriers or running against crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is not applicable due to the low density of the crowd.
+9. No choke points are visible that could lead to dangerous surges.
+10. There are no individuals waiting, and no vulnerable individuals are identifiable in the image.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is very low, with only a few individuals present.
+12. The image does not provide enough information to identify specific zones for stage viewing or general circulation.
+13. No unsupervised children are visible in the image.
+14. There are no children more than 10 meters from an adult, as the number of individuals is too low to assess this.
+15. The image does not show groups congregating in the parking lot or prolonged stationary clusters.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. The total attendance in the visible area for any officer or public safety official is not applicable due to the low number of individuals.
+18. No weapons or dangerous objects are visible in the image.
+19. The estimated civilian population exposed in this frame is very low, with only a few individuals present.
+20. There are no threats visible that require immediate patrol response.
+21. The scene activity does not indicate gang affiliation, organized crime, or domestic dispute.
+
+[HAZARDS & INCIDENTS]
+22. There are no environmental hazards such as fire, chemical spills, or downed power lines visible in the scene.
+23. There are no fire or smoke incidents visible in the image.
+
+[CRITICAL INCIDENTS]
+24. There are no individuals engaged in physical contact that is clearly not playful or consensual.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. There are no individuals displaying, brandishing, or pointing an object consistent with a weapon.
+27. There are no individuals participating in assault, robbery, or altercation.
+28. There is no person lying or fallen on the ground in a non-resting posture, suggesting injury or incapacitation.
+29. There are no individuals carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_123500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_2/frame_123500.jpg,crowd_behavior,done,2026-05-11T21:02:50.028108+00:00,0.04,1.805,1.848,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears low, with individuals scattered across the area.
+2. The entire visible area is classified as SPARSE (<1 person/m²).
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 10 pedestrians visible, with no clear direction of flow.
+4. No individuals are shown as having fallen, being separated from a group, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW due to the sparse crowd and lack of visible distress or unusual activity.
+7. No unsafe crowd behaviors are observed.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is adequate, with no signs of overcrowding.
+9. No choke points are evident.
+10. No individuals are identified as vulnerable, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 10 people.
+12. The area appears to be a general circulation zone with no clear stage viewing area.
+13. No unsupervised children are visible.
+14. Not applicable.
+15. No groups are seen congregating in the parking lot.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. Not applicable.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 10 people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals is observed.
+25. No medical emergencies are present.
+26. No weapons or dangerous objects are visible.
+27. No assaults, robberies, or altercations are observed.
+28. No individuals are lying or fallen on the ground.
+29. No suspicious object transfer is observed."
+20260511T210207Z,frame_124000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_124000.jpg,crowd_behavior,done,2026-05-11T21:02:46.494164+00:00,0.045,2.166,2.216,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people gathered closely but not excessively packed.
+2. The area is classified as MODERATE (1–3/m²), with no distinct pockets of congestion visible.
+
+[PEDESTRIAN ACTIVITY]
+3. There are numerous pedestrians, with a flow direction that seems to be moving from left to right across the frame.
+4. No individuals are observed to have fallen, be separated from a group, or show signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is rated as LOW, as the crowd is moderate and there are no immediate signs of distress or danger.
+7. There are no unsafe crowd behaviors such as climbing barriers or running against the crowd flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing appears to be maintained adequately, with individuals standing at a reasonable distance from one another.
+9. No choke points are evident that could lead to dangerous surges.
+10. Vulnerable individuals are not clearly identifiable, and there are no signs of crowd stress.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be moderate, with a dense gathering of people.
+12. The stage viewing area and general circulation zones are not distinctly identifiable, but the crowd appears to be moving freely.
+13. No unsupervised children separated from adult groups are visible.
+14. There are no unsupervised children more than 10 meters from an adult.
+15. Groups congregating in the parking lot are not visible.
+
+[THREAT & SAFETY]
+16. There is no imminent threat to officer or public safety visible in the frame.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The civilian population exposed in this frame is moderate, with a dense gathering of people.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation, organized crime, or domestic dispute are visible.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals that is clearly not playful or consensual is visible.
+25. No individual is displaying signs of a medical emergency without receiving immediate assistance.
+26. No person is brandishing or pointing an object consistent with a weapon.
+27. No individuals are participating in assault, robbery, or altercation.
+28. No person is lying or fallen on the ground in a non-resting posture.
+29. No person is carrying, dragging, or transferring an unattended object suspiciously."
+20260511T210207Z,frame_124500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_124500.jpg,crowd_behavior,done,2026-05-11T21:02:46.709672+00:00,0.033,1.122,1.159,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. There are no people visible in the image.
+2. Not applicable as there are no people visible.
+
+[PEDESTRIAN ACTIVITY]
+3. There are no pedestrians visible in the image.
+4. Not applicable as there are no people visible.
+
+[RISK ASSESSMENT]
+5. Not applicable as there are no people visible.
+6. Not applicable as there are no people visible.
+7. Not applicable as there are no people visible.
+
+[CROWD SAFETY & SPACING]
+8. Not applicable as there are no people visible.
+9. Not applicable as there are no people visible.
+10. Not applicable as there are no people visible.
+
+[EVENT / VENUE ASSESSMENT]
+11. There are no people visible in the image.
+12. Not applicable as there are no people visible.
+13. Not applicable as there are no people visible.
+14. Not applicable as there are no people visible.
+15. Not applicable as there are no people visible.
+
+[THREAT & SAFETY]
+16. No.
+17. There are no people visible in the image.
+18. No.
+19. There are no people visible in the image.
+20. No.
+21. No.
+
+[HAZARDS & INCIDENTS]
+22. No.
+23. No.
+
+[CRITICAL INCIDENTS]
+24. No.
+25. No.
+26. No.
+27. No.
+28. No.
+29. No."
+20260511T210207Z,frame_125000.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_125000.jpg,crowd_behavior,done,2026-05-11T21:02:47.568324+00:00,0.037,1.366,1.407,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. No crowd is visible in the image.
+2. No zones are applicable as there is no crowd present.
+
+[PEDESTRIAN ACTIVITY]
+3. No pedestrians are visible.
+4. Not applicable as there are no pedestrians present.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or distressed individuals are visible.
+6. LOW risk as there are no visible hazards or crowds.
+7. Not applicable as there are no pedestrians present.
+
+[CROWD SAFETY & SPACING]
+8. Not applicable as there are no pedestrians present.
+9. Not applicable as there are no pedestrians present.
+10. Not applicable as there are no pedestrians present.
+
+[EVENT / VENUE ASSESSMENT]
+11. No attendees are visible.
+12. Not applicable as there are no pedestrians present.
+13. Not applicable as there are no pedestrians present.
+14. Not applicable as there are no pedestrians present.
+15. Not applicable as there are no pedestrians present.
+
+[THREAT & SAFETY]
+16. No imminent threats are visible.
+17. No public safety officials are visible.
+18. No weapons or dangerous objects are visible.
+19. No civilians are visible.
+20. No threats requiring immediate patrol response are visible.
+21. No signs of gang affiliation or domestic disputes are visible.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards are visible.
+23. No fire or smoke incidents are visible.
+
+[CRITICAL INCIDENTS]
+24. Not applicable as there are no pedestrians present.
+25. Not applicable as there are no pedestrians present.
+26. Not applicable as there are no pedestrians present.
+27. Not applicable as there are no pedestrians present.
+28. Not applicable as there are no pedestrians present.
+29. Not applicable as there are no pedestrians present."
+20260511T210207Z,frame_125500.jpg,,,2026-04-18/LP_FarmersMarket_Restroom_1/frame_125500.jpg,crowd_behavior,done,2026-05-11T21:02:47.871300+00:00,0.034,2.111,2.147,,nvidia/cosmos-reason2-8b,"[CROWD DENSITY & ZONES]
+1. The crowd density appears moderate, with people gathered closely but not excessively packed.
+2. The entire visible area is classified as MODERATE (1-3 persons/m²), with no distinct pockets of congestion.
+
+[PEDESTRIAN ACTIVITY]
+3. There are approximately 20-30 pedestrians visible, with movement primarily directed towards the center of the frame.
+4. No individuals are observed falling, separated from groups, or showing signs of medical distress.
+
+[RISK ASSESSMENT]
+5. No unattended luggage or individuals in distress are visible.
+6. The overall risk level is LOW, as the crowd is moderately dense with no immediate signs of distress or unsafe behavior.
+7. No unsafe crowd behaviors are observed; people are not climbing barriers or running against the flow.
+
+[CROWD SAFETY & SPACING]
+8. Crowd spacing is generally adequate, with minimal safe distancing maintained.
+9. No choke points are evident that could lead to dangerous surges.
+10. A few individuals with large bags are visible, but no vulnerable individuals are apparent, and no signs of crowd stress are noted.
+
+[EVENT / VENUE ASSESSMENT]
+11. The total attendance in the visible area is estimated to be around 20-30 people.
+12. The stage viewing area and general circulation zones are not clearly distinguishable, but no obstructions in egress paths are apparent.
+13. No unsupervised children separated from adult groups are visible.
+14. Not applicable, as no unsupervised children are present.
+15. No groups are observed congregating in the parking lot or stationary clusters.
+
+[THREAT & SAFETY]
+16. No imminent threats to officer or public safety are visible.
+17. No public safety officials are visible in the frame.
+18. No weapons or dangerous objects are visible.
+19. The estimated civilian population exposed is around 20-30 people.
+20. No threats requiring immediate patrol response are visible.
+21. No indications of gang affiliation, organized crime, or domestic dispute are present.
+
+[HAZARDS & INCIDENTS]
+22. No environmental hazards such as fire, chemical spills, or downed power lines are visible.
+23. No fire or smoke incidents are present.
+
+[CRITICAL INCIDENTS]
+24. No physical contact between individuals that is clearly not playful or consensual is observed.
+25. No individuals displaying signs of a medical emergency without immediate assistance are visible.
+26. No objects being brandished or pointed as weapons are present.
+27. No individuals participating in assault, robbery, or altercation are observed.
+28. No person lying or fallen on the ground in a non-resting posture is visible.
+29. No individuals carrying, dragging, or transferring unattended objects suspiciously are present."

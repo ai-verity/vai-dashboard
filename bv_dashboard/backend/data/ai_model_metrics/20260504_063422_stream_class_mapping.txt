@@ -1,0 +1,42 @@
+Class mapping  (2026-05-04T05:22:05+00:00)
+Run     : exp
+Model   : rtdetr-l
+Weights : (auto-download)
+Layout  : COCO 80-class
+          COCO 80-class layout; entire pretrained head transfers. Project classes are remapped to their COCO indices; COCO classes outside our labels never see positive samples and stay silent at inference.
+
+VIA class name        →  YOLO index
+────────────────────────────────────────
+  person                0
+  bicycle               1
+  car                   2
+  motorcycle            3
+  bus                   5
+  truck                 7
+
+Dropped class regions (no entry in mapping):
+                        15
+  _background_images    2511
+
+Output classes (data.yaml `names`, nc=80):
+  (* = position receives at least one VIA-mapped class)
+  *   0: person
+  *   1: bicycle
+  *   2: car
+  *   3: motorcycle
+  *   5: bus
+  *   7: truck
+
+Class instance counts (from YOLO label files):
+  class                    train     val   total
+  ──────────────────────────────────────────────
+  person                     487      84     571
+  bicycle                   2315     537    2852
+  car                        947     213    1160
+  motorcycle                   0       0       0  ← NO DATA (mapped but absent)
+  bus                          4       0       4  ← very few instances
+  truck                        5       2       7  ← very few instances
+  ──────────────────────────────────────────────
+  total boxes               3758     836    4594
+  image files               2962     741    3703
+    of which empty bg       1997     518    2515
