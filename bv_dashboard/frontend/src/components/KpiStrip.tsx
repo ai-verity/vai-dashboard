@@ -41,7 +41,7 @@ export default function KpiStrip() {
   }
 
   const cells = [
-    { value: data.total,     label: 'Total Incidents',  sub: 'Jan 1 – May 13',          color: 'var(--red)'    },
+    { value: data.total,     label: 'Total Incidents',  sub: 'all categories',           color: 'var(--red)'    },
     { value: data.violent,   label: 'Violent Crime',    sub: 'assault · weapons · fight',color: 'var(--orange)' },
     { value: data.health,    label: 'Health / Medical', sub: 'diabetes · cardiac · MH',  color: 'var(--purple)' },
     { value: data.environ,   label: 'Environmental',    sub: 'flood · fire · smoke',      color: 'var(--blue)'   },

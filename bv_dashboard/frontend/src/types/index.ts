@@ -347,6 +347,21 @@ export interface VlmAggregates {
   monthly_by_type: VlmMonthlyTypeRow[];
   weekly_by_location: VlmPeriodLocationAggregate;
   monthly_by_location: VlmPeriodLocationAggregate;
+  // Sum of pedestrian_count per (bucket, location) — crowd_behavior only.
+  // Same shape as weekly_by_location; the `count` field carries people
+  // (summed pedestrian count) instead of frame count.
+  weekly_people_by_location: VlmPeriodLocationAggregate;
+  monthly_people_by_location: VlmPeriodLocationAggregate;
+  // Sum of parsed vehicle count per (bucket, location) — vehicle_prompts only.
+  // `count` is the number of distinct vehicles enumerated from Q13
+  // description text, not a frame count.
+  weekly_vehicles_by_location: VlmPeriodLocationAggregate;
+  monthly_vehicles_by_location: VlmPeriodLocationAggregate;
+  // Count of frames flagged `dumping_present` per (bucket, location) —
+  // illegal_dumping only. `count` is the number of dumping-positive
+  // frames at that location in the bucket.
+  weekly_dumping_by_location: VlmPeriodLocationAggregate;
+  monthly_dumping_by_location: VlmPeriodLocationAggregate;
 }
 
 // ─── AI Model Metrics types ─────────────────────────────────────────────────

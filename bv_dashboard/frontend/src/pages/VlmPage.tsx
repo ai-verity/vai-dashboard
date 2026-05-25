@@ -1,5 +1,6 @@
 // pages/VlmPage.tsx
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import type { MutableRefObject } from 'react';
 import {
   useVlmList, useVlmFeeds, useVlmStats, useVlmPrompts, useVlmOne, useVlmAggregates, useVlmRuns,
 } from '../hooks/useApi';
@@ -8,8 +9,6 @@ import type { VlmAggregates, VlmPeriodLocationAggregate } from '../types';
 import type { VlmListParams } from '../hooks/useApi';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
 import { useTheme } from '../hooks/useTheme';
-
-const MODEL_NAME = 'nvidia/cosmos-reason2-8b';
 
 const PAGE_SIZE = 50;
 
@@ -239,12 +238,125 @@ function Badge({ color, children }: { color: string; children: React.ReactNode }
 const RISK_KEYS = ['LOW', 'MODERATE', 'HIGH'] as const;
 const DENSITY_KEYS = ['SPARSE', 'MODERATE', 'DENSE'] as const;
 
+// Convert an ISO year+week (W1 = week containing Jan 4) into the Monday
+// of that week as a UTC Date. Used to humanize "YYYY-Www" bucket strings.
+function isoWeekStart(year: number, week: number): Date {
+  const jan4 = new Date(Date.UTC(year, 0, 4));
+  const dow = (jan4.getUTCDay() + 6) % 7; // 0 = Mon … 6 = Sun
+  const week1Mon = new Date(jan4);
+  week1Mon.setUTCDate(jan4.getUTCDate() - dow);
+  const d = new Date(week1Mon);
+  d.setUTCDate(week1Mon.getUTCDate() + (week - 1) * 7);
+  return d;
+}
+
+// Humanize a period bucket key (YYYY-Www or YYYY-MM) for the UI. The
+// `mode` controls verbosity: 'short' for cramped x-axis ticks, 'long'
+// for the tooltip header. Unknown shapes pass through untouched so we
+// never crash on a backend-format change.
+function formatBucket(bucket: string, mode: 'short' | 'long' = 'short'): string {
+  const w = bucket.match(/^(\d{4})-W(\d{2})$/);
+  if (w) {
+    const [, y, ww] = w;
+    const start = isoWeekStart(parseInt(y, 10), parseInt(ww, 10));
+    const end = new Date(start);
+    end.setUTCDate(start.getUTCDate() + 6);
+    const startMonth = start.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const endMonth = end.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const startDay = start.getUTCDate();
+    const endDay = end.getUTCDate();
+    if (mode === 'long') {
+      const rangeRight = startMonth === endMonth ? `${endDay}` : `${endMonth} ${endDay}`;
+      return `Week of ${startMonth} ${startDay} – ${rangeRight}`;
+    }
+    return `${startMonth} ${startDay}`;
+  }
+  const m = bucket.match(/^(\d{4})-(\d{2})$/);
+  if (m) {
+    const [, y, mm] = m;
+    const d = new Date(Date.UTC(parseInt(y, 10), parseInt(mm, 10) - 1, 1));
+    const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    return mode === 'long' ? `${month} ${y}` : `${month} ${y.slice(2)}`;
+  }
+  return bucket;
+}
+
 // Canvas helpers live in utils/canvas.ts; alias setupCanvas → setupCv to
 // keep this file's call sites unchanged.
 const setupCv = setupCanvas;
 
+// Hit-test region for canvas tooltips. Coordinates are in CSS pixels
+// (matching the W/H surface used inside each chart's draw fn after the
+// DPR scale applied by setupCanvas). `bar` groups segments that belong
+// to the same bar so the tooltip can show stack-total alongside the
+// hovered segment.
+type HitRegion = {
+  x: number; y: number; w: number; h: number;
+  label: string;
+  value: number | string;
+  color: string;
+  bar?: string;        // optional group key (e.g. "hour 14" or "feed: Linear Park")
+};
+
+function useChartHover() {
+  const regions: MutableRefObject<HitRegion[]> = useRef<HitRegion[]>([]);
+  const [hover, setHover] = useState<{ x: number; y: number; region: HitRegion } | null>(null);
+
+  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    // Convert client → CSS-pixel space inside the canvas. setupCanvas
+    // sets css width = offsetWidth, so rect.width matches W; the same
+    // for height. Direct subtraction is enough.
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const hit = regions.current.find(r => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
+    if (hit) {
+      setHover(prev => prev && prev.region === hit && prev.x === x && prev.y === y ? prev : { x, y, region: hit });
+    } else if (hover) {
+      setHover(null);
+    }
+  };
+  const onMouseLeave = () => setHover(null);
+  return { regions, hover, onMouseMove, onMouseLeave };
+}
+
+function ChartTooltip({ hover }: { hover: { x: number; y: number; region: HitRegion } | null }) {
+  if (!hover) return null;
+  const { x, y, region } = hover;
+  // Offset the tooltip slightly off the cursor so it doesn't flicker
+  // when the mouse moves between adjacent segments.
+  return (
+    <div style={{
+      position: 'absolute',
+      left: x + 12,
+      top: y + 12,
+      pointerEvents: 'none',
+      zIndex: 4,
+      background: 'var(--s1)',
+      border: '1px solid var(--border)',
+      borderLeft: `3px solid ${region.color}`,
+      padding: '5px 9px',
+      fontFamily: 'var(--mono)',
+      fontSize: 10,
+      color: 'var(--text)',
+      whiteSpace: 'nowrap',
+      boxShadow: '0 4px 10px rgba(0,0,0,0.25)',
+      borderRadius: 2,
+    }}>
+      {region.bar && (
+        <div style={{ color: 'var(--muted)', fontSize: 8.5, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
+          {region.bar}
+        </div>
+      )}
+      <span style={{ color: region.color, fontWeight: 700 }}>{region.label}</span>
+      <span style={{ marginLeft: 8, color: 'var(--text)' }}>{region.value}</span>
+    </div>
+  );
+}
+
 function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
@@ -253,6 +365,7 @@ function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
     const p = { l: 30, r: 10, t: 14, b: 28 };
     const totals = data.map(r => r.LOW + r.MODERATE + r.HIGH);
     const mx = Math.max(...totals, 1);
+    regions.current = [];
     // grid
     for (let i = 0; i <= 4; i++) {
       const y = p.t + (H - p.t - p.b) * (1 - i / 4);
@@ -270,6 +383,7 @@ function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
     data.forEach((row, h) => {
       const x = p.l + h * bW + 1;
       let yBase = H - p.b;
+      const barLabel = `Hour ${String(h).padStart(2, '0')}:00 UTC`;
       RISK_KEYS.forEach(k => {
         const n = (row[k as keyof typeof row] as number) || 0;
         if (!n) return;
@@ -278,6 +392,10 @@ function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, yBase - hh, bW - 2, hh);
         ctx.globalAlpha = 1;
+        regions.current.push({
+          x, y: yBase - hh, w: bW - 2, h: hh,
+          label: k, value: n, color: colors[k], bar: barLabel,
+        });
         yBase -= hh;
       });
       if (h % 3 === 0) {
@@ -297,11 +415,17 @@ function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
       ctx.fillText(k, x + 11, H - 2);
     });
   }, [data, tick]);
-  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
 }
 
 function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
@@ -311,6 +435,7 @@ function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
     const mx = Math.max(...data.map(f => f.total), 1);
     const rowH = (H - p.t - p.b) / Math.max(data.length, 1);
     const colors: Record<string, string> = { SPARSE: '#2DC9A8', MODERATE: '#F5B731', DENSE: '#EF4444' };
+    regions.current = [];
     data.forEach((f, i) => {
       const y = p.t + i * rowH;
       const fullBw = Math.round((f.total / mx) * (W - p.l - p.r));
@@ -325,6 +450,10 @@ function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, y + 2, bw, rowH - 4);
         ctx.globalAlpha = 1;
+        regions.current.push({
+          x, y: y + 2, w: bw, h: rowH - 4,
+          label: k, value: n, color: colors[k], bar: f.feed_label,
+        });
         x += bw;
       });
       ctx.fillStyle = TEXT;
@@ -337,7 +466,12 @@ function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
       ctx.fillText(String(f.total), p.l + fullBw + 4, y + rowH / 2 + 3);
     });
   }, [data, tick]);
-  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
 }
 
 function DailyDenseChart({ data }: { data: VlmAggregates['daily_dense'] }) {
@@ -410,6 +544,7 @@ const VEH_ISSUE_COLOR: Partial<Record<string, string>> = {
 
 function VehicleHourChart({ data }: { data: VlmAggregates['vehicle_hour_issue'] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
@@ -418,6 +553,7 @@ function VehicleHourChart({ data }: { data: VlmAggregates['vehicle_hour_issue'] 
     const p = { l: 30, r: 10, t: 14, b: 28 };
     const totals = data.map(r => r.collisions + r.speeding + r.fire_lane);
     const mx = Math.max(...totals, 1);
+    regions.current = [];
     for (let i = 0; i <= 4; i++) {
       const y = p.t + (H - p.t - p.b) * (1 - i / 4);
       ctx.strokeStyle = GRID;
@@ -431,14 +567,20 @@ function VehicleHourChart({ data }: { data: VlmAggregates['vehicle_hour_issue'] 
     data.forEach((row, h) => {
       const x = p.l + h * bW + 1;
       let yBase = H - p.b;
+      const barLabel = `Hour ${String(h).padStart(2, '0')}:00 UTC`;
       VEH_ISSUE_KEYS.forEach(k => {
         const n = (row[k] as number) || 0;
         if (!n) return;
         const hh = Math.max(1, (n / mx) * (H - p.t - p.b));
-        ctx.fillStyle = VEH_ISSUE_COLOR[k] ?? '#888';
+        const col = VEH_ISSUE_COLOR[k] ?? '#888';
+        ctx.fillStyle = col;
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, yBase - hh, bW - 2, hh);
         ctx.globalAlpha = 1;
+        regions.current.push({
+          x, y: yBase - hh, w: bW - 2, h: hh,
+          label: k.toUpperCase(), value: n, color: col, bar: barLabel,
+        });
         yBase -= hh;
       });
       if (h % 3 === 0) {
@@ -458,11 +600,17 @@ function VehicleHourChart({ data }: { data: VlmAggregates['vehicle_hour_issue'] 
       ctx.fillText(k.toUpperCase(), x + 11, H - 2);
     });
   }, [data, tick]);
-  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
 }
 
 function VehicleFeedChart({ data }: { data: VlmAggregates['vehicle_feed_issue'] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
@@ -472,6 +620,7 @@ function VehicleFeedChart({ data }: { data: VlmAggregates['vehicle_feed_issue'] 
     const issueTotals = data.map(f => f.collisions + f.speeding + f.fire_lane + f.other);
     const mx = Math.max(...issueTotals, 1);
     const rowH = (H - p.t - p.b) / Math.max(data.length, 1);
+    regions.current = [];
     data.forEach((f, i) => {
       const y = p.t + i * rowH;
       const issueTotal = issueTotals[i];
@@ -483,10 +632,15 @@ function VehicleFeedChart({ data }: { data: VlmAggregates['vehicle_feed_issue'] 
         const n = (f[k] as number) || 0;
         if (!n || !issueTotal) return;
         const bw = Math.round((n / issueTotal) * fullBw);
-        ctx.fillStyle = VEH_ISSUE_COLOR[k] ?? '#888';
+        const col = VEH_ISSUE_COLOR[k] ?? '#888';
+        ctx.fillStyle = col;
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, y + 2, bw, rowH - 4);
         ctx.globalAlpha = 1;
+        regions.current.push({
+          x, y: y + 2, w: bw, h: rowH - 4,
+          label: k.toUpperCase(), value: n, color: col, bar: f.feed_label,
+        });
         x += bw;
       });
       ctx.fillStyle = TEXT;
@@ -499,7 +653,12 @@ function VehicleFeedChart({ data }: { data: VlmAggregates['vehicle_feed_issue'] 
       ctx.fillText(String(issueTotal), p.l + fullBw + 4, y + rowH / 2 + 3);
     });
   }, [data, tick]);
-  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
 }
 
 function VehicleDailyChart({ data }: { data: VlmAggregates['vehicle_daily_collision'] }) {
@@ -560,6 +719,7 @@ function VehicleDailyChart({ data }: { data: VlmAggregates['vehicle_daily_collis
 // ─── Illegal-dumping charts ─────────────────────────────────────────────────
 function DumpingSeverityChart({ data }: { data: VlmAggregates['dumping_severity'] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
@@ -567,6 +727,7 @@ function DumpingSeverityChart({ data }: { data: VlmAggregates['dumping_severity'
     const { MUTED, GRID } = chartColors();
     const p = { l: 30, r: 12, t: 14, b: 28 };
     const mx = Math.max(...data.map(r => r.count), 1);
+    regions.current = [];
     for (let i = 0; i <= 4; i++) {
       const y = p.t + (H - p.t - p.b) * (1 - i / 4);
       ctx.strokeStyle = GRID;
@@ -583,10 +744,16 @@ function DumpingSeverityChart({ data }: { data: VlmAggregates['dumping_severity'
       const x = p.l + i * bW + 4;
       const bw = bW - 8;
       const h = Math.max(1, (row.count / mx) * (H - p.t - p.b));
-      ctx.fillStyle = sevColor(row.severity);
+      const col = sevColor(row.severity);
+      ctx.fillStyle = col;
       ctx.globalAlpha = 0.86;
       ctx.fillRect(x, H - p.b - h, bw, h);
       ctx.globalAlpha = 1;
+      regions.current.push({
+        x, y: H - p.b - h, w: bw, h,
+        label: `SEV ${row.severity}`, value: row.count, color: col,
+        bar: 'Severity distribution',
+      });
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
       ctx.textAlign = 'center';
@@ -594,11 +761,17 @@ function DumpingSeverityChart({ data }: { data: VlmAggregates['dumping_severity'
       ctx.fillText(String(row.count), x + bw / 2, H - 4);
     });
   }, [data, tick]);
-  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
 }
 
 function DumpingFeedChart({ data }: { data: VlmAggregates['dumping_feed'] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 180);
     if (!g) return;
@@ -607,6 +780,7 @@ function DumpingFeedChart({ data }: { data: VlmAggregates['dumping_feed'] }) {
     const p = { l: 150, r: 12, t: 6, b: 6 };
     const mx = Math.max(...data.map(f => f.dumping), 1);
     const rowH = (H - p.t - p.b) / Math.max(data.length, 1);
+    regions.current = [];
     data.forEach((f, i) => {
       const y = p.t + i * rowH;
       const fullBw = Math.round((f.dumping / mx) * (W - p.l - p.r));
@@ -618,10 +792,25 @@ function DumpingFeedChart({ data }: { data: VlmAggregates['dumping_feed'] }) {
       ctx.fillRect(p.l, y + 2, fullBw, rowH - 4);
       ctx.globalAlpha = 1;
       // chronic overlay — darker stripe at the start
+      let chronicW = 0;
       if (f.chronic) {
-        const cw = Math.min(fullBw, Math.round((f.chronic / mx) * (W - p.l - p.r)));
+        chronicW = Math.min(fullBw, Math.round((f.chronic / mx) * (W - p.l - p.r)));
         ctx.fillStyle = DMP_CHRONIC;
-        ctx.fillRect(p.l, y + 2, cw, rowH - 4);
+        ctx.fillRect(p.l, y + 2, chronicW, rowH - 4);
+      }
+      // Push chronic region first (drawn on top, smaller, takes priority on hover)
+      if (chronicW > 0) {
+        regions.current.push({
+          x: p.l, y: y + 2, w: chronicW, h: rowH - 4,
+          label: 'CHRONIC', value: f.chronic, color: DMP_CHRONIC, bar: f.feed_label,
+        });
+      }
+      // Then the dumping region covering the tail of the bar (after chronic)
+      if (fullBw > chronicW) {
+        regions.current.push({
+          x: p.l + chronicW, y: y + 2, w: fullBw - chronicW, h: rowH - 4,
+          label: 'DUMPING', value: f.dumping, color: DMP_PRESENT, bar: f.feed_label,
+        });
       }
       ctx.fillStyle = TEXT;
       ctx.font = '9px Barlow, sans-serif';
@@ -633,7 +822,12 @@ function DumpingFeedChart({ data }: { data: VlmAggregates['dumping_feed'] }) {
       ctx.fillText(String(f.dumping), p.l + fullBw + 4, y + rowH / 2 + 3);
     });
   }, [data, tick]);
-  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
 }
 
 function DumpingDailyChart({ data }: { data: VlmAggregates['dumping_daily'] }) {
@@ -698,6 +892,7 @@ function DumpingDailyChart({ data }: { data: VlmAggregates['dumping_daily'] }) {
 
 function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCv(cv, 200);
     if (!g) return;
@@ -711,6 +906,7 @@ function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }
       return sum;
     });
     const mx = Math.max(...totals, 1);
+    regions.current = [];
 
     // grid + y labels
     for (let i = 0; i <= 4; i++) {
@@ -740,12 +936,17 @@ function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, yBase - hh, barW, hh);
         ctx.globalAlpha = 1;
+        regions.current.push({
+          x, y: yBase - hh, w: barW, h: hh,
+          label: group.label, value: n, color: group.color,
+          bar: formatBucket(String(row.month), 'long'),
+        });
         yBase -= hh;
       });
       ctx.fillStyle = MUTED;
       ctx.font = '8.5px DM Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(String(row.month), cx, H - 10);
+      ctx.fillText(formatBucket(String(row.month), 'short'), cx, H - 10);
       // Total on top of stack
       if (totals[mi] > 0) {
         const yTop = p.t + (H - p.t - p.b) * (1 - totals[mi] / mx);
@@ -758,7 +959,10 @@ function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }
   }, [data, tick]);
   return (
     <div>
-      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 200 }} />
+      <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 200 }} />
+        <ChartTooltip hover={hover} />
+      </div>
       {/* HTML legend below — wraps gracefully and updates with theme */}
       <div style={{
         display: 'flex', flexWrap: 'wrap', gap: '4px 14px', marginTop: 10,
@@ -776,6 +980,7 @@ function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }
 
 function PeriodByLocationChart({ data }: { data: VlmPeriodLocationAggregate }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
 
   // Pre-shape the data: count matrix [bucket][location] for quick lookup.
   const lookup = useMemo(() => {
@@ -804,6 +1009,7 @@ function PeriodByLocationChart({ data }: { data: VlmPeriodLocationAggregate }) {
       return sum;
     });
     const mx = Math.max(...totalsPerBucket, 1);
+    regions.current = [];
 
     for (let i = 0; i <= 4; i++) {
       const y = p.t + (H - p.t - p.b) * (1 - i / 4);
@@ -828,24 +1034,31 @@ function PeriodByLocationChart({ data }: { data: VlmPeriodLocationAggregate }) {
         const n = lookup[bucket]?.[loc.location_id] ?? 0;
         if (!n) return;
         const hh = (n / mx) * (H - p.t - p.b);
-        ctx.fillStyle = locColors[li % locColors.length];
+        const col = locColors[li % locColors.length];
+        ctx.fillStyle = col;
         ctx.globalAlpha = 0.86;
         ctx.fillRect(x, yBase - hh, barW, hh);
         ctx.globalAlpha = 1;
+        regions.current.push({
+          x, y: yBase - hh, w: barW, h: hh,
+          label: loc.label, value: n, color: col, bar: formatBucket(bucket, 'long'),
+        });
         yBase -= hh;
       });
       ctx.fillStyle = MUTED;
       ctx.font = '8.5px DM Mono, monospace';
       ctx.textAlign = 'center';
-      // Shorter label for weekly buckets (YYYY-Www → Www).
-      const lbl = bucket.includes('-W') ? bucket.split('-')[1] : bucket.slice(5);
+      const lbl = formatBucket(bucket, 'short');
       ctx.fillText(lbl, cx, H - 10);
     });
   }, [data, lookup, tick]);
 
   return (
     <div>
-      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 200 }} />
+      <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 200 }} />
+        <ChartTooltip hover={hover} />
+      </div>
       <div style={{
         display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginTop: 10,
         maxHeight: 80, overflowY: 'auto',
@@ -883,7 +1096,7 @@ function CrossPresetCharts({ aggregates }: { aggregates: VlmAggregates | null })
     }}>
       <ChartCard
         title="Incidents per Month — by Type"
-        sub="Stacked counts of VLM-flagged events across all presets, grouped by category"
+        sub="Stacked counts of VLM-flagged events grouped by category · bucketed by VLM run month"
       >
         {aggregates
           ? <MonthlyByTypeChart data={aggregates.monthly_by_type} />
@@ -903,7 +1116,7 @@ function CrossPresetCharts({ aggregates }: { aggregates: VlmAggregates | null })
               Incidents per Location — by {period === 'week' ? 'Week' : 'Month'}
             </div>
             <div style={{ fontSize: 9, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 2 }}>
-              Top 10 locations · stacked counts of actionable VLM events
+              Top 10 locations · stacked counts · bucketed by VLM run {period === 'week' ? 'week' : 'month'}
             </div>
           </div>
           <div style={{ display: 'flex', gap: 4 }}>
@@ -933,6 +1146,100 @@ function CrossPresetCharts({ aggregates }: { aggregates: VlmAggregates | null })
         </div>
       </div>
     </div>
+  );
+}
+
+// Preset-scoped per-location bar chart with its own week/month toggle.
+// The crowd row uses it to surface pedestrian sums; the vehicle row uses
+// it to surface parsed vehicle counts. Both flavours are filtered server-
+// side to their respective preset, so we just point at the right
+// aggregate slice and label accordingly.
+function PresetPeriodByLocationCard({
+  title, sub,
+  weekly, monthly,
+}: {
+  title: (period: 'week' | 'month') => string;
+  sub: (period: 'week' | 'month') => string;
+  weekly: VlmPeriodLocationAggregate | null;
+  monthly: VlmPeriodLocationAggregate | null;
+}) {
+  const [period, setPeriod] = useState<'week' | 'month'>('week');
+  const agg = period === 'week' ? weekly : monthly;
+  return (
+    <div style={{ background: 'var(--s0)', borderBottom: '1px solid var(--border)' }}>
+      <div style={{
+        padding: '10px 14px', borderBottom: '1px solid var(--border)',
+        background: 'var(--s1)',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+        gap: 12,
+      }}>
+        <div>
+          <div style={{ fontFamily: 'var(--cond)', fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+            {title(period)}
+          </div>
+          <div style={{ fontSize: 9, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 2 }}>
+            {sub(period)}
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: 4 }}>
+          {(['week', 'month'] as const).map(p => (
+            <button
+              key={p}
+              onClick={() => setPeriod(p)}
+              style={{
+                fontFamily: 'var(--mono)', fontSize: 9,
+                padding: '3px 9px', borderRadius: 3, cursor: 'pointer',
+                background: period === p ? 'rgba(74,158,245,0.12)' : 'transparent',
+                border: `1px solid ${period === p ? 'var(--blue)' : 'var(--border)'}`,
+                color: period === p ? 'var(--blue)' : 'var(--muted)',
+                letterSpacing: '0.06em',
+                textTransform: 'uppercase',
+              }}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div style={{ padding: '10px 14px' }}>
+        {agg
+          ? <PeriodByLocationChart data={agg} />
+          : <div className="skeleton" style={{ width: '100%', height: 200 }} />}
+      </div>
+    </div>
+  );
+}
+
+function CrowdPeopleByLocation({ aggregates }: { aggregates: VlmAggregates | null }) {
+  return (
+    <PresetPeriodByLocationCard
+      title={p => `People Count per Location — by ${p === 'week' ? 'Week' : 'Month'}`}
+      sub={p => `Sum of pedestrian counts in crowd_behavior frames · top 10 locations · bucketed by VLM run ${p}`}
+      weekly={aggregates?.weekly_people_by_location ?? null}
+      monthly={aggregates?.monthly_people_by_location ?? null}
+    />
+  );
+}
+
+function VehicleCountByLocation({ aggregates }: { aggregates: VlmAggregates | null }) {
+  return (
+    <PresetPeriodByLocationCard
+      title={p => `Vehicle Count per Location — by ${p === 'week' ? 'Week' : 'Month'}`}
+      sub={p => `Sum of vehicles enumerated from Q13 description in vehicle_prompts frames · top 10 locations · bucketed by VLM run ${p}`}
+      weekly={aggregates?.weekly_vehicles_by_location ?? null}
+      monthly={aggregates?.monthly_vehicles_by_location ?? null}
+    />
+  );
+}
+
+function DumpingCountByLocation({ aggregates }: { aggregates: VlmAggregates | null }) {
+  return (
+    <PresetPeriodByLocationCard
+      title={p => `Dumping Incidents per Location — by ${p === 'week' ? 'Week' : 'Month'}`}
+      sub={p => `Count of frames flagged 'dumping present' in illegal_dumping frames · top 10 locations · bucketed by VLM run ${p}`}
+      weekly={aggregates?.weekly_dumping_by_location ?? null}
+      monthly={aggregates?.monthly_dumping_by_location ?? null}
+    />
   );
 }
 
@@ -1071,7 +1378,6 @@ export default function VlmPage() {
   };
 
   const feeds = feedsResp?.feeds ?? [];
-  const loadInfo = feedsResp?.load;
   const total = list?.total ?? 0;
   const items = list?.items ?? [];
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -1085,10 +1391,6 @@ export default function VlmPage() {
         <div>
           <div style={{ fontFamily: 'var(--cond)', fontSize: 18, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             VLM Feed Observations
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-            {stats?.total ?? '—'} frames analyzed · {stats?.feeds ?? '—'} feeds · {stats?.runs ?? '—'} batches · model {MODEL_NAME}
-            {loadInfo?.loaded_at && <> · loaded {new Date(loadInfo.loaded_at).toLocaleTimeString('en-US', { hour12: false })}</>}
           </div>
         </div>
         <button
@@ -1131,14 +1433,11 @@ export default function VlmPage() {
           <StatCell label="No-Plate Frames" value={stats?.vehicle.no_plate_frames ?? 0} color="var(--purple)" />
         </div>
       ) : isDumpingView ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
           <StatCell label="Dumping Frames" value={stats?.dumping.total ?? '—'} color="var(--accent)" />
           <StatCell label="Dumping Present" value={stats?.dumping.dumping_present ?? 0} color={DMP_PRESENT} />
           <StatCell label="Ordinance Viol." value={stats?.dumping.ordinance_violation ?? 0} color={DMP_PRESENT} />
           <StatCell label="Chronic Sites" value={stats?.dumping.chronic_site ?? 0} color={DMP_CHRONIC} />
-          <StatCell label="Gutter / Alley" value={stats?.dumping.gutter_alley ?? 0} color={DMP_GUTTER} />
-          <StatCell label="Near Water" value={stats?.dumping.water_proximity ?? 0} color={DMP_WATER} />
-          <StatCell label="High Priority" value={stats?.dumping.high_priority ?? 0} color={PRIORITY_COLOR.HIGH} />
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
@@ -1159,41 +1458,56 @@ export default function VlmPage() {
 
       {/* Aggregate charts — swap to vehicle / dumping versions per preset. */}
       {isVehicleView ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-          <ChartCard title="Hour-of-Day Vehicle Issues" sub="Stacked frames per UTC hour · collision · speeding · fire-lane">
-            {aggregates ? <VehicleHourChart data={aggregates.vehicle_hour_issue} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-          <ChartCard title="Per-Feed Issue Mix (top 10)" sub="Stacked issue counts per feed · collision · speeding · fire-lane · other">
-            {aggregates ? <VehicleFeedChart data={aggregates.vehicle_feed_issue} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-          <ChartCard title="Collision-Frame Share by Day" sub="Daily share of vehicle frames flagged as collision">
-            {aggregates ? <VehicleDailyChart data={aggregates.vehicle_daily_collision} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-        </div>
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+            <ChartCard title="Hour-of-Day Vehicle Issues" sub="Stacked frames per UTC hour · collision · speeding · fire-lane">
+              {aggregates ? <VehicleHourChart data={aggregates.vehicle_hour_issue} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="Per-Feed Issue Mix (top 10)" sub="Stacked issue counts per feed · collision · speeding · fire-lane · other">
+              {aggregates ? <VehicleFeedChart data={aggregates.vehicle_feed_issue} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="Collision-Frame Share by Day" sub="Daily share of vehicle frames flagged as collision">
+              {aggregates ? <VehicleDailyChart data={aggregates.vehicle_daily_collision} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+          </div>
+          {/* Vehicle-only: sums parsed vehicle count by week/month per location.
+              Lives in this branch so crowd/dumping tabs don't see it. */}
+          <VehicleCountByLocation aggregates={aggregates} />
+        </>
       ) : isDumpingView ? (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-          <ChartCard title="Severity Distribution" sub="Dumping frames bucketed by reported severity (1 lowest, 5 highest)">
-            {aggregates ? <DumpingSeverityChart data={aggregates.dumping_severity} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-          <ChartCard title="Per-Feed Dumping (top 10)" sub="Dumping-present count per feed · darker = chronic site">
-            {aggregates ? <DumpingFeedChart data={aggregates.dumping_feed} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-          <ChartCard title="Dumping-Frame Share by Day" sub="Daily share of dumping frames flagged as 'dumping present'">
-            {aggregates ? <DumpingDailyChart data={aggregates.dumping_daily} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-        </div>
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+            <ChartCard title="Severity Distribution" sub="Dumping frames bucketed by reported severity (1 lowest, 5 highest)">
+              {aggregates ? <DumpingSeverityChart data={aggregates.dumping_severity} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="Per-Feed Dumping (top 10)" sub="Dumping-present count per feed · darker = chronic site">
+              {aggregates ? <DumpingFeedChart data={aggregates.dumping_feed} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="Dumping-Frame Share by Day" sub="Daily share of dumping frames flagged as 'dumping present'">
+              {aggregates ? <DumpingDailyChart data={aggregates.dumping_daily} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+          </div>
+          {/* Dumping-only: counts dumping_present frames by week/month per
+              location. Lives in this branch so crowd/vehicle tabs don't see it. */}
+          <DumpingCountByLocation aggregates={aggregates} />
+        </>
       ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-          <ChartCard title="Hour-of-Day Risk Mix" sub="Stacked frames per UTC hour · LOW · MOD · MED · HIGH">
-            {aggregates ? <HourRiskChart data={aggregates.hour_risk} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-          <ChartCard title="Per-Feed Density (top 10)" sub="Stacked share of SPARSE / MODERATE / DENSE per feed">
-            {aggregates ? <FeedDensityChart data={aggregates.feed_density} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-          <ChartCard title="DENSE-Frame Share by Day" sub="Daily share of frames classified DENSE">
-            {aggregates ? <DailyDenseChart data={aggregates.daily_dense} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-          </ChartCard>
-        </div>
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+            <ChartCard title="Hour-of-Day Risk Mix" sub="Stacked frames per UTC hour · LOW · MOD · MED · HIGH">
+              {aggregates ? <HourRiskChart data={aggregates.hour_risk} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="Per-Feed Density (top 10)" sub="Stacked share of SPARSE / MODERATE / DENSE per feed">
+              {aggregates ? <FeedDensityChart data={aggregates.feed_density} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="DENSE-Frame Share by Day" sub="Daily share of frames classified DENSE">
+              {aggregates ? <DailyDenseChart data={aggregates.daily_dense} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+          </div>
+          {/* Crowd-only: sums pedestrian_count by week/month per location.
+              Lives in this branch so vehicle/dumping tabs don't see it. */}
+          <CrowdPeopleByLocation aggregates={aggregates} />
+        </>
       )}
 
       {/* Main grid: list | detail */}
