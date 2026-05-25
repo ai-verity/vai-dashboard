@@ -39,7 +39,7 @@ export default function TopNav({ activeView, onViewChange }: Props) {
             Brownsville, TX — Public Safety Intelligence
           </div>
           <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.05em' }}>
-            Cameron County · Jan 1 – May 13, 2026 · 16 Monitored Locations
+            Cameron County · Live feeds from 42 cameras · VLM ingest active
           </div>
         </div>
       </div>

@@ -167,14 +167,33 @@ _FEED_PREFIXES = (
     "mdn80i_b_verkada_",
 )
 
+# Upstream-data spelling fixes applied during humanization (case-insensitive).
+# Keep this map tight — we're correcting typos in feed names, not localizing.
+# Use word-boundary regex so 'cemras' inside a longer token isn't misreplaced.
+_FEED_TYPO_FIXES = (
+    (re.compile(r"\bcemras\b", re.I),  "cameras"),
+    (re.compile(r"\bcemra\b",  re.I),  "camera"),
+)
+
+# Pipeline-generated dataset folders are named `dataset_YYYYMMDD_HHMMSS`.
+# We strip the time portion in the display label per product call — same-date
+# datasets collide visually, but users disambiguate via the count column.
+_DATASET_TS_RE = re.compile(r"^dataset_(\d{4})(\d{2})(\d{2})_\d{6}$", re.I)
+
 
 def _humanize_feed(feed_id: str) -> str:
+    m = _DATASET_TS_RE.match(feed_id)
+    if m:
+        y, mo, d = m.groups()
+        return f"Dataset {y}-{mo}-{d}"
     s = feed_id
     for pfx in _FEED_PREFIXES:
         if s.startswith(pfx):
             s = s[len(pfx):]
             break
     s = s.replace("_", " ").strip()
+    for pat, repl in _FEED_TYPO_FIXES:
+        s = pat.sub(repl, s)
     return s.title()
 
 
@@ -524,6 +543,32 @@ def _vehicle_desc(text: Optional[str]) -> Optional[str]:
     if low.startswith(("not visible", "not applicable", "n/a", "none", "no ", "no.")):
         return None
     return t[:200]  # cap to keep the JSON wire small
+
+
+# Vehicle nouns we count when parsing Q13 free text. Order matters only
+# for the duplicate-suppression below — longer compounds first so
+# "pickup truck" doesn't double-count as pickup + truck.
+_VEHICLE_NOUN_RE = re.compile(
+    r"\b(pickup truck|tractor[- ]trailer|box truck|tow truck|"
+    r"truck|sedan|suv|van|pickup|motorcycle|bicycle|bus|coupe|"
+    r"hatchback|jeep|crossover|minivan|cab|vehicle|car)\b",
+    re.I,
+)
+
+
+def _count_vehicles_in_desc(desc: Optional[str]) -> int:
+    """Estimate the number of vehicles described in a Q13 text.
+
+    Counts non-overlapping vehicle-noun mentions (with two-word compounds
+    matched as a single unit so 'pickup truck' is 1, not 2). Returns 0
+    when the description is None or the parser couldn't find any
+    vehicle-shaped tokens — that's intentional, because the per-frame
+    aggregator uses 0 to mean 'no count to attribute to this frame'.
+    """
+    if not desc:
+        return 0
+    matches = _VEHICLE_NOUN_RE.findall(desc)
+    return len(matches)
 
 
 def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
@@ -1038,6 +1083,12 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     monthly_by_type = _aggregate_monthly_by_type(rows)
     weekly_by_location = _aggregate_by_period_location(rows, "week")
     monthly_by_location = _aggregate_by_period_location(rows, "month")
+    weekly_people_by_location = _aggregate_people_by_period_location(rows, "week")
+    monthly_people_by_location = _aggregate_people_by_period_location(rows, "month")
+    weekly_vehicles_by_location = _aggregate_vehicles_by_period_location(rows, "week")
+    monthly_vehicles_by_location = _aggregate_vehicles_by_period_location(rows, "month")
+    weekly_dumping_by_location = _aggregate_dumping_by_period_location(rows, "week")
+    monthly_dumping_by_location = _aggregate_dumping_by_period_location(rows, "month")
 
     return {
         "hour_risk": hour_risk,
@@ -1053,6 +1104,12 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
         "monthly_by_type": monthly_by_type,
         "weekly_by_location": weekly_by_location,
         "monthly_by_location": monthly_by_location,
+        "weekly_people_by_location": weekly_people_by_location,
+        "monthly_people_by_location": monthly_people_by_location,
+        "weekly_vehicles_by_location": weekly_vehicles_by_location,
+        "monthly_vehicles_by_location": monthly_vehicles_by_location,
+        "weekly_dumping_by_location": weekly_dumping_by_location,
+        "monthly_dumping_by_location": monthly_dumping_by_location,
     }
 
 
@@ -1060,10 +1117,17 @@ def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
     """Stacked-by-incident-type counts per calendar month (YYYY-MM)."""
     by_month: dict[str, dict[str, int]] = {}
     for o in rows:
-        if not o.captured_at:
+        # Bucket by processed_at (when the VLM analyzed the frame), not
+        # captured_at (when the image was taken). The same VLM run can
+        # contain old recorded footage spanning weeks — bucketing by
+        # capture-time creates phantom older bars even though no ingest
+        # happened then. See the rolling-period charts below for the
+        # same fix.
+        ts = o.processed_at or o.captured_at
+        if not ts:
             continue
         try:
-            month = datetime.fromisoformat(o.captured_at).strftime("%Y-%m")
+            month = datetime.fromisoformat(ts).strftime("%Y-%m")
         except ValueError:
             continue
         slot = by_month.setdefault(month, {key: 0 for _, key in _INCIDENT_TYPE_GROUPS})
@@ -1080,7 +1144,14 @@ def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
 
 def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> dict:
     """Incident counts per (time-bucket, location). period ∈ {"week","month"}.
-    Limits to the top 10 locations by total to keep the chart legible."""
+
+    Buckets by `processed_at` (when the VLM run analyzed the frame) so the
+    chart reflects when we did the work, not when the underlying footage
+    was originally recorded. Falls back to captured_at when processed_at
+    is missing, so legacy rows still bucket somewhere instead of being
+    silently dropped. Limits to the top 10 locations by total to keep
+    the chart legible.
+    """
     bucket_keys: list[str] = []
     bucket_set: set[str] = set()
     loc_label: dict[str, str] = {}
@@ -1088,10 +1159,11 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
     for o in rows:
         if not _is_actionable(o):
             continue
-        if not o.captured_at:
+        ts = o.processed_at or o.captured_at
+        if not ts:
             continue
         try:
-            dt = datetime.fromisoformat(o.captured_at)
+            dt = datetime.fromisoformat(ts)
         except ValueError:
             continue
         if period == "week":
@@ -1116,6 +1188,169 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
     locations = [{"location_id": l, "label": loc_label[l], "total": loc_totals[l]} for l in top_locs]
     data = [
         {"bucket": b, "location_id": l, "count": counts.get((b, l), 0)}
+        for b in bucket_keys for l in top_locs
+    ]
+    return {
+        "period": period,
+        "buckets": bucket_keys,
+        "locations": locations,
+        "data": data,
+    }
+
+
+def _aggregate_vehicles_by_period_location(rows: list[VlmObservation], period: str) -> dict:
+    """Sum estimated vehicle count per (time-bucket, location) — vehicle_prompts only.
+
+    Per-frame vehicle count is parsed from `vehicle_description` (Q13)
+    via _count_vehicles_in_desc(). Frames with no description contribute
+    0, so the sum represents the total vehicles *we could enumerate
+    from the VLM caption*, not raw frame counts. Same bucketing rules
+    as the other period-location aggregators (period in {"week","month"},
+    bucket by processed_at, top 10 locations by total).
+    """
+    bucket_keys: list[str] = []
+    bucket_set: set[str] = set()
+    loc_label: dict[str, str] = {}
+    sums: dict[tuple[str, str], int] = {}
+    for o in rows:
+        if o.preset != "vehicle_prompts":
+            continue
+        n = _count_vehicles_in_desc(o.vehicle_description)
+        if n <= 0:
+            continue
+        ts = o.processed_at or o.captured_at
+        if not ts:
+            continue
+        try:
+            dt = datetime.fromisoformat(ts)
+        except ValueError:
+            continue
+        if period == "week":
+            iso_year, iso_week, _ = dt.isocalendar()
+            bucket = f"{iso_year}-W{iso_week:02d}"
+        else:
+            bucket = dt.strftime("%Y-%m")
+        if bucket not in bucket_set:
+            bucket_set.add(bucket)
+            bucket_keys.append(bucket)
+        loc_id = o.location_id or o.feed_id
+        loc_label[loc_id] = o.feed_label or loc_id
+        sums[(bucket, loc_id)] = sums.get((bucket, loc_id), 0) + n
+
+    bucket_keys.sort()
+    loc_totals: dict[str, int] = {}
+    for (_, loc_id), n in sums.items():
+        loc_totals[loc_id] = loc_totals.get(loc_id, 0) + n
+    top_locs = sorted(loc_totals.keys(), key=lambda l: -loc_totals[l])[:10]
+    locations = [{"location_id": l, "label": loc_label[l], "total": loc_totals[l]} for l in top_locs]
+    data = [
+        {"bucket": b, "location_id": l, "count": sums.get((b, l), 0)}
+        for b in bucket_keys for l in top_locs
+    ]
+    return {
+        "period": period,
+        "buckets": bucket_keys,
+        "locations": locations,
+        "data": data,
+    }
+
+
+def _aggregate_dumping_by_period_location(rows: list[VlmObservation], period: str) -> dict:
+    """Count frames flagged `dumping_present` per (time-bucket, location)
+    — illegal_dumping only. Same bucketing/top-10 rules as the other
+    period-location aggregators.
+    """
+    bucket_keys: list[str] = []
+    bucket_set: set[str] = set()
+    loc_label: dict[str, str] = {}
+    counts: dict[tuple[str, str], int] = {}
+    for o in rows:
+        if o.preset != "illegal_dumping":
+            continue
+        if not o.dumping_present:
+            continue
+        ts = o.processed_at or o.captured_at
+        if not ts:
+            continue
+        try:
+            dt = datetime.fromisoformat(ts)
+        except ValueError:
+            continue
+        if period == "week":
+            iso_year, iso_week, _ = dt.isocalendar()
+            bucket = f"{iso_year}-W{iso_week:02d}"
+        else:
+            bucket = dt.strftime("%Y-%m")
+        if bucket not in bucket_set:
+            bucket_set.add(bucket)
+            bucket_keys.append(bucket)
+        loc_id = o.location_id or o.feed_id
+        loc_label[loc_id] = o.feed_label or loc_id
+        counts[(bucket, loc_id)] = counts.get((bucket, loc_id), 0) + 1
+
+    bucket_keys.sort()
+    loc_totals: dict[str, int] = {}
+    for (_, loc_id), n in counts.items():
+        loc_totals[loc_id] = loc_totals.get(loc_id, 0) + n
+    top_locs = sorted(loc_totals.keys(), key=lambda l: -loc_totals[l])[:10]
+    locations = [{"location_id": l, "label": loc_label[l], "total": loc_totals[l]} for l in top_locs]
+    data = [
+        {"bucket": b, "location_id": l, "count": counts.get((b, l), 0)}
+        for b in bucket_keys for l in top_locs
+    ]
+    return {
+        "period": period,
+        "buckets": bucket_keys,
+        "locations": locations,
+        "data": data,
+    }
+
+
+def _aggregate_people_by_period_location(rows: list[VlmObservation], period: str) -> dict:
+    """Sum pedestrian_count per (time-bucket, location) — crowd_behavior only.
+
+    Same bucketing rules as _aggregate_by_period_location (period in
+    {"week","month"}, bucket by processed_at, top 10 locations by total),
+    but the value summed is the per-frame pedestrian_count rather than a
+    frame count. Vehicle and illegal_dumping rows are skipped because
+    their pedestrian_count is always None.
+    """
+    bucket_keys: list[str] = []
+    bucket_set: set[str] = set()
+    loc_label: dict[str, str] = {}
+    sums: dict[tuple[str, str], int] = {}
+    for o in rows:
+        if o.preset != "crowd_behavior":
+            continue
+        if not o.pedestrian_count or o.pedestrian_count <= 0:
+            continue
+        ts = o.processed_at or o.captured_at
+        if not ts:
+            continue
+        try:
+            dt = datetime.fromisoformat(ts)
+        except ValueError:
+            continue
+        if period == "week":
+            iso_year, iso_week, _ = dt.isocalendar()
+            bucket = f"{iso_year}-W{iso_week:02d}"
+        else:
+            bucket = dt.strftime("%Y-%m")
+        if bucket not in bucket_set:
+            bucket_set.add(bucket)
+            bucket_keys.append(bucket)
+        loc_id = o.location_id or o.feed_id
+        loc_label[loc_id] = o.feed_label or loc_id
+        sums[(bucket, loc_id)] = sums.get((bucket, loc_id), 0) + o.pedestrian_count
+
+    bucket_keys.sort()
+    loc_totals: dict[str, int] = {}
+    for (_, loc_id), n in sums.items():
+        loc_totals[loc_id] = loc_totals.get(loc_id, 0) + n
+    top_locs = sorted(loc_totals.keys(), key=lambda l: -loc_totals[l])[:10]
+    locations = [{"location_id": l, "label": loc_label[l], "total": loc_totals[l]} for l in top_locs]
+    data = [
+        {"bucket": b, "location_id": l, "count": sums.get((b, l), 0)}
         for b in bucket_keys for l in top_locs
     ]
     return {
