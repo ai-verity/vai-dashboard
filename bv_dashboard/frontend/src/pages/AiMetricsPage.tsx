@@ -17,6 +17,7 @@ import type {
 } from '../types';
 import { AI_METRIC_COLORS, AI_CLASS_COLORS } from '../types';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
+import { useChartHover, ChartTooltip } from '../utils/chartHover';
 import { useTheme } from '../hooks/useTheme';
 import ThemeToggle from '../components/ThemeToggle';
 
@@ -157,6 +158,7 @@ function HistoryChart({
   const { tick } = useTheme();
   const [mode, setMode] = useState<HistoryMode>('macro');
   const [classMetric, setClassMetric] = useState<MetricChoice>('F1');
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
 
   // Per-class mode needs at least one class with at least one non-null
   // value for the chosen metric. Without that we fall back to the
@@ -199,6 +201,9 @@ function HistoryChart({
     };
     const yFor = (v: number) => p.t + (H - p.t - p.b) * (1 - v);
 
+    // Reset hit-test regions; per-point squares are pushed inside drawSeries.
+    regions.current = [];
+
     // x-axis labels (one per run, ticked from points which both modes share)
     points.forEach((pt, i) => {
       ctx.fillStyle = MUTED;
@@ -209,8 +214,9 @@ function HistoryChart({
 
     // Helper: stroke a polyline that BREAKS on null points (separate
     // sub-paths) so motorcycle/bus's null-score days don't draw straight
-    // through zero on the chart.
-    const drawSeries = (values: (number | null)[], col: string) => {
+    // through zero on the chart. Pushes a small hit-test square at each
+    // visible point so hover shows the metric value for that run.
+    const drawSeries = (values: (number | null)[], col: string, seriesLabel: string) => {
       const xs = values.map((_, i) => xFor(i));
       const ys = values.map(v => (v === null ? null : yFor(v)));
 
@@ -234,13 +240,24 @@ function HistoryChart({
         ctx.strokeStyle = BG;
         ctx.lineWidth = 1.5;
         ctx.stroke();
+        // 16×16 hit-test centered on the dot, with the source value in %
+        const v = values[i];
+        if (v !== null) {
+          regions.current.push({
+            x: xs[i] - 8, y: y - 8, w: 16, h: 16,
+            label: seriesLabel,
+            value: `${(v * 100).toFixed(1)}%`,
+            color: col,
+            bar: points[i].run_date,
+          });
+        }
       });
     };
 
     if (mode === 'macro') {
       METRICS.forEach(metric => {
         const col = AI_METRIC_COLORS[metric];
-        drawSeries(points.map(p2 => p2[metric]), col);
+        drawSeries(points.map(p2 => p2[metric]), col, metric);
       });
 
       // Legend (top-right) — the 3 metrics
@@ -257,7 +274,7 @@ function HistoryChart({
     } else {
       perClassSeries.forEach(s => {
         const col = AI_CLASS_COLORS[s.cls] ?? '#888';
-        drawSeries(s.values, col);
+        drawSeries(s.values, col, `${s.cls} · ${classMetric}`);
       });
 
       // Legend — one swatch per visible class, wrapped to two rows if needed.
@@ -326,7 +343,10 @@ function HistoryChart({
         </div>
       )}
       <div style={S.body}>
-        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+        <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+          <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+          <ChartTooltip hover={hover} />
+        </div>
         {!enough && (
           <div style={{
             marginTop: 10, padding: '10px 14px',
@@ -363,6 +383,7 @@ function PerClassBars({
   awaiting: boolean;
 }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 240);
     if (!g) return;
@@ -370,6 +391,7 @@ function PerClassBars({
     const { MUTED, TEXT, GRID } = chartColors();
     const p = { l: 44, r: 16, t: 16, b: 36 };
     const usable = rows.length > 0 ? rows : [];
+    regions.current = [];
 
     // Grid 0..1
     for (let i = 0; i <= 5; i++) {
@@ -410,7 +432,18 @@ function PerClassBars({
       ctx.globalAlpha = 0.25;
       ctx.fillRect(xPrev, H - p.b - prevH, barW, prevH);
       ctx.globalAlpha = 1;
-      if (cell.previous === null) {
+      if (cell.previous !== null) {
+        // Hit region — when prior bar is short, give the cursor a min
+        // grabbable height of 12px so very-small bars are still hoverable.
+        const hitH = Math.max(prevH, 12);
+        regions.current.push({
+          x: xPrev, y: H - p.b - hitH, w: barW, h: hitH,
+          label: periodLabel(period),
+          value: `${(cell.previous * 100).toFixed(1)}%`,
+          color: MUTED,
+          bar: `${row.cls} · ${metric}`,
+        });
+      } else {
         ctx.fillStyle = MUTED;
         ctx.font = '8px DM Mono, monospace';
         ctx.textAlign = 'center';
@@ -420,6 +453,16 @@ function PerClassBars({
       // current bar (metric color)
       ctx.fillStyle = AI_METRIC_COLORS[metric];
       ctx.fillRect(xCur, H - p.b - curH, barW, curH);
+      if (cell.current !== null) {
+        const hitH = Math.max(curH, 12);
+        regions.current.push({
+          x: xCur, y: H - p.b - hitH, w: barW, h: hitH,
+          label: 'Current',
+          value: `${(cell.current * 100).toFixed(1)}%`,
+          color: AI_METRIC_COLORS[metric],
+          bar: `${row.cls} · ${metric}`,
+        });
+      }
 
       // value above current
       if (cell.current !== null) {
@@ -478,7 +521,10 @@ function PerClassBars({
         </div>
       </div>
       <div style={S.body}>
-        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+        <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+          <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+          <ChartTooltip hover={hover} />
+        </div>
         {awaiting && (
           <div style={{
             marginTop: 8, fontSize: 10, color: 'var(--amber)',
@@ -659,6 +705,7 @@ function DatasetKpiStrip({ latest }: { latest: AiDatasetPoint | null }) {
 
 function DatasetTrendChart({ points }: { points: AiDatasetPoint[] }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 240);
     if (!g) return;
@@ -666,6 +713,7 @@ function DatasetTrendChart({ points }: { points: AiDatasetPoint[] }) {
     const { MUTED, GRID, TEXT } = chartColors();
     const p = { l: 48, r: 16, t: 14, b: 30 };
     const mx = Math.max(...points.map(pt => pt.total_images), 1);
+    regions.current = [];
 
     // grid + y labels
     for (let i = 0; i <= 4; i++) {
@@ -696,6 +744,25 @@ function DatasetTrendChart({ points }: { points: AiDatasetPoint[] }) {
       ctx.fillStyle = '#2DC9A8';
       ctx.fillRect(x, H - p.b - totalH + bgH, barW, annH);
       ctx.globalAlpha = 1;
+      // Hit regions for each visible segment
+      if (bgH > 0) {
+        regions.current.push({
+          x, y: H - p.b - totalH, w: barW, h: bgH,
+          label: 'BACKGROUND',
+          value: pt.empty_bg_images.toLocaleString(),
+          color: '#F5B731',
+          bar: pt.run_date,
+        });
+      }
+      if (annH > 0) {
+        regions.current.push({
+          x, y: H - p.b - totalH + bgH, w: barW, h: annH,
+          label: 'ANNOTATED',
+          value: pt.annotated_images.toLocaleString(),
+          color: '#2DC9A8',
+          bar: pt.run_date,
+        });
+      }
       // x-axis date label
       ctx.fillStyle = MUTED;
       ctx.font = '8.5px DM Mono, monospace';
@@ -722,7 +789,10 @@ function DatasetTrendChart({ points }: { points: AiDatasetPoint[] }) {
         </div>
       </div>
       <div style={S.body}>
-        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+        <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+          <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+          <ChartTooltip hover={hover} />
+        </div>
       </div>
     </div>
   );
@@ -730,12 +800,14 @@ function DatasetTrendChart({ points }: { points: AiDatasetPoint[] }) {
 
 function DatasetByClassChart({ latest }: { latest: AiDatasetPoint | null }) {
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
     const g = setupCanvas(cv, 240);
     if (!g) return;
     const { ctx, W, H } = g;
     const { MUTED, GRID, TEXT } = chartColors();
     const p = { l: 90, r: 60, t: 14, b: 14 };
+    regions.current = [];
 
     const rows = latest?.by_class ?? [];
     if (rows.length === 0) {
@@ -772,6 +844,25 @@ function DatasetByClassChart({ latest }: { latest: AiDatasetPoint | null }) {
       ctx.fillStyle = '#A78BFA';
       ctx.fillRect(p.l + trainW, y + 4, valW, rowH - 8);
       ctx.globalAlpha = 1;
+      // Hit regions for train + val segments
+      if (trainW > 0) {
+        regions.current.push({
+          x: p.l, y: y + 4, w: trainW, h: rowH - 8,
+          label: 'TRAIN',
+          value: r.train.toLocaleString(),
+          color: '#4A9EF5',
+          bar: r.cls,
+        });
+      }
+      if (valW > 0) {
+        regions.current.push({
+          x: p.l + trainW, y: y + 4, w: valW, h: rowH - 8,
+          label: 'VAL',
+          value: r.val.toLocaleString(),
+          color: '#A78BFA',
+          bar: r.cls,
+        });
+      }
       // class label
       ctx.fillStyle = TEXT;
       ctx.font = '10px Barlow, sans-serif';
@@ -799,7 +890,10 @@ function DatasetByClassChart({ latest }: { latest: AiDatasetPoint | null }) {
         </div>
       </div>
       <div style={S.body}>
-        <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+        <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+          <canvas ref={ref} style={{ display: 'block', width: '100%', height: 240 }} />
+          <ChartTooltip hover={hover} />
+        </div>
       </div>
     </div>
   );
