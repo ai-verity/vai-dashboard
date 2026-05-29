@@ -1,6 +1,5 @@
 // pages/VlmPage.tsx
-import { useMemo, useRef, useState } from 'react';
-import type { MutableRefObject } from 'react';
+import { useMemo, useState } from 'react';
 import {
   useVlmList, useVlmFeeds, useVlmStats, useVlmPrompts, useVlmOne, useVlmAggregates, useVlmRuns,
 } from '../hooks/useApi';
@@ -8,6 +7,7 @@ import { API_BASE, VLM_TYPE_GROUPS } from '../types';
 import type { VlmAggregates, VlmPeriodLocationAggregate } from '../types';
 import type { VlmListParams } from '../hooks/useApi';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
+import { useChartHover, ChartTooltip } from '../utils/chartHover';
 import { useTheme } from '../hooks/useTheme';
 
 const PAGE_SIZE = 50;
@@ -285,74 +285,8 @@ function formatBucket(bucket: string, mode: 'short' | 'long' = 'short'): string 
 // keep this file's call sites unchanged.
 const setupCv = setupCanvas;
 
-// Hit-test region for canvas tooltips. Coordinates are in CSS pixels
-// (matching the W/H surface used inside each chart's draw fn after the
-// DPR scale applied by setupCanvas). `bar` groups segments that belong
-// to the same bar so the tooltip can show stack-total alongside the
-// hovered segment.
-type HitRegion = {
-  x: number; y: number; w: number; h: number;
-  label: string;
-  value: number | string;
-  color: string;
-  bar?: string;        // optional group key (e.g. "hour 14" or "feed: Linear Park")
-};
-
-function useChartHover() {
-  const regions: MutableRefObject<HitRegion[]> = useRef<HitRegion[]>([]);
-  const [hover, setHover] = useState<{ x: number; y: number; region: HitRegion } | null>(null);
-
-  const onMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    // Convert client → CSS-pixel space inside the canvas. setupCanvas
-    // sets css width = offsetWidth, so rect.width matches W; the same
-    // for height. Direct subtraction is enough.
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const hit = regions.current.find(r => x >= r.x && x < r.x + r.w && y >= r.y && y < r.y + r.h);
-    if (hit) {
-      setHover(prev => prev && prev.region === hit && prev.x === x && prev.y === y ? prev : { x, y, region: hit });
-    } else if (hover) {
-      setHover(null);
-    }
-  };
-  const onMouseLeave = () => setHover(null);
-  return { regions, hover, onMouseMove, onMouseLeave };
-}
-
-function ChartTooltip({ hover }: { hover: { x: number; y: number; region: HitRegion } | null }) {
-  if (!hover) return null;
-  const { x, y, region } = hover;
-  // Offset the tooltip slightly off the cursor so it doesn't flicker
-  // when the mouse moves between adjacent segments.
-  return (
-    <div style={{
-      position: 'absolute',
-      left: x + 12,
-      top: y + 12,
-      pointerEvents: 'none',
-      zIndex: 4,
-      background: 'var(--s1)',
-      border: '1px solid var(--border)',
-      borderLeft: `3px solid ${region.color}`,
-      padding: '5px 9px',
-      fontFamily: 'var(--mono)',
-      fontSize: 10,
-      color: 'var(--text)',
-      whiteSpace: 'nowrap',
-      boxShadow: '0 4px 10px rgba(0,0,0,0.25)',
-      borderRadius: 2,
-    }}>
-      {region.bar && (
-        <div style={{ color: 'var(--muted)', fontSize: 8.5, letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: 2 }}>
-          {region.bar}
-        </div>
-      )}
-      <span style={{ color: region.color, fontWeight: 700 }}>{region.label}</span>
-      <span style={{ marginLeft: 8, color: 'var(--text)' }}>{region.value}</span>
-    </div>
-  );
-}
+// HitRegion / useChartHover / ChartTooltip extracted to ../utils/chartHover
+// so AiMetricsPage can reuse the same plumbing.
 
 function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
   const { tick } = useTheme();
@@ -1236,7 +1170,7 @@ function DumpingCountByLocation({ aggregates }: { aggregates: VlmAggregates | nu
   return (
     <PresetPeriodByLocationCard
       title={p => `Dumping Incidents per Location — by ${p === 'week' ? 'Week' : 'Month'}`}
-      sub={p => `Count of frames flagged 'dumping present' in illegal_dumping frames · top 10 locations · bucketed by VLM run ${p}`}
+      sub={p => `Frames with actionable dumping (Q1 yes · severity ≥ 2) · top 10 locations · bucketed by VLM run ${p}`}
       weekly={aggregates?.weekly_dumping_by_location ?? null}
       monthly={aggregates?.monthly_dumping_by_location ?? null}
     />
@@ -1435,7 +1369,7 @@ export default function VlmPage() {
       ) : isDumpingView ? (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
           <StatCell label="Dumping Frames" value={stats?.dumping.total ?? '—'} color="var(--accent)" />
-          <StatCell label="Dumping Present" value={stats?.dumping.dumping_present ?? 0} color={DMP_PRESENT} />
+          <StatCell label="Actionable Dumping" value={stats?.dumping.dumping_present ?? 0} color={DMP_PRESENT} />
           <StatCell label="Ordinance Viol." value={stats?.dumping.ordinance_violation ?? 0} color={DMP_PRESENT} />
           <StatCell label="Chronic Sites" value={stats?.dumping.chronic_site ?? 0} color={DMP_CHRONIC} />
         </div>
@@ -1529,7 +1463,7 @@ export default function VlmPage() {
               ) : isDumpingView ? (
                 <>
                   <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Dumping</span>
-                  <Chip active={onlyDumping} color={DMP_PRESENT} onClick={() => { setOnlyDumping(!onlyDumping); resetPage(); }}>DUMPING PRESENT</Chip>
+                  <Chip active={onlyDumping} color={DMP_PRESENT} onClick={() => { setOnlyDumping(!onlyDumping); resetPage(); }}>ACTIONABLE DUMPING</Chip>
                   <Chip active={chronicOnly} color={DMP_CHRONIC} onClick={() => { setChronicOnly(!chronicOnly); resetPage(); }}>CHRONIC</Chip>
                   <Chip active={waterOnly} color={DMP_WATER} onClick={() => { setWaterOnly(!waterOnly); resetPage(); }}>NEAR WATER</Chip>
                   <span style={{ width: 8 }} />

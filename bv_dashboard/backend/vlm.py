@@ -104,7 +104,7 @@ class VlmObservation:
     vehicle_description: Optional[str]   # Q13 text — e.g. "Gray SUV, white pickup truck"
 
     # Derived — illegal_dumping preset (None/False for non-dumping frames)
-    dumping_present: bool
+    dumping_present: bool                # actionable: Q1=Yes AND severity ≥ 2
     ordinance_violation: bool
     waste_type: Optional[str]            # household / construction / mixed / ...
     waste_volume: Optional[str]          # small / medium / large
@@ -663,7 +663,15 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
 
     # Illegal-dumping derived fields.
     if is_dumping:
-        dumping_present = _is_yes(answers.get(1))
+        # Severity is computed first so dumping_present can gate on it.
+        severity = _parse_severity(answers.get(13))
+        # `dumping_present` is the dashboard's "actionable dumping" signal:
+        # Q1 raw answer is "Yes" AND the model rated severity ≥ 2. This drops
+        # the model's frequent sev=1 / priority=LOW noise (single piece of
+        # trash, minor street litter) that historically inflated the count
+        # by ~10% without representing a real enforcement target. The raw
+        # Q1 text is still in answers[1] if anyone wants to inspect it.
+        dumping_present = _is_yes(answers.get(1)) and (severity or 0) >= 2
         ordinance_violation = _is_yes(answers.get(2))
         waste_type = _clean_value(answers.get(3))
         waste_volume = _clean_value(answers.get(4))
@@ -672,7 +680,6 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         gutter_alley = _is_yes(answers.get(8))
         water_proximity = _is_yes(answers.get(9))
         chronic_site = _is_yes(answers.get(10))
-        severity = _parse_severity(answers.get(13))
         ordinance = _parse_ordinance(answers.get(14))
         priority = _parse_priority(answers.get(15))
         dumping_summary = _clean_value(answers.get(16))
