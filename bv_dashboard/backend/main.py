@@ -3,6 +3,7 @@ Brownsville TX Public Safety Dashboard — FastAPI Backend
 Serves incident data, statistics, and AI analysis via REST API.
 """
 
+import asyncio
 import hmac
 import logging
 import os
@@ -20,6 +21,7 @@ import json
 
 import vlm
 import ai_metrics
+import live_feed
 
 # Optional rate-limit. slowapi is only required for production deployments;
 # dev installs (fastapi + uvicorn + httpx + pydantic) work without it. When
@@ -224,8 +226,30 @@ def build_incidents() -> list:
     incidents.sort(key=lambda x: (x["date"], x["time"]), reverse=True)
     return incidents
 
-# Build once at startup
-ALL_INCIDENTS: list = build_incidents()
+# Curated + synthetic baseline, built once at startup.
+_BASE_INCIDENTS: list = build_incidents()
+# Public-facing feed = baseline + live-ingested Brownsville incidents. Rebuilt
+# by _recompose_incidents() whenever the live feed refreshes.
+ALL_INCIDENTS: list = list(_BASE_INCIDENTS)
+
+# Background poll interval for the live Brownsville feed (seconds).
+_LIVE_FEED_INTERVAL = int(os.getenv("BV_LIVE_FEED_INTERVAL", "900"))
+
+
+def _recompose_incidents() -> None:
+    """Merge the baseline incidents with live-ingested Brownsville items.
+
+    Live records (verified real news/government items) are appended to the
+    curated + synthetic baseline and the whole list is re-sorted newest-first,
+    so the feed, map, KPIs and charts all pick them up automatically.
+    """
+    global ALL_INCIDENTS
+    combined = _BASE_INCIDENTS + live_feed.get_incidents()
+    combined.sort(key=lambda x: (x["date"], x["time"]), reverse=True)
+    ALL_INCIDENTS = combined
+    # The feed just changed ALL_INCIDENTS, so the precomputed /api/stats/*
+    # snapshots are now stale — rebuild them to match the live data.
+    _recompute_stats()
 
 
 # ─── MODELS ──────────────────────────────────────────────────────────────────
@@ -454,16 +478,33 @@ def _compute_type_ranking(top_n: int = 12) -> list[dict]:
     return result
 
 
-# ALL_INCIDENTS is built once at startup and never mutated, so every /api/stats/*
-# response is deterministic. Compute them all once here and serve from these
-# constants — no per-request iteration over the full list.
-_STATS_KPI                  = _compute_kpi()
-_STATS_MONTHLY              = _compute_monthly()
-_STATS_BY_CATEGORY          = _compute_by_category()
-_STATS_BY_LOCATION          = _compute_by_location()
-_STATS_SEVERITY_DIST        = _compute_severity_dist()
-_STATS_HEATMAP              = _compute_heatmap()
-_STATS_TYPE_RANKING         = _compute_type_ranking()
+# Every /api/stats/* response is served from these precomputed snapshots so we
+# don't iterate the full incident list per request. They must be rebuilt whenever
+# ALL_INCIDENTS changes — i.e. each time the live feed calls _recompose_incidents().
+_STATS_KPI                  = {}
+_STATS_MONTHLY              = {}
+_STATS_BY_CATEGORY          = {}
+_STATS_BY_LOCATION          = {}
+_STATS_SEVERITY_DIST        = {}
+_STATS_HEATMAP              = {}
+_STATS_TYPE_RANKING         = {}
+
+
+def _recompute_stats() -> None:
+    """Rebuild all /api/stats/* snapshots from the current ALL_INCIDENTS."""
+    global _STATS_KPI, _STATS_MONTHLY, _STATS_BY_CATEGORY, _STATS_BY_LOCATION
+    global _STATS_SEVERITY_DIST, _STATS_HEATMAP, _STATS_TYPE_RANKING
+    _STATS_KPI                  = _compute_kpi()
+    _STATS_MONTHLY              = _compute_monthly()
+    _STATS_BY_CATEGORY          = _compute_by_category()
+    _STATS_BY_LOCATION          = _compute_by_location()
+    _STATS_SEVERITY_DIST        = _compute_severity_dist()
+    _STATS_HEATMAP              = _compute_heatmap()
+    _STATS_TYPE_RANKING         = _compute_type_ranking()
+
+
+# Initial snapshot from the baseline incidents; refreshed once the live feed loads.
+_recompute_stats()
 
 
 @app.get("/api/stats/kpi")
@@ -659,6 +700,29 @@ def _load_vlm():
     _PROMPTS_CACHE = _load_prompts_cached()
 
 
+@app.on_event("startup")
+async def _start_live_feed():
+    """Kick off the live Brownsville feed: one immediate poll, then every
+    _LIVE_FEED_INTERVAL seconds in the background. All failures are non-fatal —
+    the dashboard still serves the baseline incidents if the feed is down."""
+    async def _poll_loop():
+        while True:
+            await asyncio.sleep(_LIVE_FEED_INTERVAL)
+            try:
+                await live_feed.refresh(INCIDENT_TYPES, LOCATIONS)
+                _recompose_incidents()
+            except Exception:
+                logger.exception("live_feed refresh failed")
+
+    try:
+        n = await live_feed.refresh(INCIDENT_TYPES, LOCATIONS)
+        _recompose_incidents()
+        logger.info("live_feed initial load: %d Brownsville incidents", n)
+    except Exception:
+        logger.exception("live_feed initial load failed")
+    asyncio.create_task(_poll_loop())
+
+
 @app.get("/api/vlm/prompts")
 def vlm_prompts():
     return _PROMPTS_CACHE
@@ -742,6 +806,10 @@ def vlm_list(
     water_proximity: bool = False,
     priority: Optional[str] = None,        # LOW / MEDIUM / HIGH
     waste_type: Optional[str] = None,      # case-insensitive substring match
+    # license_plate filters
+    has_plate: bool = False,               # require a detected plate
+    plate_state: Optional[str] = None,     # normalized 2-letter code (TX, CA, …)
+    min_confidence: Optional[float] = None,  # best-plate confidence threshold
     search: Optional[str] = None,
     limit: int = Query(100, le=500),
     offset: int = 0,
@@ -801,6 +869,13 @@ def vlm_list(
     if waste_type:
         wt = waste_type.lower()
         items = [o for o in items if wt in (o.waste_type or "").lower()]
+    if has_plate:
+        items = [o for o in items if o.plates_detected]
+    if plate_state:
+        ps = plate_state.upper()
+        items = [o for o in items if (o.plate_state or "").upper() == ps]
+    if min_confidence is not None:
+        items = [o for o in items if (o.plate_confidence or 0.0) >= min_confidence]
     if search:
         q = search.lower()
         items = [o for o in items if q in (o.feed_label.lower() + " " + o.image_name.lower() + " " + o.full_caption.lower())]
@@ -879,11 +954,41 @@ async def ai_metrics_reload(
     return ai_metrics.state()
 
 
+# ─── Live Brownsville feed ──────────────────────────────────────────────────
+@app.get("/api/feeds/status")
+def feeds_status():
+    """Health of the live Brownsville RSS ingestion: last run, per-source counts."""
+    return live_feed.status()
+
+
+@app.post("/api/feeds/refresh")
+@rate_limit(_RELOAD_RATE)
+async def feeds_refresh(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    x_reload_token: Optional[str] = Header(default=None),
+):
+    """Force an immediate live-feed poll. Same fail-closed token as /vlm/reload."""
+    expected = os.getenv("BV_RELOAD_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="refresh disabled: set BV_RELOAD_TOKEN on the server to enable",
+        )
+    if not x_reload_token or not hmac.compare_digest(x_reload_token, expected):
+        raise HTTPException(status_code=401, detail="invalid reload token")
+    await live_feed.refresh(INCIDENT_TYPES, LOCATIONS)
+    _recompose_incidents()
+    return live_feed.status()
+
+
 @app.get("/api/health")
 def health():
+    _fs = live_feed.status()
     return {
         "status": "ok",
         "incidents": len(ALL_INCIDENTS),
+        "live_incidents": _fs.get("count", 0),
+        "live_feed_last_run": _fs.get("last_run"),
         "vlm_observations": vlm.load_info().get("row_count", 0),
         "ai_metrics_runs": ai_metrics.state().get("runs", 0),
         "timestamp": datetime.now().isoformat(),

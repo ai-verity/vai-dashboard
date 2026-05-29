@@ -136,7 +136,7 @@ export const API_BASE = (import.meta.env.VITE_API_BASE as string | undefined) ??
 
 // ─── VLM types ───────────────────────────────────────────────────────────────
 
-export type VlmPreset = 'crowd_behavior' | 'vehicle_prompts' | 'illegal_dumping';
+export type VlmPreset = 'crowd_behavior' | 'vehicle_prompts' | 'illegal_dumping' | 'license_plate';
 
 export interface VlmObservation {
   id: string;
@@ -193,11 +193,43 @@ export interface VlmObservation {
   ordinance: string | null;
   priority: string | null;
   dumping_summary: string | null;
+  // license_plate fields (null/false/0 for non-plate frames). Scalars describe
+  // the single highest-confidence plate / the primary vehicle in the frame.
+  plate_count: number | null;
+  plates_detected: boolean;
+  plate_text: string | null;
+  plate_state: string | null;          // normalized 2-letter code (TX, CA, …)
+  plate_type: string | null;
+  plate_confidence: number | null;      // 0–1
+  vehicle_count: number | null;
+  vehicle_make: string | null;
+  vehicle_model: string | null;
+  vehicle_color: string | null;
+  vehicle_body_style: string | null;
+}
+
+export interface VlmPlateRow {
+  plate_text: string | null;
+  state: string | null;
+  plate_type: string | null;
+  confidence: number | null;
+  vehicle_id: number | null;
+}
+
+export interface VlmVehicleRow {
+  make: string | null;
+  model: string | null;
+  year_range: string | null;
+  color: string | null;
+  body_style: string | null;
 }
 
 export interface VlmDetail extends VlmObservation {
   answers: Record<string, string>;
   full_caption: string;
+  // license_plate preset only — full per-frame lists for the detail panel.
+  plates: VlmPlateRow[];
+  vehicles: VlmVehicleRow[];
 }
 
 export interface VlmFeed {
@@ -240,6 +272,16 @@ export interface VlmDumpingStats {
   waste_type: Record<string, number>;
 }
 
+export interface VlmPlateStats {
+  total: number;                       // frames in the license_plate preset
+  frames_with_plate: number;
+  plates_detected: number;             // total plate reads across frames
+  unique_plates: number;
+  high_confidence: number;             // plates with confidence >= 0.9
+  by_state: Record<string, number>;
+  by_type: Record<string, number>;
+}
+
 export interface VlmStats {
   total: number;
   feeds: number;
@@ -255,6 +297,7 @@ export interface VlmStats {
   presets: Record<string, number>;
   vehicle: VlmVehicleStats;
   dumping: VlmDumpingStats;
+  plate: VlmPlateStats;
 }
 
 export interface VlmRun {
@@ -333,6 +376,13 @@ export interface VlmDumpingFeedRow {
 }
 export interface VlmDumpingDailyRow { date: string; dumping: number; total: number; share: number; }
 
+export interface VlmPlateConfidenceRow { band: string; count: number; }
+export interface VlmPlateFeedRow {
+  feed_id: string; feed_label: string;
+  plates: number; frames: number;
+}
+export interface VlmPlateDailyRow { date: string; with_plate: number; total: number; share: number; }
+
 export interface VlmAggregates {
   hour_risk: VlmHourRiskRow[];
   feed_density: VlmFeedDensityRow[];
@@ -362,6 +412,13 @@ export interface VlmAggregates {
   // frames at that location in the bucket.
   weekly_dumping_by_location: VlmPeriodLocationAggregate;
   monthly_dumping_by_location: VlmPeriodLocationAggregate;
+  // license_plate aggregates.
+  plate_confidence: VlmPlateConfidenceRow[];
+  plate_feed: VlmPlateFeedRow[];
+  plate_daily: VlmPlateDailyRow[];
+  // Sum of detected plate_count per (bucket, location) — license_plate only.
+  weekly_plates_by_location: VlmPeriodLocationAggregate;
+  monthly_plates_by_location: VlmPeriodLocationAggregate;
 }
 
 // ─── AI Model Metrics types ─────────────────────────────────────────────────
