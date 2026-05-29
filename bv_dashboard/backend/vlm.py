@@ -10,6 +10,7 @@ level, threat flags, etc.), and exposes lookup helpers used by the
 from __future__ import annotations
 
 import csv
+import json
 import os
 import re
 import threading
@@ -118,9 +119,30 @@ class VlmObservation:
     priority: Optional[str]              # LOW / MEDIUM / HIGH
     dumping_summary: Optional[str]       # 1-line enforcement summary
 
+    # Derived — license_plate preset (normalized from CSV preset
+    # "vehicle_prompts_2"; None/False/0 for every other preset). The scalar
+    # plate_* fields describe the single highest-confidence plate so the list
+    # row / badges have something to show; the full per-frame `plates` and
+    # `vehicles` lists ride along for the detail panel.
+    plate_count: Optional[int]           # number of plates read in the frame
+    plates_detected: bool                # plate_count > 0
+    plate_text: Optional[str]            # best (highest-confidence) plate text
+    plate_state: Optional[str]           # normalized 2-letter state (TX, CA, …)
+    plate_type: Optional[str]            # standard / commercial / temporary / …
+    plate_confidence: Optional[float]    # confidence of the best plate (0–1)
+    vehicle_count: Optional[int]         # vehicles detected in the frame
+    vehicle_make: Optional[str]          # primary vehicle make
+    vehicle_model: Optional[str]         # primary vehicle model
+    vehicle_color: Optional[str]         # primary vehicle color (primary tone)
+    vehicle_body_style: Optional[str]    # primary vehicle body style (normalized)
+
     # Raw
     answers: dict                       # {q_number: text}
     full_caption: str
+    # Structured LPR payload (license_plate preset only) — trimmed from list
+    # responses by to_summary(), kept by to_detail().
+    plates: list                        # [{plate_text, state, plate_type, confidence, vehicle_id}]
+    vehicles: list                      # [{make, model, year_range, color, body_style, confidence}]
 
 
 _RUN_ID_RE = re.compile(r"^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$")
@@ -571,14 +593,152 @@ def _count_vehicles_in_desc(desc: Optional[str]) -> int:
     return len(matches)
 
 
+# ─── License-plate preset (CSV preset "vehicle_prompts_2") ──────────────────
+# Its full_caption is a JSON blob, not the numbered Q&A / KEY:value formats the
+# other presets use:
+#   {"analysis": {"license_plates": [...], "vehicles": [...], "vehicle_count": N}}
+# usually wrapped in a ```json … ``` fence. We normalize this preset to the
+# canonical key "license_plate" so the API/UI key off a readable value.
+_LPR_PRESET_RAW = "vehicle_prompts_2"
+_LPR_PRESET = "license_plate"
+_JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.S | re.I)
+
+# Generic minio_key container dirs that don't identify a camera; when a frame
+# sits under one, the real feed is recovered from the filename instead.
+_GENERIC_KEY_DIRS = {"input_data", "frames"}
+
+
+def _feed_from_filename(file_name: str) -> str:
+    """Recover the camera/feed id by stripping the trailing capture-time token
+    from a frame filename, e.g.
+    'international_and_washington_1_03-27-2026-02-10-48-am.jpg'
+    → 'international_and_washington_1'.
+    """
+    s = _FILENAME_TS_RE.sub("", file_name)
+    s = _FILENAME_TS_ISO_RE.sub("", s)
+    if s.lower().endswith(".jpg"):
+        s = s[:-4]
+    return s.strip("_ ") or "unknown"
+
+# US state names → 2-letter codes. The model emits a mix of full names, codes
+# and junk ("null"/None); unrecognized values pass through (uppercased if short)
+# so a real-but-unmapped value still groups consistently.
+_STATE_MAP = {
+    "texas": "TX", "california": "CA", "new york": "NY", "west virginia": "WV",
+    "arizona": "AZ", "new mexico": "NM", "florida": "FL", "louisiana": "LA",
+    "oklahoma": "OK", "colorado": "CO", "nevada": "NV",
+}
+
+
+def _norm_plate_state(val) -> Optional[str]:
+    if not isinstance(val, str):
+        return None
+    s = val.strip()
+    if not s or s.lower() in ("null", "none", "unknown", "n/a"):
+        return None
+    key = s.lower()
+    if key in _STATE_MAP:
+        return _STATE_MAP[key]
+    if len(s) <= 3:           # already a code (TX) — normalize case
+        return s.upper()
+    return s.title()
+
+
+def _norm_body_style(val) -> Optional[str]:
+    if not isinstance(val, str):
+        return None
+    s = val.strip().lower().replace("_", " ")
+    if not s or s in ("null", "none", "unknown"):
+        return None
+    return s
+
+
+def _lpr_clean_str(val) -> Optional[str]:
+    if not isinstance(val, str):
+        return None
+    s = val.strip()
+    if not s or s.lower() in ("null", "none"):
+        return None
+    return s
+
+
+def _parse_lpr_caption(full_caption: str) -> dict:
+    """Parse the JSON full_caption of a license_plate frame.
+
+    Returns {"plates": [...], "vehicles": [...], "vehicle_count": int}, with
+    empty lists on any parse failure (~30% of rows the model emits are
+    truncated / non-JSON).
+    """
+    empty = {"plates": [], "vehicles": [], "vehicle_count": 0}
+    if not full_caption:
+        return empty
+    text = full_caption.strip()
+    m = _JSON_FENCE_RE.search(text)
+    if m:
+        text = m.group(1)
+    try:
+        data = json.loads(text)
+    except (ValueError, TypeError):
+        return empty
+    analysis = data.get("analysis", data) if isinstance(data, dict) else {}
+    if not isinstance(analysis, dict):
+        return empty
+    raw_plates = analysis.get("license_plates") or []
+    raw_vehicles = analysis.get("vehicles") or []
+
+    plates = []
+    for lp in raw_plates:
+        if not isinstance(lp, dict):
+            continue
+        text_v = _lpr_clean_str(lp.get("plate_text"))
+        if not text_v:                       # keep only plates with real text
+            continue
+        conf = lp.get("confidence")
+        plates.append({
+            "plate_text": text_v,
+            "state": _norm_plate_state(lp.get("state")),
+            "plate_type": _lpr_clean_str(lp.get("plate_type")),
+            "confidence": float(conf) if isinstance(conf, (int, float)) else None,
+            "vehicle_id": lp.get("vehicle_id"),
+        })
+
+    vehicles = []
+    for v in raw_vehicles:
+        if not isinstance(v, dict):
+            continue
+        color = v.get("color")
+        if isinstance(color, dict):
+            color_primary = _lpr_clean_str(color.get("primary")) or _lpr_clean_str(color.get("full_description"))
+        else:
+            color_primary = _lpr_clean_str(color)
+        vehicles.append({
+            "make": _lpr_clean_str(v.get("make")),
+            "model": _lpr_clean_str(v.get("model")),
+            "year_range": _lpr_clean_str(v.get("year_range")),
+            "color": color_primary,
+            "body_style": _norm_body_style(v.get("body_style")),
+        })
+
+    vc = analysis.get("vehicle_count")
+    vehicle_count = vc if isinstance(vc, int) else len(vehicles)
+    return {"plates": plates, "vehicles": vehicles, "vehicle_count": vehicle_count}
+
+
 def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
     file_name = (row.get("file_name") or "").strip()
     minio_key = (row.get("minio_key") or "").strip()
     if not minio_key and not file_name:
         return None
-    feed_id = minio_key.split("/")[0] if "/" in minio_key else (file_name.rsplit("_", 1)[0] if file_name else "unknown")
     full_caption = row.get("full_caption") or ""
     preset = (row.get("preset") or "").strip()
+    # Feed id is normally the leading minio_key directory (the camera folder).
+    # The license_plate dataset instead nests every frame under a generic
+    # `input_data/frames/` prefix and encodes the real camera in the filename,
+    # so derive the feed from the filename for it (also unlocks location mapping).
+    if preset == _LPR_PRESET_RAW or minio_key.split("/")[0] in _GENERIC_KEY_DIRS:
+        feed_id = _feed_from_filename(file_name) if file_name else "unknown"
+    else:
+        feed_id = minio_key.split("/")[0] if "/" in minio_key else (file_name.rsplit("_", 1)[0] if file_name else "unknown")
     # Illegal-dumping captions use "KEY: value" lines; everything else uses
     # the numbered "1. answer" format. Picking the wrong parser would yield
     # an empty answers dict and silently blank the detail panel.
@@ -598,11 +758,12 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
     run_id_val = (row.get("run_id") or "").strip()
     is_vehicle = preset == "vehicle_prompts"
     is_dumping = preset == "illegal_dumping"
+    is_lpr = preset == _LPR_PRESET_RAW
 
     # Crowd-behavior derived fields. Only crowd_behavior rows populate these;
     # other presets skip the crowd parsers (they'd misfire on prompts like
-    # "Provide the color, make, and model" or "SEVERITY: 3").
-    if is_vehicle or is_dumping:
+    # "Provide the color, make, and model", "SEVERITY: 3", or a JSON blob).
+    if is_vehicle or is_dumping or is_lpr:
         pedestrian_count = None
         density_zone = None
         risk_level = None
@@ -698,6 +859,47 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         priority = None
         dumping_summary = None
 
+    # License-plate derived fields. The JSON caption carries every plate and
+    # vehicle in the frame; we surface the highest-confidence plate as the
+    # scalar plate_* fields and the first vehicle as the primary vehicle_*.
+    if is_lpr:
+        lpr = _parse_lpr_caption(full_caption)
+        plates = lpr["plates"]
+        vehicles = lpr["vehicles"]
+        vehicle_count = lpr["vehicle_count"]
+        plate_count = len(plates)
+        plates_detected = plate_count > 0
+        if plates:
+            best = max(plates, key=lambda p: p["confidence"] or 0.0)
+            plate_text = best["plate_text"]
+            plate_state = best["state"]
+            plate_type = best["plate_type"]
+            plate_confidence = best["confidence"]
+        else:
+            plate_text = plate_state = plate_type = None
+            plate_confidence = None
+        if vehicles:
+            v0 = vehicles[0]
+            vehicle_make = v0["make"]
+            vehicle_model = v0["model"]
+            vehicle_color = v0["color"]
+            vehicle_body_style = v0["body_style"]
+        else:
+            vehicle_make = vehicle_model = vehicle_color = vehicle_body_style = None
+    else:
+        plates = []
+        vehicles = []
+        plate_count = None
+        plates_detected = False
+        plate_text = plate_state = plate_type = None
+        plate_confidence = None
+        vehicle_count = None
+        vehicle_make = vehicle_model = vehicle_color = vehicle_body_style = None
+
+    # Normalize the LPR preset's raw CSV value ("vehicle_prompts_2") to the
+    # canonical key the API/UI filter on.
+    out_preset = _LPR_PRESET if is_lpr else preset
+
     return VlmObservation(
         id=f"{run_id_val}-{idx:06d}",
         run_id=run_id_val,
@@ -708,7 +910,7 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         image_name=file_name,
         captured_at=captured,
         processed_at=started_at,
-        preset=preset,
+        preset=out_preset,
         model=(row.get("model") or "").strip(),
         total_seconds=total_f,
         pedestrian_count=pedestrian_count,
@@ -748,8 +950,21 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         ordinance=ordinance,
         priority=priority,
         dumping_summary=dumping_summary,
+        plate_count=plate_count,
+        plates_detected=plates_detected,
+        plate_text=plate_text,
+        plate_state=plate_state,
+        plate_type=plate_type,
+        plate_confidence=plate_confidence,
+        vehicle_count=vehicle_count,
+        vehicle_make=vehicle_make,
+        vehicle_model=vehicle_model,
+        vehicle_color=vehicle_color,
+        vehicle_body_style=vehicle_body_style,
         answers=answers,
         full_caption=full_caption,
+        plates=plates,
+        vehicles=vehicles,
     )
 
 
@@ -766,6 +981,7 @@ _AGGREGATES:    dict       = {
     "vehicle_hour_issue": [], "vehicle_feed_issue": [], "vehicle_daily_collision": [],
     "dumping_severity": [], "dumping_waste_type": [],
     "dumping_feed": [], "dumping_daily": [],
+    "plate_confidence": [], "plate_feed": [], "plate_daily": [],
 }
 _STATS_SUMMARY: dict       = {
     "total": 0, "feeds": 0, "runs": 0, "with_pedestrians": 0,
@@ -843,6 +1059,8 @@ def to_summary(obs: VlmObservation) -> dict:
     # Trim large fields for list responses
     d.pop("full_caption", None)
     d.pop("answers", None)
+    d.pop("plates", None)
+    d.pop("vehicles", None)
     return d
 
 
@@ -980,6 +1198,15 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     dmp_waste: dict[str, int] = {}
     dmp_feed: dict[str, dict] = {}
     dmp_daily: dict[str, dict] = {}
+    # License-plate aggregates.
+    plate_conf_bands = [
+        {"band": "<0.80", "lo": 0.0,  "hi": 0.80, "count": 0},
+        {"band": "0.80–0.89", "lo": 0.80, "hi": 0.90, "count": 0},
+        {"band": "0.90–0.94", "lo": 0.90, "hi": 0.95, "count": 0},
+        {"band": "≥0.95", "lo": 0.95, "hi": 1.01, "count": 0},
+    ]
+    plate_feed: dict[str, dict] = {}
+    plate_daily: dict[str, dict] = {}
     for o in rows:
         captured_dt: Optional[datetime] = None
         if o.captured_at:
@@ -990,8 +1217,34 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
 
         is_vehicle = o.preset == "vehicle_prompts"
         is_dumping = o.preset == "illegal_dumping"
+        is_lpr = o.preset == _LPR_PRESET
 
-        if not is_vehicle and not is_dumping:
+        if is_lpr:
+            # Confidence distribution across every detected plate.
+            for p in (o.plates or []):
+                c = p.get("confidence")
+                if c is None:
+                    continue
+                for band in plate_conf_bands:
+                    if band["lo"] <= c < band["hi"]:
+                        band["count"] += 1
+                        break
+            # Plates per feed (and frame totals for context).
+            pf = plate_feed.setdefault(o.feed_id, {
+                "feed_id": o.feed_id,
+                "feed_label": o.feed_label,
+                "plates": 0, "frames": 0,
+            })
+            pf["frames"] += 1
+            pf["plates"] += (o.plate_count or 0)
+            # Daily share of frames that carried at least one plate.
+            if captured_dt is not None:
+                day = captured_dt.date().isoformat()
+                pd = plate_daily.setdefault(day, {"date": day, "with_plate": 0, "total": 0})
+                pd["total"] += 1
+                if o.plates_detected:
+                    pd["with_plate"] += 1
+        elif not is_vehicle and not is_dumping:
             if captured_dt is not None:
                 tier = (o.risk_level or "LOW").upper()
                 if tier in hour_risk[captured_dt.hour]:
@@ -1087,6 +1340,14 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     for d in dmp_daily_list:
         d["share"] = round(d["dumping"] / d["total"], 4) if d["total"] else 0.0
 
+    plate_conf_out = [{"band": b["band"], "count": b["count"]} for b in plate_conf_bands]
+    plate_feeds_top = sorted(plate_feed.values(), key=lambda f: -f["plates"])[:10]
+    plate_daily_list = sorted(plate_daily.values(), key=lambda d: d["date"])
+    for d in plate_daily_list:
+        d["share"] = round(d["with_plate"] / d["total"], 4) if d["total"] else 0.0
+    weekly_plates_by_location = _aggregate_plates_by_period_location(rows, "week")
+    monthly_plates_by_location = _aggregate_plates_by_period_location(rows, "month")
+
     monthly_by_type = _aggregate_monthly_by_type(rows)
     weekly_by_location = _aggregate_by_period_location(rows, "week")
     monthly_by_location = _aggregate_by_period_location(rows, "month")
@@ -1117,6 +1378,11 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
         "monthly_vehicles_by_location": monthly_vehicles_by_location,
         "weekly_dumping_by_location": weekly_dumping_by_location,
         "monthly_dumping_by_location": monthly_dumping_by_location,
+        "plate_confidence": plate_conf_out,
+        "plate_feed": plate_feeds_top,
+        "plate_daily": plate_daily_list,
+        "weekly_plates_by_location": weekly_plates_by_location,
+        "monthly_plates_by_location": monthly_plates_by_location,
     }
 
 
@@ -1313,6 +1579,57 @@ def _aggregate_dumping_by_period_location(rows: list[VlmObservation], period: st
     }
 
 
+def _aggregate_plates_by_period_location(rows: list[VlmObservation], period: str) -> dict:
+    """Sum detected plate_count per (time-bucket, location) — license_plate
+    only. Same bucketing/top-10 rules as the other period-location aggregators;
+    the `count` field carries the number of plates read at that location.
+    """
+    bucket_keys: list[str] = []
+    bucket_set: set[str] = set()
+    loc_label: dict[str, str] = {}
+    sums: dict[tuple[str, str], int] = {}
+    for o in rows:
+        if o.preset != _LPR_PRESET:
+            continue
+        if not o.plate_count or o.plate_count <= 0:
+            continue
+        ts = o.processed_at or o.captured_at
+        if not ts:
+            continue
+        try:
+            dt = datetime.fromisoformat(ts)
+        except ValueError:
+            continue
+        if period == "week":
+            iso_year, iso_week, _ = dt.isocalendar()
+            bucket = f"{iso_year}-W{iso_week:02d}"
+        else:
+            bucket = dt.strftime("%Y-%m")
+        if bucket not in bucket_set:
+            bucket_set.add(bucket)
+            bucket_keys.append(bucket)
+        loc_id = o.location_id or o.feed_id
+        loc_label[loc_id] = o.feed_label or loc_id
+        sums[(bucket, loc_id)] = sums.get((bucket, loc_id), 0) + o.plate_count
+
+    bucket_keys.sort()
+    loc_totals: dict[str, int] = {}
+    for (_, loc_id), n in sums.items():
+        loc_totals[loc_id] = loc_totals.get(loc_id, 0) + n
+    top_locs = sorted(loc_totals.keys(), key=lambda l: -loc_totals[l])[:10]
+    locations = [{"location_id": l, "label": loc_label[l], "total": loc_totals[l]} for l in top_locs]
+    data = [
+        {"bucket": b, "location_id": l, "count": sums.get((b, l), 0)}
+        for b in bucket_keys for l in top_locs
+    ]
+    return {
+        "period": period,
+        "buckets": bucket_keys,
+        "locations": locations,
+        "data": data,
+    }
+
+
 def _aggregate_people_by_period_location(rows: list[VlmObservation], period: str) -> dict:
     """Sum pedestrian_count per (time-bucket, location) — crowd_behavior only.
 
@@ -1378,6 +1695,7 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
             "presets": {},
             "vehicle": _empty_vehicle_stats(),
             "dumping": _empty_dumping_stats(),
+            "plate": _empty_plate_stats(),
         }
     density: dict[str, int] = {}
     risk: dict[str, int] = {}
@@ -1396,6 +1714,11 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
     dmp_priority: dict[str, int] = {}
     dmp_ordinance: dict[str, int] = {}
     dmp_waste: dict[str, int] = {}
+    # License-plate counters.
+    lpr_total = lpr_frames_with_plate = lpr_plates_detected = lpr_high_conf = 0
+    lpr_unique: set[str] = set()
+    lpr_by_state: dict[str, int] = {}
+    lpr_by_type: dict[str, int] = {}
     for o in rows:
         feeds.add(o.feed_id)
         if o.run_id:
@@ -1447,6 +1770,22 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
                 key = o.waste_type.lower()
                 dmp_waste[key] = dmp_waste.get(key, 0) + 1
             if o.dumping_summary: dmp_with_summary += 1
+        elif o.preset == _LPR_PRESET:
+            lpr_total += 1
+            if o.plates_detected:
+                lpr_frames_with_plate += 1
+            for p in (o.plates or []):
+                lpr_plates_detected += 1
+                if p.get("plate_text"):
+                    lpr_unique.add(p["plate_text"])
+                if (p.get("confidence") or 0.0) >= 0.9:
+                    lpr_high_conf += 1
+                st = p.get("state")
+                if st:
+                    lpr_by_state[st] = lpr_by_state.get(st, 0) + 1
+                pt = p.get("plate_type")
+                if pt:
+                    lpr_by_type[pt] = lpr_by_type.get(pt, 0) + 1
     return {
         "total": n, "feeds": len(feeds), "runs": len(runs),
         "with_pedestrians": with_peds,
@@ -1483,6 +1822,23 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
             "ordinance": dmp_ordinance,
             "waste_type": dmp_waste,
         },
+        "plate": {
+            "total": lpr_total,
+            "frames_with_plate": lpr_frames_with_plate,
+            "plates_detected": lpr_plates_detected,
+            "unique_plates": len(lpr_unique),
+            "high_confidence": lpr_high_conf,
+            "by_state": lpr_by_state,
+            "by_type": lpr_by_type,
+        },
+    }
+
+
+def _empty_plate_stats() -> dict:
+    return {
+        "total": 0, "frames_with_plate": 0, "plates_detected": 0,
+        "unique_plates": 0, "high_confidence": 0,
+        "by_state": {}, "by_type": {},
     }
 
 

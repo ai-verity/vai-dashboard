@@ -147,6 +147,10 @@ export interface VlmListParams {
   water_proximity?: boolean;
   priority?: string;             // LOW / MEDIUM / HIGH
   waste_type?: string;
+  // license_plate filters
+  has_plate?: boolean;
+  plate_state?: string;          // normalized 2-letter code (TX, CA, …)
+  min_confidence?: number;       // best-plate confidence threshold
   search?: string;
   limit?: number;
   offset?: number;

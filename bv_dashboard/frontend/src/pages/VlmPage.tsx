@@ -13,7 +13,7 @@ import { useTheme } from '../hooks/useTheme';
 const PAGE_SIZE = 50;
 
 // Wire preset values; the empty string sentinel = "all presets".
-type PresetFilter = '' | 'crowd_behavior' | 'vehicle_prompts' | 'illegal_dumping';
+type PresetFilter = '' | 'crowd_behavior' | 'vehicle_prompts' | 'illegal_dumping' | 'license_plate';
 
 // Partial<Record<...>> instead of Record so a lookup with an unknown key
 // is typed `string | undefined` — forces callers to deal with the miss
@@ -22,6 +22,7 @@ const PRESET_LABEL: Partial<Record<string, string>> = {
   crowd_behavior: 'CROWD',
   vehicle_prompts: 'VEHICLE',
   illegal_dumping: 'DUMPING',
+  license_plate: 'LPR',
 };
 
 // Priority tier colors — shared by KPI, chips, and badges.
@@ -55,6 +56,19 @@ const DMP_PRESENT     = '#EF4444';
 const DMP_CHRONIC     = '#7f1d1d';
 const DMP_WATER       = '#4A9EF5';
 const DMP_GUTTER      = '#F5B731';
+
+// License-plate (LPR) colors — plate-centric palette.
+const LPR_PLATE       = '#DC2626';   // detected plate
+const LPR_STATE       = '#4A9EF5';   // state badge
+const LPR_TYPE        = '#A78BFA';   // plate type
+const LPR_VEHICLE     = '#2DC9A8';   // vehicle attributes
+// Confidence band → color (matches backend plate_confidence bands).
+const LPR_CONF_COLOR: Partial<Record<string, string>> = {
+  '<0.80':     '#EF4444',
+  '0.80–0.89': '#F97316',
+  '0.90–0.94': '#F5B731',
+  '≥0.95':     '#22C55E',
+};
 
 // Per-frame section roll-up definition.
 // Each section knows which Q-numbers feed it and how to summarize them.
@@ -819,6 +833,154 @@ function DumpingDailyChart({ data }: { data: VlmAggregates['dumping_daily'] }) {
   return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
 }
 
+// ─── License-plate (LPR) charts ─────────────────────────────────────────────
+function PlateConfidenceChart({ data }: { data: VlmAggregates['plate_confidence'] }) {
+  const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    const p = { l: 30, r: 12, t: 14, b: 30 };
+    const mx = Math.max(...data.map(r => r.count), 1);
+    regions.current = [];
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(String(Math.round(mx * i / 4)), p.l - 4, y + 3);
+    }
+    const bW = (W - p.l - p.r) / Math.max(data.length, 1);
+    data.forEach((row, i) => {
+      const x = p.l + i * bW + 4;
+      const bw = bW - 8;
+      const h = Math.max(1, (row.count / mx) * (H - p.t - p.b));
+      const col = LPR_CONF_COLOR[row.band] ?? LPR_PLATE;
+      ctx.fillStyle = col;
+      ctx.globalAlpha = 0.86;
+      ctx.fillRect(x, H - p.b - h, bw, h);
+      ctx.globalAlpha = 1;
+      regions.current.push({
+        x, y: H - p.b - h, w: bw, h,
+        label: row.band, value: row.count, color: col, bar: 'Plate confidence',
+      });
+      ctx.fillStyle = MUTED;
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(row.band, x + bw / 2, H - 16);
+      ctx.fillText(String(row.count), x + bw / 2, H - 4);
+    });
+  }, [data, tick]);
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
+}
+
+function PlateFeedChart({ data }: { data: VlmAggregates['plate_feed'] }) {
+  const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, TEXT, GRID_SOFT } = chartColors();
+    const p = { l: 150, r: 12, t: 6, b: 6 };
+    const mx = Math.max(...data.map(f => f.plates), 1);
+    const rowH = (H - p.t - p.b) / Math.max(data.length, 1);
+    regions.current = [];
+    data.forEach((f, i) => {
+      const y = p.t + i * rowH;
+      const fullBw = Math.round((f.plates / mx) * (W - p.l - p.r));
+      ctx.fillStyle = GRID_SOFT;
+      ctx.fillRect(p.l, y + 2, W - p.l - p.r, rowH - 4);
+      ctx.fillStyle = LPR_PLATE;
+      ctx.globalAlpha = 0.82;
+      ctx.fillRect(p.l, y + 2, fullBw, rowH - 4);
+      ctx.globalAlpha = 1;
+      regions.current.push({
+        x: p.l, y: y + 2, w: fullBw, h: rowH - 4,
+        label: 'PLATES', value: f.plates, color: LPR_PLATE, bar: f.feed_label,
+      });
+      ctx.fillStyle = TEXT;
+      ctx.font = '9px Barlow, sans-serif';
+      ctx.textAlign = 'right';
+      ctx.fillText(f.feed_label.substring(0, 24), p.l - 4, y + rowH / 2 + 3);
+      ctx.fillStyle = MUTED;
+      ctx.font = 'bold 9px DM Mono, monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText(String(f.plates), p.l + fullBw + 4, y + rowH / 2 + 3);
+    });
+  }, [data, tick]);
+  return (
+    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
+      <ChartTooltip hover={hover} />
+    </div>
+  );
+}
+
+function PlateDailyChart({ data }: { data: VlmAggregates['plate_daily'] }) {
+  const { tick } = useTheme();
+  const ref = useCanvas(cv => {
+    const g = setupCv(cv, 180);
+    if (!g) return;
+    const { ctx, W, H } = g;
+    const { MUTED, GRID } = chartColors();
+    if (!data.length) return;
+    const p = { l: 32, r: 12, t: 14, b: 28 };
+    const mxShare = Math.max(...data.map(d => d.share), 0.01);
+    for (let i = 0; i <= 4; i++) {
+      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
+      ctx.strokeStyle = GRID;
+      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
+      ctx.fillStyle = MUTED;
+      ctx.font = '9px DM Mono, monospace';
+      ctx.textAlign = 'right';
+      ctx.fillText(`${Math.round((mxShare * i / 4) * 100)}%`, p.l - 4, y + 3);
+    }
+    const n = data.length;
+    const xs = data.map((_, i) => p.l + (n === 1 ? 0 : (i * (W - p.l - p.r)) / (n - 1)));
+    const ys = data.map(d => p.t + (H - p.t - p.b) * (1 - d.share / mxShare));
+    const grad = ctx.createLinearGradient(0, p.t, 0, H - p.b);
+    grad.addColorStop(0, 'rgba(220,38,38,.35)');
+    grad.addColorStop(1, 'rgba(220,38,38,0)');
+    ctx.beginPath();
+    ctx.moveTo(xs[0], H - p.b);
+    xs.forEach((x, i) => ctx.lineTo(x, ys[i]));
+    ctx.lineTo(xs[xs.length - 1], H - p.b);
+    ctx.closePath();
+    ctx.fillStyle = grad;
+    ctx.fill();
+    ctx.beginPath();
+    xs.forEach((x, i) => i === 0 ? ctx.moveTo(x, ys[i]) : ctx.lineTo(x, ys[i]));
+    ctx.strokeStyle = LPR_PLATE;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    xs.forEach((x, i) => {
+      ctx.beginPath();
+      ctx.arc(x, ys[i], 3, 0, Math.PI * 2);
+      ctx.fillStyle = LPR_PLATE;
+      ctx.fill();
+    });
+    const step = Math.max(1, Math.floor(n / 6));
+    data.forEach((d, i) => {
+      if (i % step !== 0 && i !== n - 1) return;
+      ctx.fillStyle = MUTED;
+      ctx.font = '8px DM Mono, monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(d.date.slice(5), xs[i], H - 6);
+    });
+  }, [data, tick]);
+  return <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />;
+}
+
 // ─── Cross-preset charts ──────────────────────────────────────────
 // These two roll up every preset (crowd + vehicle + dumping) so the
 // viewer sees the overall incident pattern. Mounted above the
@@ -1177,6 +1339,17 @@ function DumpingCountByLocation({ aggregates }: { aggregates: VlmAggregates | nu
   );
 }
 
+function PlateCountByLocation({ aggregates }: { aggregates: VlmAggregates | null }) {
+  return (
+    <PresetPeriodByLocationCard
+      title={p => `Plates Read per Location — by ${p === 'week' ? 'Week' : 'Month'}`}
+      sub={p => `Sum of detected plates in license_plate frames · top 10 camera feeds · bucketed by VLM run ${p}`}
+      weekly={aggregates?.weekly_plates_by_location ?? null}
+      monthly={aggregates?.monthly_plates_by_location ?? null}
+    />
+  );
+}
+
 function ChartCard({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
   return (
     <div style={{ background: 'var(--s0)' }}>
@@ -1209,11 +1382,17 @@ export default function VlmPage() {
   const [chronicOnly, setChronicOnly] = useState(false);
   const [waterOnly, setWaterOnly] = useState(false);
   const [priorityFilter, setPriorityFilter] = useState<string | undefined>();
+  // license_plate (LPR) filters. hasPlate defaults true: the LPR view leads
+  // with plate reads, with a toggle to browse all vehicle frames.
+  const [hasPlate, setHasPlate] = useState(true);
+  const [plateState, setPlateState] = useState<string | undefined>();
+  const [minConfidence, setMinConfidence] = useState<number | undefined>();
   const [search, setSearch] = useState('');
 
   const isVehicleView = preset === 'vehicle_prompts';
   const isCrowdView = preset === 'crowd_behavior';
   const isDumpingView = preset === 'illegal_dumping';
+  const isLprView = preset === 'license_plate';
   const isAllView = preset === '';
 
   // Switching presets clears filters whose chips ARE NOT visible in the
@@ -1226,6 +1405,7 @@ export default function VlmPage() {
     const crowdChipsShown   = target === 'crowd_behavior' || target === '';
     const vehicleChipsShown = target === 'vehicle_prompts';
     const dumpingChipsShown = target === 'illegal_dumping';
+    const lprChipsShown     = target === 'license_plate';
     if (!crowdChipsShown) {
       setDensity(undefined);
       setRisk(undefined);
@@ -1244,6 +1424,13 @@ export default function VlmPage() {
       setChronicOnly(false);
       setWaterOnly(false);
       setPriorityFilter(undefined);
+    }
+    if (lprChipsShown) {
+      // Enter the LPR view leading with plate reads.
+      setHasPlate(true);
+    } else {
+      setPlateState(undefined);
+      setMinConfidence(undefined);
     }
     setPreset(target);
     setPage(0);
@@ -1268,6 +1455,10 @@ export default function VlmPage() {
     chronic_site: (isDumpingView || isAllView) && chronicOnly ? true : undefined,
     water_proximity: (isDumpingView || isAllView) && waterOnly ? true : undefined,
     priority: (isDumpingView || isAllView) && priorityFilter ? priorityFilter : undefined,
+    // LPR filters apply only in the license_plate view.
+    has_plate: isLprView && hasPlate ? true : undefined,
+    plate_state: isLprView && plateState ? plateState : undefined,
+    min_confidence: isLprView && minConfidence ? minConfidence : undefined,
     search: search || undefined,
     limit: PAGE_SIZE,
     offset: page * PAGE_SIZE,
@@ -1277,7 +1468,8 @@ export default function VlmPage() {
     feedId, runId, preset, density, risk, elevatedRisk, onlyThreats, hasPeds,
     onlyVehicleIssues, collisionOnly, speedingOnly, fireLaneOnly,
     onlyDumping, chronicOnly, waterOnly, priorityFilter,
-    search, page, isCrowdView, isVehicleView, isDumpingView, isAllView,
+    hasPlate, plateState, minConfidence,
+    search, page, isCrowdView, isVehicleView, isDumpingView, isLprView, isAllView,
   ]);
 
   const { data: list, loading: listLoading, error: listError, refetch: refetchList } = useVlmList(params);
@@ -1289,12 +1481,14 @@ export default function VlmPage() {
   const { data: detail } = useVlmOne(selectedId);
   const detailIsVehicle = detail?.preset === 'vehicle_prompts';
   const detailIsDumping = detail?.preset === 'illegal_dumping';
+  const detailIsLpr = detail?.preset === 'license_plate';
   const detailSummaries = useMemo(() => {
     if (!detail) return null;
+    if (detailIsLpr) return null;   // LPR renders a bespoke plates/vehicles block
     if (detailIsVehicle) return summarizeVehicleAnswers(detail.answers);
     if (detailIsDumping) return summarizeDumpingAnswers(detail.answers);
     return summarizeAnswers(detail.answers);
-  }, [detail, detailIsVehicle, detailIsDumping]);
+  }, [detail, detailIsVehicle, detailIsDumping, detailIsLpr]);
   const detailSectionOrder = detailIsVehicle
     ? VEHICLE_SECTION_ORDER
     : detailIsDumping
@@ -1353,6 +1547,9 @@ export default function VlmPage() {
         <Chip active={isDumpingView} color="#F97316" onClick={() => switchPreset(isDumpingView ? '' : 'illegal_dumping')}>
           ILLEGAL DUMPING · {stats?.presets?.illegal_dumping ?? 0}
         </Chip>
+        <Chip active={isLprView} color={LPR_PLATE} onClick={() => switchPreset(isLprView ? '' : 'license_plate')}>
+          LPR · {stats?.presets?.license_plate ?? 0}
+        </Chip>
       </div>
 
       {/* KPI strip — swaps based on active preset. */}
@@ -1372,6 +1569,14 @@ export default function VlmPage() {
           <StatCell label="Actionable Dumping" value={stats?.dumping.dumping_present ?? 0} color={DMP_PRESENT} />
           <StatCell label="Ordinance Viol." value={stats?.dumping.ordinance_violation ?? 0} color={DMP_PRESENT} />
           <StatCell label="Chronic Sites" value={stats?.dumping.chronic_site ?? 0} color={DMP_CHRONIC} />
+        </div>
+      ) : isLprView ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <StatCell label="Plate Frames" value={stats?.plate.total ?? '—'} color="var(--accent)" />
+          <StatCell label="Frames w/ Plate" value={stats?.plate.frames_with_plate ?? 0} color={LPR_PLATE} />
+          <StatCell label="Plates Detected" value={stats?.plate.plates_detected ?? 0} color={LPR_PLATE} />
+          <StatCell label="Unique Plates" value={stats?.plate.unique_plates ?? 0} color={LPR_TYPE} />
+          <StatCell label="High Confidence" value={stats?.plate.high_confidence ?? 0} color="#22C55E" />
         </div>
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
@@ -1425,6 +1630,23 @@ export default function VlmPage() {
               location. Lives in this branch so crowd/vehicle tabs don't see it. */}
           <DumpingCountByLocation aggregates={aggregates} />
         </>
+      ) : isLprView ? (
+        <>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+            <ChartCard title="Plate Confidence Distribution" sub="Detected plates bucketed by model confidence band">
+              {aggregates ? <PlateConfidenceChart data={aggregates.plate_confidence} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="Per-Feed Plates (top 10)" sub="Detected plate count per camera feed">
+              {aggregates ? <PlateFeedChart data={aggregates.plate_feed} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+            <ChartCard title="Plate-Frame Share by Day" sub="Daily share of vehicle frames with a detected plate">
+              {aggregates ? <PlateDailyChart data={aggregates.plate_daily} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
+            </ChartCard>
+          </div>
+          {/* LPR-only: sums detected plate_count by week/month per location.
+              Lives in this branch so other tabs don't see it. */}
+          <PlateCountByLocation aggregates={aggregates} />
+        </>
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
@@ -1472,6 +1694,22 @@ export default function VlmPage() {
                     <Chip key={p} active={priorityFilter === p} color={PRIORITY_COLOR[p]} onClick={() => { setPriorityFilter(priorityFilter === p ? undefined : p); resetPage(); }}>
                       {p} {stats?.dumping?.priority?.[p] ? `· ${stats.dumping.priority[p]}` : ''}
                     </Chip>
+                  ))}
+                </>
+              ) : isLprView ? (
+                <>
+                  <Chip active={hasPlate} color={LPR_PLATE} onClick={() => { setHasPlate(!hasPlate); resetPage(); }}>HAS PLATE</Chip>
+                  <span style={{ width: 8 }} />
+                  <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>State</span>
+                  {Object.keys(stats?.plate?.by_state ?? {}).sort((a, b) => (stats!.plate.by_state[b] - stats!.plate.by_state[a])).slice(0, 6).map(s => (
+                    <Chip key={s} active={plateState === s} color={LPR_STATE} onClick={() => { setPlateState(plateState === s ? undefined : s); resetPage(); }}>
+                      {s} · {stats?.plate?.by_state?.[s]}
+                    </Chip>
+                  ))}
+                  <span style={{ width: 8 }} />
+                  <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Confidence</span>
+                  {([['≥ 0.80', 0.80], ['≥ 0.90', 0.90], ['≥ 0.95', 0.95]] as const).map(([label, val]) => (
+                    <Chip key={val} active={minConfidence === val} color="#22C55E" onClick={() => { setMinConfidence(minConfidence === val ? undefined : val); resetPage(); }}>{label}</Chip>
                   ))}
                 </>
               ) : (
@@ -1567,6 +1805,7 @@ export default function VlmPage() {
               const isSel = selectedId === o.id;
               const rowIsVehicle = o.preset === 'vehicle_prompts';
               const rowIsDumping = o.preset === 'illegal_dumping';
+              const rowIsLpr = o.preset === 'license_plate';
               const dCol = (o.density_zone && DENSITY_COLOR[o.density_zone]) || 'var(--border)';
               const rCol = (o.risk_level && RISK_COLOR[o.risk_level]) || 'var(--border)';
               const crowdThreat = o.has_imminent_threat || o.weapons_visible || o.medical_emergency || o.fire_smoke || o.fallen_person || o.physical_altercation || o.unsupervised_children;
@@ -1579,6 +1818,11 @@ export default function VlmPage() {
                 if (o.severity) parts.push(`sev ${o.severity}`);
                 if (o.priority) parts.push(o.priority);
                 return parts.length ? `🗑 ${parts.join(' · ').slice(0, 56)}` : '🗑 no waste detected';
+              })();
+              const lprSubtitle = (() => {
+                const veh = [o.vehicle_make, o.vehicle_model].filter(Boolean).join(' ');
+                if (o.plate_text) return `🔖 ${o.plate_text}${o.plate_state ? ` (${o.plate_state})` : ''}${veh ? ` · ${veh}` : ''}`;
+                return veh ? `🚙 ${veh} · no plate read` : `🚙 ${o.vehicle_count ?? 0} vehicles · no plate read`;
               })();
               return (
                 <div
@@ -1616,13 +1860,15 @@ export default function VlmPage() {
                       ? `${vehSubtitle} · ${o.image_name.split('_').pop()}`
                       : rowIsDumping
                         ? `${dmpSubtitle} · ${o.image_name.split('_').pop()}`
-                        : `👣 ${o.pedestrian_count ?? '–'} pedestrians · ${o.image_name.split('_').pop()}`}
+                        : rowIsLpr
+                          ? `${lprSubtitle} · ${o.image_name.split('_').pop()}`
+                          : `👣 ${o.pedestrian_count ?? '–'} pedestrians · ${o.image_name.split('_').pop()}`}
                   </div>
                   <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
                     {/* Preset tag — only visible in ALL view to disambiguate
                         rows of different presets in the same list. */}
                     {isAllView && o.preset && (
-                      <Badge color={rowIsVehicle ? '#4A9EF5' : rowIsDumping ? '#F97316' : '#2DC9A8'}>{PRESET_LABEL[o.preset] ?? o.preset.toUpperCase()}</Badge>
+                      <Badge color={rowIsVehicle ? '#4A9EF5' : rowIsDumping ? '#F97316' : rowIsLpr ? LPR_PLATE : '#2DC9A8'}>{PRESET_LABEL[o.preset] ?? o.preset.toUpperCase()}</Badge>
                     )}
                     {rowIsVehicle ? (
                       <>
@@ -1647,6 +1893,19 @@ export default function VlmPage() {
                         {o.gutter_alley && <Badge color={DMP_GUTTER}>GUTTER</Badge>}
                         {o.priority && <Badge color={PRIORITY_COLOR[o.priority] ?? 'var(--muted)'}>{o.priority}</Badge>}
                         {o.severity !== null && o.severity !== undefined && <Badge color={PRIORITY_COLOR.HIGH ?? '#EF4444'}>SEV {o.severity}</Badge>}
+                      </>
+                    ) : rowIsLpr ? (
+                      <>
+                        {o.plate_text && <Badge color={LPR_PLATE}>🔖 {o.plate_text}</Badge>}
+                        {o.plate_state && <Badge color={LPR_STATE}>{o.plate_state}</Badge>}
+                        {o.plate_type && <Badge color={LPR_TYPE}>{o.plate_type.toUpperCase()}</Badge>}
+                        {o.plate_confidence !== null && o.plate_confidence !== undefined && (
+                          <Badge color={o.plate_confidence >= 0.95 ? '#22C55E' : o.plate_confidence >= 0.9 ? '#F5B731' : '#F97316'}>
+                            {Math.round(o.plate_confidence * 100)}%
+                          </Badge>
+                        )}
+                        {o.vehicle_make && <Badge color={LPR_VEHICLE}>{[o.vehicle_make, o.vehicle_model].filter(Boolean).join(' ')}</Badge>}
+                        {(o.vehicle_count ?? 0) > 0 && <Badge color="var(--muted)">{o.vehicle_count} veh</Badge>}
                       </>
                     ) : (
                       <>
@@ -1725,9 +1984,18 @@ export default function VlmPage() {
 
                 <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginTop: 10, marginBottom: 14 }}>
                   {detail.preset && (
-                    <Badge color={detailIsVehicle ? '#4A9EF5' : detailIsDumping ? '#F97316' : '#2DC9A8'}>{PRESET_LABEL[detail.preset] ?? detail.preset.toUpperCase()}</Badge>
+                    <Badge color={detailIsVehicle ? '#4A9EF5' : detailIsDumping ? '#F97316' : detailIsLpr ? LPR_PLATE : '#2DC9A8'}>{PRESET_LABEL[detail.preset] ?? detail.preset.toUpperCase()}</Badge>
                   )}
-                  {detailIsVehicle ? (
+                  {detailIsLpr ? (
+                    <>
+                      {detail.plates_detected && <Badge color={LPR_PLATE}>{detail.plate_count} PLATE{detail.plate_count === 1 ? '' : 'S'}</Badge>}
+                      {(detail.vehicle_count ?? 0) > 0 && <Badge color={LPR_VEHICLE}>{detail.vehicle_count} VEHICLE{detail.vehicle_count === 1 ? '' : 'S'}</Badge>}
+                      {detail.plate_state && <Badge color={LPR_STATE}>{detail.plate_state}</Badge>}
+                      {detail.plate_confidence !== null && detail.plate_confidence !== undefined && (
+                        <Badge color={detail.plate_confidence >= 0.95 ? '#22C55E' : '#F5B731'}>CONF {Math.round(detail.plate_confidence * 100)}%</Badge>
+                      )}
+                    </>
+                  ) : detailIsVehicle ? (
                     <>
                       {detail.vehicle_description && <Badge color="#4A9EF5">🚗 {detail.vehicle_description.slice(0, 32)}{detail.vehicle_description.length > 32 ? '…' : ''}</Badge>}
                       {detail.collision && <Badge color={VEH_COLLISION}>COLLISION</Badge>}
@@ -1770,10 +2038,61 @@ export default function VlmPage() {
                   )}
                 </div>
 
-                {/* Section roll-up */}
+                {/* License-plate detail: parsed plate reads + vehicle attributes
+                    from the JSON caption (LPR preset has no Q&A roll-up). */}
+                {detailIsLpr && (
+                  <>
+                    <div style={{ fontSize: 8, color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--mono)' }}>
+                      Detected Plates ({detail.plates?.length ?? 0})
+                    </div>
+                    <div style={{ marginBottom: 14, border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
+                      {(detail.plates?.length ?? 0) === 0 ? (
+                        <div style={{ padding: '8px 10px', fontSize: 10, color: 'var(--muted)' }}>No license plate read in this frame.</div>
+                      ) : detail.plates.map((p, i) => (
+                        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 8, padding: '7px 10px', borderTop: i === 0 ? 'none' : '1px solid var(--b2)' }}>
+                          <div>
+                            <div style={{ fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 700, color: LPR_PLATE, letterSpacing: '0.08em' }}>
+                              {p.plate_text ?? '—'}
+                            </div>
+                            <div style={{ fontSize: 9, color: 'var(--muted)', marginTop: 1 }}>
+                              {[p.state, p.plate_type, p.vehicle_id != null ? `vehicle #${p.vehicle_id}` : null].filter(Boolean).join(' · ') || '—'}
+                            </div>
+                          </div>
+                          {p.confidence !== null && p.confidence !== undefined && (
+                            <div style={{ fontFamily: 'var(--mono)', fontSize: 10, alignSelf: 'center', color: p.confidence >= 0.95 ? '#22C55E' : '#F5B731' }}>
+                              {Math.round(p.confidence * 100)}%
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div style={{ fontSize: 8, color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--mono)' }}>
+                      Vehicles ({detail.vehicles?.length ?? 0})
+                    </div>
+                    <div style={{ marginBottom: 14, border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
+                      {(detail.vehicles?.length ?? 0) === 0 ? (
+                        <div style={{ padding: '8px 10px', fontSize: 10, color: 'var(--muted)' }}>No vehicles detected.</div>
+                      ) : detail.vehicles.map((v, i) => (
+                        <div key={i} style={{ padding: '7px 10px', borderTop: i === 0 ? 'none' : '1px solid var(--b2)' }}>
+                          <div style={{ fontSize: 11, color: 'var(--text)' }}>
+                            {[v.color, v.make, v.model].filter(Boolean).join(' ') || 'Unknown vehicle'}
+                          </div>
+                          <div style={{ fontSize: 9, color: 'var(--muted)', marginTop: 1, fontFamily: 'var(--mono)' }}>
+                            {[v.body_style, v.year_range].filter(Boolean).join(' · ') || '—'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+
+                {/* Section roll-up (Q&A presets only — LPR uses the block above) */}
+                {!detailIsLpr && (
                 <div style={{ fontSize: 8, color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--mono)' }}>
                   Section Roll-Up
                 </div>
+                )}
                 {detailSummaries && (
                   <div style={{ marginBottom: 14, border: '1px solid var(--border)', borderRadius: 4, overflow: 'hidden' }}>
                     {detailSectionOrder.map((sec, i) => {
@@ -1805,6 +2124,21 @@ export default function VlmPage() {
                   </div>
                 )}
 
+                {detailIsLpr ? (
+                  <>
+                    <div style={{ fontSize: 8, color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--mono)' }}>
+                      Raw Caption (JSON)
+                    </div>
+                    <pre style={{
+                      fontSize: 9.5, color: 'var(--dim)', fontFamily: 'var(--mono)', lineHeight: 1.45,
+                      background: 'var(--s1)', border: '1px solid var(--border)', borderRadius: 4,
+                      padding: 10, marginBottom: 14, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                      maxHeight: 240, overflowY: 'auto',
+                    }}>
+                      {detail.full_caption || '—'}
+                    </pre>
+                  </>
+                ) : (<>
                 <div style={{ fontSize: 8, color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 6, fontFamily: 'var(--mono)' }}>
                   Per-Prompt Answers
                 </div>
@@ -1832,6 +2166,7 @@ export default function VlmPage() {
                     );
                   })}
                 </div>
+                </>)}
               </>
             )}
           </div>

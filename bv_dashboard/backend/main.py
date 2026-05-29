@@ -806,6 +806,10 @@ def vlm_list(
     water_proximity: bool = False,
     priority: Optional[str] = None,        # LOW / MEDIUM / HIGH
     waste_type: Optional[str] = None,      # case-insensitive substring match
+    # license_plate filters
+    has_plate: bool = False,               # require a detected plate
+    plate_state: Optional[str] = None,     # normalized 2-letter code (TX, CA, …)
+    min_confidence: Optional[float] = None,  # best-plate confidence threshold
     search: Optional[str] = None,
     limit: int = Query(100, le=500),
     offset: int = 0,
@@ -865,6 +869,13 @@ def vlm_list(
     if waste_type:
         wt = waste_type.lower()
         items = [o for o in items if wt in (o.waste_type or "").lower()]
+    if has_plate:
+        items = [o for o in items if o.plates_detected]
+    if plate_state:
+        ps = plate_state.upper()
+        items = [o for o in items if (o.plate_state or "").upper() == ps]
+    if min_confidence is not None:
+        items = [o for o in items if (o.plate_confidence or 0.0) >= min_confidence]
     if search:
         q = search.lower()
         items = [o for o in items if q in (o.feed_label.lower() + " " + o.image_name.lower() + " " + o.full_caption.lower())]
