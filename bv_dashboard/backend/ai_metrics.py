@@ -42,6 +42,14 @@ DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "ai_model_metrics")
 HISTORY_DIR = DATA_DIR
 CLASS_MAPPING_DIR = DATA_DIR
 
+# Second dataset: the LPR fine-tuning pipeline. Same CSV content as the main
+# metrics, with metrics in comparison_<date>_<time>.csv and dataset/instance
+# counts + run metadata in the sibling class_mapping_<date>_<time>.txt (same
+# text format the main tab parses). Loaded into a separate state and exposed
+# via the `lpr` store at the bottom of this module.
+LPR_DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "lpr")
+_LPR_COMPARISON_RE = re.compile(r"^comparison_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})\.csv$")
+
 METRICS = ("Precision", "Recall", "F1")
 EXTRA_METRICS = ("mAP@0.5", "mAP@0.5:0.95")
 
@@ -123,13 +131,21 @@ class DatasetSnapshot:
 # ─── Loader (process-wide, thread-safe) ─────────────────────────────────────
 
 
+def _new_state() -> dict:
+    return {
+        "loaded_at": None,
+        "current": None,       # RunSnapshot for the latest available run
+        "history": [],         # list[RunSnapshot] sorted ascending by run_date
+        "dataset": [],         # list[DatasetSnapshot] sorted ascending by run_date
+    }
+
+
 _LOCK = threading.Lock()
-_STATE: dict = {
-    "loaded_at": None,
-    "current": None,       # RunSnapshot for the latest available run
-    "history": [],         # list[RunSnapshot] sorted ascending by run_date
-    "dataset": [],         # list[DatasetSnapshot] sorted ascending by run_date
-}
+_STATE: dict = _new_state()
+
+# Independent state for the LPR dataset (populated by _load_lpr()).
+_LPR_LOCK = threading.Lock()
+_LPR_STATE: dict = _new_state()
 
 
 def _parse_float(s: str) -> Optional[float]:
@@ -574,20 +590,22 @@ def _overall(snap: RunSnapshot, field_name: str) -> dict[str, Optional[float]]:
 # ─── Public accessors used by main.py ───────────────────────────────────────
 
 
-def state() -> dict:
+def state(st: Optional[dict] = None) -> dict:
+    st = _STATE if st is None else st
     return {
-        "loaded_at": _STATE["loaded_at"],
-        "runs": len(_STATE["history"]),
-        "dataset_runs": len(_STATE["dataset"]),
-        "current_run_date": _STATE["current"].run_date if _STATE["current"] else None,
-        "current_model": _STATE["current"].model if _STATE["current"] else None,
+        "loaded_at": st["loaded_at"],
+        "runs": len(st["history"]),
+        "dataset_runs": len(st["dataset"]),
+        "current_run_date": st["current"].run_date if st["current"] else None,
+        "current_model": st["current"].model if st["current"] else None,
     }
 
 
-def dataset_by_date() -> dict:
+def dataset_by_date(st: Optional[dict] = None) -> dict:
     """Per-run training-dataset summary derived from class_mapping.txt
     files. One entry per date (latest timestamp wins on collision)."""
-    snaps: list[DatasetSnapshot] = _STATE["dataset"]
+    st = _STATE if st is None else st
+    snaps: list[DatasetSnapshot] = st["dataset"]
     points: list[dict] = []
     for snap in snaps:
         points.append({
@@ -615,16 +633,17 @@ def dataset_by_date() -> dict:
     }
 
 
-def summary() -> dict:
+def summary(st: Optional[dict] = None) -> dict:
     """Headline payload: macro-averaged P/R/F1 for the latest run plus
     the prior-run baseline. Prior comes from the most recent dated
     snapshot before `current` when available, otherwise from the current
     file's own 'before' column."""
-    cur = _STATE["current"]
+    st = _STATE if st is None else st
+    cur = st["current"]
     if cur is None:
         return {"available": False, "reason": "No comparison data on disk."}
 
-    prior = _prior_snapshot(cur)
+    prior = _prior_snapshot(cur, st)
     after_overall = _overall(cur, "after")
     before_overall = _overall(prior, "after") if prior is not None else _overall(cur, "before")
 
@@ -650,18 +669,19 @@ def summary() -> dict:
     }
 
 
-def by_class() -> dict:
+def by_class(st: Optional[dict] = None) -> dict:
     """Per-class P/R/F1 current + prior + delta for the latest run.
 
     Prior values come from the most recent dated snapshot (so the table
     shows day-over-day deltas across pipeline runs). When the prior run
     is aggregate-only ('all' pseudo-class), per-class prior cells are
     None — the UI renders those as '—'."""
-    cur = _STATE["current"]
+    st = _STATE if st is None else st
+    cur = st["current"]
     if cur is None:
         return {"available": False, "classes": []}
 
-    prior = _prior_snapshot(cur)
+    prior = _prior_snapshot(cur, st)
     after = _by_metric(cur, "after")
     before = _by_metric(prior, "after") if prior is not None else _by_metric(cur, "before")
 
@@ -704,7 +724,7 @@ def by_class() -> dict:
     }
 
 
-def comparison(period: str) -> dict:
+def comparison(period: str, st: Optional[dict] = None) -> dict:
     """Period-over-period comparison.
 
     daily   — preferred baseline is the most recent prior snapshot on
@@ -717,18 +737,19 @@ def comparison(period: str) -> dict:
     monthly — same logic, 30-day lookback. Returns awaiting=True if
               fewer than 30 daily runs are on disk.
     """
-    cur = _STATE["current"]
+    st = _STATE if st is None else st
+    cur = st["current"]
     if cur is None:
         return {"available": False, "period": period}
 
-    history = _STATE["history"]
+    history = st["history"]
 
     if period == "daily":
         # Pick the most recent prior snapshot as the day-over-day baseline.
         # If none exists, fall back to the in-file 'before' column (which is
         # what the original training pipeline reports against its own
         # previous checkpoint).
-        prior = _prior_snapshot(cur)
+        prior = _prior_snapshot(cur, st)
         after_overall = _overall(cur, "after")
         if prior is not None:
             before_overall = _overall(prior, "after")
@@ -811,7 +832,7 @@ def comparison(period: str) -> dict:
         }
 
     # Enough history available — compare to the snapshot from `window` days back.
-    baseline = _snapshot_at_or_before(cur.run_date, days_back=window)
+    baseline = _snapshot_at_or_before(cur.run_date, days_back=window, st=st)
     if baseline is None:
         return {
             "available": True,
@@ -877,7 +898,7 @@ def comparison(period: str) -> dict:
     }
 
 
-def history(period: str) -> dict:
+def history(period: str, st: Optional[dict] = None) -> dict:
     """Time-series of macro-averaged P/R/F1 across available runs.
 
     period controls only the lookback window (and the required minimum
@@ -885,14 +906,15 @@ def history(period: str) -> dict:
     we return whatever runs we actually have plus a `points_required`
     hint so the UI can show "1 of N captured".
     """
-    cur = _STATE["current"]
+    st = _STATE if st is None else st
+    cur = st["current"]
     if cur is None:
         return {"available": False, "period": period}
 
     points_required = {"daily": 14, "weekly": 8, "monthly": 6}.get(period, 14)
 
     series = []
-    for snap in _STATE["history"]:
+    for snap in st["history"]:
         ov = _overall(snap, "after")
         series.append({
             "run_date": snap.run_date,
@@ -905,19 +927,20 @@ def history(period: str) -> dict:
         "available": True,
         "period": period,
         "points": series,
-        "by_class": _by_class_history(),
+        "by_class": _by_class_history(st),
         "points_captured": len(series),
         "points_required": points_required,
     }
 
 
-def _by_class_history() -> list[dict]:
+def _by_class_history(st: Optional[dict] = None) -> list[dict]:
     """One time-series per class — the union of classes seen across all
     runs, in the order they first appeared. Missing cells stay null so
     the chart can break the line rather than draw through zero."""
+    st = _STATE if st is None else st
     seen: set[str] = set()
     order: list[str] = []
-    for snap in _STATE["history"]:
+    for snap in st["history"]:
         for c in _real_classes(snap):
             if c not in seen:
                 seen.add(c)
@@ -926,7 +949,7 @@ def _by_class_history() -> list[dict]:
     out: list[dict] = []
     for cls in order:
         pts: list[dict] = []
-        for snap in _STATE["history"]:
+        for snap in st["history"]:
             cell = _by_metric(snap, "after").get(cls, {})
             pts.append({
                 "run_date": snap.run_date,
@@ -949,10 +972,11 @@ def _previous_date_label(run_date: str, days_back: int) -> Optional[str]:
     return (d - timedelta(days=days_back)).isoformat()
 
 
-def _prior_snapshot(current: RunSnapshot) -> Optional[RunSnapshot]:
+def _prior_snapshot(current: RunSnapshot, st: Optional[dict] = None) -> Optional[RunSnapshot]:
     """Return the snapshot immediately before `current` in run_date order,
     or None if `current` is the oldest (or only) run on disk."""
-    history = _STATE["history"]
+    st = _STATE if st is None else st
+    history = st["history"]
     prior: Optional[RunSnapshot] = None
     for snap in history:
         if snap.run_date < current.run_date:
@@ -962,14 +986,15 @@ def _prior_snapshot(current: RunSnapshot) -> Optional[RunSnapshot]:
     return prior
 
 
-def _snapshot_at_or_before(run_date: str, days_back: int) -> Optional[RunSnapshot]:
+def _snapshot_at_or_before(run_date: str, days_back: int, st: Optional[dict] = None) -> Optional[RunSnapshot]:
+    st = _STATE if st is None else st
     try:
         target = datetime.fromisoformat(run_date).date() - timedelta(days=days_back)
     except ValueError:
         return None
     target_iso = target.isoformat()
     candidate: Optional[RunSnapshot] = None
-    for snap in _STATE["history"]:
+    for snap in st["history"]:
         if snap.run_date <= target_iso:
             candidate = snap
         else:
@@ -977,7 +1002,116 @@ def _snapshot_at_or_before(run_date: str, days_back: int) -> Optional[RunSnapsho
     return candidate
 
 
+# ─── LPR dataset (second store) ─────────────────────────────────────────────
+
+
+def _instance_counts_from_dataset(ds: Optional[DatasetSnapshot]) -> dict:
+    """Reshape a DatasetSnapshot's by_class list into the {cls: {train,val,total}}
+    dict RunSnapshot expects (per-class 'instances' column + overall weighting)."""
+    if ds is None:
+        return {}
+    return {
+        row["cls"]: {
+            "train": row.get("train", 0),
+            "val": row.get("val", 0),
+            "total": row.get("total", 0),
+        }
+        for row in ds.by_class
+    }
+
+
+def _load_lpr() -> None:
+    """(Re-)load the LPR pipeline runs from LPR_DATA_DIR into _LPR_STATE.
+
+    Metrics come from comparison_<date>_<time>.csv; dataset/instance counts and
+    run metadata come from the sibling class_mapping_<date>_<time>.txt — the
+    same text format the main AI-metrics tab parses (the LPR pipeline emits an
+    equivalent .json, but we read the .txt for consistency with that tab).
+    Every comparison file is kept as its own snapshot (LPR runs can share a
+    calendar date), sorted by wall-clock timestamp; the latest is `current`.
+    """
+    with _LPR_LOCK:
+        runs: list[tuple[str, RunSnapshot]] = []
+        datasets: list[tuple[str, DatasetSnapshot]] = []
+        if os.path.isdir(LPR_DATA_DIR):
+            names = sorted(os.listdir(LPR_DATA_DIR))
+            for name in names:
+                m = _LPR_COMPARISON_RE.match(name)
+                if not m:
+                    continue
+                y, mo, d, hh, mm, ss = m.groups()
+                run_date = f"{y}-{mo}-{d}"
+                ts_key = f"{y}{mo}{d}{hh}{mm}{ss}"
+                fallback_ts = f"{y}-{mo}-{d}T{hh}:{mm}:{ss}+00:00"
+                comp_path = os.path.join(LPR_DATA_DIR, name)
+                # Pair with the sibling class_mapping_<date>_<time>.txt.
+                ds: Optional[DatasetSnapshot] = None
+                for cand in names:
+                    if cand.endswith(".txt") and ts_key in cand.replace("_", ""):
+                        ds = _parse_class_mapping_txt(
+                            os.path.join(LPR_DATA_DIR, cand),
+                            fallback_run_date=run_date,
+                            fallback_ts=fallback_ts,
+                        )
+                        break
+                classes, metrics = _read_comparison_csv(comp_path)
+                snap = RunSnapshot(
+                    run_date=run_date,
+                    run_timestamp=ds.run_timestamp if ds else fallback_ts,
+                    run_name=ds.run_name if ds else None,
+                    model=ds.model if ds else None,
+                    classes=classes,
+                    metrics=metrics,
+                    instance_counts=_instance_counts_from_dataset(ds),
+                )
+                runs.append((ts_key, snap))
+                if ds is not None:
+                    datasets.append((ts_key, ds))
+        runs.sort(key=lambda t: t[0])
+        datasets.sort(key=lambda t: t[0])
+        history = [s for _, s in runs]
+        _LPR_STATE["history"] = history
+        _LPR_STATE["current"] = history[-1] if history else None
+        _LPR_STATE["dataset"] = [ds for _, ds in datasets]
+        _LPR_STATE["loaded_at"] = datetime.now(timezone.utc).isoformat()
+
+
+class _Store:
+    """Thin namespace binding the view functions to one state dict, so callers
+    can do ai_metrics.lpr.summary() etc. against an alternate dataset."""
+
+    def __init__(self, st: dict, loader):
+        self._st = st
+        self._loader = loader
+
+    def load(self) -> None:
+        self._loader()
+
+    def state(self) -> dict:
+        return state(self._st)
+
+    def summary(self) -> dict:
+        return summary(self._st)
+
+    def by_class(self) -> dict:
+        return by_class(self._st)
+
+    def comparison(self, period: str) -> dict:
+        return comparison(period, self._st)
+
+    def history(self, period: str) -> dict:
+        return history(period, self._st)
+
+    def dataset_by_date(self) -> dict:
+        return dataset_by_date(self._st)
+
+
+# LPR store exposed to main.py as ai_metrics.lpr.*
+lpr = _Store(_LPR_STATE, _load_lpr)
+
+
 # ─── Initial load on import ─────────────────────────────────────────────────
 
 
 load()
+_load_lpr()

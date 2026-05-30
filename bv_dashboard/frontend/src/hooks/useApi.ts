@@ -252,24 +252,26 @@ export function useVlmOne(id: string | null) {
 
 // ─── AI Model Metrics hooks ──────────────────────────────────────────────
 
-export function useAiSummary() {
-  return useFetch<AiSummary>('/api/ai_metrics/summary');
+// basePath selects the dataset: '/api/ai_metrics' (default) or '/api/lpr_metrics'.
+// Both serve identical response shapes, so the same hooks/types drive either tab.
+export function useAiSummary(basePath: string = '/api/ai_metrics') {
+  return useFetch<AiSummary>(`${basePath}/summary`);
 }
 
-export function useAiByClass() {
-  return useFetch<AiByClass>('/api/ai_metrics/by_class');
+export function useAiByClass(basePath: string = '/api/ai_metrics') {
+  return useFetch<AiByClass>(`${basePath}/by_class`);
 }
 
-export function useAiComparison(period: AiPeriod) {
-  return useFetch<AiComparison>(`/api/ai_metrics/comparison?period=${period}`);
+export function useAiComparison(period: AiPeriod, basePath: string = '/api/ai_metrics') {
+  return useFetch<AiComparison>(`${basePath}/comparison?period=${period}`);
 }
 
-export function useAiHistory(period: AiPeriod) {
-  return useFetch<AiHistory>(`/api/ai_metrics/history?period=${period}`);
+export function useAiHistory(period: AiPeriod, basePath: string = '/api/ai_metrics') {
+  return useFetch<AiHistory>(`${basePath}/history?period=${period}`);
 }
 
-export function useAiDataset() {
-  return useFetch<AiDataset>('/api/ai_metrics/dataset');
+export function useAiDataset(basePath: string = '/api/ai_metrics') {
+  return useFetch<AiDataset>(`${basePath}/dataset`);
 }
 
 // Streaming AI analysis

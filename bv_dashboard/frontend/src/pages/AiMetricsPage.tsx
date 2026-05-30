@@ -900,14 +900,18 @@ function DatasetByClassChart({ latest }: { latest: AiDatasetPoint | null }) {
 }
 
 // ─── Page header (self-contained — does NOT use TopNav) ─────────────
+type DataSource = 'ai_metrics' | 'lpr';
+
 function AiHeader({
-  runDate, model, runName, period, onPeriodChange,
+  runDate, model, runName, period, onPeriodChange, dataSource, onDataSourceChange,
 }: {
   runDate: string | undefined;
   model: string | null | undefined;
   runName: string | null | undefined;
   period: AiPeriod;
   onPeriodChange: (p: AiPeriod) => void;
+  dataSource: DataSource;
+  onDataSourceChange: (s: DataSource) => void;
 }) {
   return (
     <>
@@ -917,21 +921,45 @@ function AiHeader({
         height: 52, padding: '0 1.5rem',
         background: 'var(--s0)', borderBottom: '1px solid var(--border)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{
-            width: 22, height: 22, background: 'var(--blue)',
-            clipPath: 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)',
-          }} />
-          <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{
-              fontFamily: 'var(--cond)', fontSize: 15, fontWeight: 700,
-              letterSpacing: '0.12em', textTransform: 'uppercase',
-            }}>
-              AI Model Metrics — Training Pipeline
+              width: 22, height: 22, background: 'var(--blue)',
+              clipPath: 'polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)',
+            }} />
+            <div>
+              <div style={{
+                fontFamily: 'var(--cond)', fontSize: 15, fontWeight: 700,
+                letterSpacing: '0.12em', textTransform: 'uppercase',
+              }}>
+                AI Model Metrics — Training Pipeline
+              </div>
+              <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.05em' }}>
+                {model ?? '—'} · run {runName ?? '—'} · captured {runDate ?? '—'}
+              </div>
             </div>
-            <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.05em' }}>
-              {model ?? '—'} · run {runName ?? '—'} · captured {runDate ?? '—'}
-            </div>
+          </div>
+
+          {/* Dataset tabs — switch the whole page between the general model
+              metrics and the LPR fine-tuning pipeline. Left-aligned beside the title. */}
+          <div style={{ display: 'flex', gap: 6 }}>
+            {([['ai_metrics', 'AI Metrics'], ['lpr', 'LPR']] as const).map(([src, label]) => (
+              <button
+                key={src}
+                onClick={() => onDataSourceChange(src)}
+                style={{
+                  fontFamily: 'var(--cond)', fontSize: 11, fontWeight: 700,
+                  padding: '6px 16px', borderRadius: 3,
+                  background: dataSource === src ? 'var(--blue)' : 'transparent',
+                  border: `1px solid ${dataSource === src ? 'var(--blue)' : 'var(--border)'}`,
+                  color: dataSource === src ? '#fff' : 'var(--muted)',
+                  letterSpacing: '0.1em', cursor: 'pointer', transition: 'all .18s',
+                  textTransform: 'uppercase',
+                }}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -996,11 +1024,13 @@ function AiHeader({
 // ─── Page ───────────────────────────────────────────────────────────
 export default function AiMetricsPage() {
   const [period, setPeriod] = useState<AiPeriod>('daily');
-  const { data: summary } = useAiSummary();
-  const { data: comparison } = useAiComparison(period);
-  const { data: byClass } = useAiByClass();
-  const { data: history } = useAiHistory(period);
-  const { data: dataset } = useAiDataset();
+  const [dataSource, setDataSource] = useState<DataSource>('ai_metrics');
+  const basePath = dataSource === 'lpr' ? '/api/lpr_metrics' : '/api/ai_metrics';
+  const { data: summary } = useAiSummary(basePath);
+  const { data: comparison } = useAiComparison(period, basePath);
+  const { data: byClass } = useAiByClass(basePath);
+  const { data: history } = useAiHistory(period, basePath);
+  const { data: dataset } = useAiDataset(basePath);
 
   // Use comparison.by_class when available (real prior values); otherwise
   // synthesize zero-previous rows from the latest run so weekly/monthly
@@ -1038,6 +1068,8 @@ export default function AiMetricsPage() {
           runName={undefined}
           period={period}
           onPeriodChange={setPeriod}
+          dataSource={dataSource}
+          onDataSourceChange={setDataSource}
         />
         <div style={{ padding: 60, textAlign: 'center', color: 'var(--muted)' }}>
           <div style={{ fontSize: 18, marginBottom: 12, fontFamily: 'var(--cond)' }}>
@@ -1062,6 +1094,8 @@ export default function AiMetricsPage() {
         runName={summary?.run_name}
         period={period}
         onPeriodChange={setPeriod}
+        dataSource={dataSource}
+        onDataSourceChange={setDataSource}
       />
 
       {/* Headline cards */}
