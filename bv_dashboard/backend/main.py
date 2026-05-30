@@ -954,6 +954,61 @@ async def ai_metrics_reload(
     return ai_metrics.state()
 
 
+# ─── LPR model metrics ───────────────────────────────────────────────────────
+# Second dataset (data/lpr/), same response shapes as /api/ai_metrics/* — the
+# frontend reuses the identical types and renders them in a separate "LPR" tab.
+
+
+@app.get("/api/lpr_metrics/summary")
+def lpr_metrics_summary():
+    return ai_metrics.lpr.summary()
+
+
+@app.get("/api/lpr_metrics/by_class")
+def lpr_metrics_by_class():
+    return ai_metrics.lpr.by_class()
+
+
+@app.get("/api/lpr_metrics/comparison")
+def lpr_metrics_comparison(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.lpr.comparison(period)
+
+
+@app.get("/api/lpr_metrics/history")
+def lpr_metrics_history(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.lpr.history(period)
+
+
+@app.get("/api/lpr_metrics/state")
+def lpr_metrics_state():
+    return ai_metrics.lpr.state()
+
+
+@app.get("/api/lpr_metrics/dataset")
+def lpr_metrics_dataset():
+    return ai_metrics.lpr.dataset_by_date()
+
+
+@app.post("/api/lpr_metrics/reload")
+@rate_limit(_RELOAD_RATE)
+async def lpr_metrics_reload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    x_reload_token: Optional[str] = Header(default=None),
+):
+    """Re-read LPR pipeline metrics from disk. Same fail-closed token contract
+    as /api/ai_metrics/reload."""
+    expected = os.getenv("BV_RELOAD_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="reload disabled: set BV_RELOAD_TOKEN on the server to enable",
+        )
+    if not x_reload_token or not hmac.compare_digest(x_reload_token, expected):
+        raise HTTPException(status_code=401, detail="invalid reload token")
+    await run_in_threadpool(ai_metrics.lpr.load)
+    return ai_metrics.lpr.state()
+
+
 # ─── Live Brownsville feed ──────────────────────────────────────────────────
 @app.get("/api/feeds/status")
 def feeds_status():

@@ -1,0 +1,35 @@
+Class mapping  (2026-05-29T22:02:03+00:00)
+Run     : exp
+Model   : rtv2_r50vd_6x_coco
+Weights : /workspace/_staging/weights/rtv2_r50vd_6x_coco.pth
+Layout  : COCO 80-class (rtdetrv4 remap_mscoco_category)
+          Custom 7-class layout (person, bicycle, car, motorcycle, bus, truck, license_plate) with contiguous 1-indexed category_ids 1..7. The rtdetrv4 loader's remap_mscoco_category=True maps them to labels 0..6 (the first 7 entries of the built-in mscoco_category2label table happen to be {1:0, 2:1, ..., 7:6} so the standard mapping works as-is). The classifier head is initialised in main.py via preprocess_pretrained_weights(): 6 of 7 rows are copied from the COCO-80 pretrained head (person, bicycle, car, motorcycle, bus, truck); license_plate's row is fresh-initialised.
+
+VIA class name        →  COCO category_id
+────────────────────────────────────────────
+  person                1
+  bicycle               2
+  car                   3
+  motorcycle            4
+  bus                   5
+  truck                 6
+  license_plate         7
+
+Dropped class regions (no entry in mapping):
+                        15
+  traffic_sign          1
+
+Class instance counts (from COCO instances_*.json):
+  class                    train     val   total
+  ──────────────────────────────────────────────
+  person                     784     231    1015
+  bicycle                      3       2       5  ← very few instances
+  car                       3684     910    4594
+  motorcycle                   1       0       1  ← very few instances
+  bus                          3       2       5  ← very few instances
+  truck                       15       2      17
+  license_plate             1930     483    2413
+  ──────────────────────────────────────────────
+  total boxes               6420    1630    8050
+  image files                402     100     502
+    of which empty bg          3       0       3
