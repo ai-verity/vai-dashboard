@@ -227,6 +227,77 @@ def _map_location(feed_id: str) -> Optional[str]:
     return None
 
 
+# The bulk `dataset_*` feeds carry no location in the feed_id, but each frame's
+# image_name encodes the camera/area, e.g. "DPP_Pavilion_2_20260518T...jpg".
+# We strip the timestamp + trailing camera index and expand known site
+# abbreviations so the per-location charts show real places, not dataset dates.
+_IMG_EXT_RE = re.compile(r"\.(?:jpe?g|png)$", re.I)
+# Trailing timestamps appear in two formats across feeds:
+#   _20260518T093743Z…        (compact ISO — dataset feeds)
+#   _03-27-2026-01-40-00-am    (MM-DD-YYYY-HH-MM-SS-am/pm — verkada/bridge feeds)
+_IMG_TS_RES = [
+    re.compile(r"_\d{8}T\d{6}.*$"),
+    re.compile(r"_\d{2}-\d{2}-\d{4}-\d{2}-\d{2}-\d{2}-(?:am|pm)$", re.I),
+]
+# Camera-system noise prefixes that carry no location.
+_IMG_NOISE_PREFIX_RE = re.compile(r"^(?:mdn80i_b_verkada_|mdn80i_b_|verkada_)", re.I)
+# Generic bases with no location — fall back to the feed instead.
+_IMG_JUNK = {"frame", "image", "img", "snapshot", "capture", "photo", "video"}
+_IMG_LOC_ABBR = {
+    "dpp": "Dean Porter Park",
+    "dt":  "Downtown",
+    "lp":  "Linear Park",
+    "ap":  "Airport",
+}
+# Source-filename typos to correct in display labels.
+_IMG_TOKEN_FIXES = {"cemras": "cameras"}
+# Connector words kept lowercase (unless first) for natural-looking labels.
+# Note: "a" is intentionally excluded — it's a building designator here
+# ("Building A South"), not the article.
+_IMG_SMALL_WORDS = {"and", "of", "the", "at", "on", "in", "to", "for", "&"}
+
+
+def _cap_word(w: str) -> str:
+    """Capitalize a token for display, preserving acronyms (EPW), ordinals
+    (10th, 2nd) and symbols (#49, &)."""
+    if not w or any(c.isdigit() for c in w):
+        return w
+    if w.isupper() and len(w) > 1:
+        return w
+    return w[:1].upper() + w[1:].lower()
+
+
+def _location_from_image(image_name: Optional[str]) -> tuple[Optional[str], Optional[str]]:
+    """Derive (location_key, display_label) from a frame's image_name.
+
+    The bulk feeds encode the camera/area in the filename; we strip the
+    timestamp, camera-system prefix and trailing camera index, then expand
+    known site abbreviations. Returns (None, None) for names with no location
+    (e.g. "frame_080000.jpg") so callers fall back to the feed-based location.
+    """
+    if not image_name:
+        return None, None
+    base = _IMG_EXT_RE.sub("", image_name.strip())
+    for rx in _IMG_TS_RES:
+        base = rx.sub("", base)
+    base = _IMG_NOISE_PREFIX_RE.sub("", base)
+    base = re.sub(r"_\d+$", "", base).strip("_ ").strip()   # drop trailing camera index
+    if not base or base.lower() in _IMG_JUNK:
+        return None, None
+    parts = [p for p in base.split("_") if p]
+    first = parts[0].lower()
+    disp: list[str] = []
+    for i, w in enumerate(parts):
+        fixed = _IMG_TOKEN_FIXES.get(w.lower(), w)        # correct typos
+        if i > 0 and fixed.lower() in _IMG_SMALL_WORDS:   # lowercase connectors
+            disp.append(fixed.lower())
+        else:
+            disp.append(_cap_word(fixed))
+    if first in _IMG_LOC_ABBR:
+        disp[0] = _IMG_LOC_ABBR[first]
+    return base.lower(), " ".join(disp).strip()
+
+
 def _parse_answers(caption: str) -> dict[int, str]:
     out: dict[int, str] = {}
     for line in caption.splitlines():
@@ -1496,8 +1567,13 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
             bucket_keys.append(bucket)
         # Prefer the canonical location_id when available so a feed that
         # was relabelled doesn't fragment the location row.
-        loc_id = o.location_id or o.feed_id
-        loc_label[loc_id] = o.feed_label or loc_id
+        il_key, il_label = _location_from_image(o.image_name)
+        if il_key:
+            loc_id = il_key
+            loc_label[loc_id] = il_label
+        else:
+            loc_id = o.location_id or o.feed_id
+            loc_label[loc_id] = o.feed_label or loc_id
         counts[(bucket, loc_id)] = counts.get((bucket, loc_id), 0) + 1
 
     bucket_keys.sort()
@@ -1553,8 +1629,13 @@ def _aggregate_vehicles_by_period_location(rows: list[VlmObservation], period: s
         if bucket not in bucket_set:
             bucket_set.add(bucket)
             bucket_keys.append(bucket)
-        loc_id = o.location_id or o.feed_id
-        loc_label[loc_id] = o.feed_label or loc_id
+        il_key, il_label = _location_from_image(o.image_name)
+        if il_key:
+            loc_id = il_key
+            loc_label[loc_id] = il_label
+        else:
+            loc_id = o.location_id or o.feed_id
+            loc_label[loc_id] = o.feed_label or loc_id
         sums[(bucket, loc_id)] = sums.get((bucket, loc_id), 0) + n
 
     bucket_keys.sort()
@@ -1604,8 +1685,13 @@ def _aggregate_dumping_by_period_location(rows: list[VlmObservation], period: st
         if bucket not in bucket_set:
             bucket_set.add(bucket)
             bucket_keys.append(bucket)
-        loc_id = o.location_id or o.feed_id
-        loc_label[loc_id] = o.feed_label or loc_id
+        il_key, il_label = _location_from_image(o.image_name)
+        if il_key:
+            loc_id = il_key
+            loc_label[loc_id] = il_label
+        else:
+            loc_id = o.location_id or o.feed_id
+            loc_label[loc_id] = o.feed_label or loc_id
         counts[(bucket, loc_id)] = counts.get((bucket, loc_id), 0) + 1
 
     bucket_keys.sort()
@@ -1655,8 +1741,13 @@ def _aggregate_plates_by_period_location(rows: list[VlmObservation], period: str
         if bucket not in bucket_set:
             bucket_set.add(bucket)
             bucket_keys.append(bucket)
-        loc_id = o.location_id or o.feed_id
-        loc_label[loc_id] = o.feed_label or loc_id
+        il_key, il_label = _location_from_image(o.image_name)
+        if il_key:
+            loc_id = il_key
+            loc_label[loc_id] = il_label
+        else:
+            loc_id = o.location_id or o.feed_id
+            loc_label[loc_id] = o.feed_label or loc_id
         sums[(bucket, loc_id)] = sums.get((bucket, loc_id), 0) + o.plate_count
 
     bucket_keys.sort()
@@ -1711,8 +1802,13 @@ def _aggregate_people_by_period_location(rows: list[VlmObservation], period: str
         if bucket not in bucket_set:
             bucket_set.add(bucket)
             bucket_keys.append(bucket)
-        loc_id = o.location_id or o.feed_id
-        loc_label[loc_id] = o.feed_label or loc_id
+        il_key, il_label = _location_from_image(o.image_name)
+        if il_key:
+            loc_id = il_key
+            loc_label[loc_id] = il_label
+        else:
+            loc_id = o.location_id or o.feed_id
+            loc_label[loc_id] = o.feed_label or loc_id
         sums[(bucket, loc_id)] = sums.get((bucket, loc_id), 0) + o.pedestrian_count
 
     bucket_keys.sort()
