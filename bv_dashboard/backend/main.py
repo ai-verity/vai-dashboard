@@ -21,7 +21,7 @@ import json
 
 import vlm
 import ai_metrics
-import live_feed
+from agents import orchestrator as live_feed
 
 # Optional rate-limit. slowapi is only required for production deployments;
 # dev installs (fastapi + uvicorn + httpx + pydantic) work without it. When
@@ -120,6 +120,7 @@ INCIDENT_TYPES = [
     {"type": "Perimeter Breach",            "cat": "SECURITY", "icon": "🔓", "color": "#2DC9A8", "sev": 0.60},
     {"type": "Downed Powerlines",           "cat": "ENVIRON",  "icon": "⚡", "color": "#FDE047", "sev": 0.55},
     {"type": "Vehicle Theft",               "cat": "ORDER",    "icon": "🚗", "color": "#94A3B8", "sev": 0.48},
+    {"type": "Vehicle Accident",            "cat": "ORDER",    "icon": "💥", "color": "#FB923C", "sev": 0.60},
     {"type": "Drug Activity",               "cat": "ORDER",    "icon": "💊", "color": "#8B5CF6", "sev": 0.55},
     {"type": "Domestic Disturbance",        "cat": "VIOLENT",  "icon": "🏠", "color": "#FB7185", "sev": 0.72},
     {"type": "Officer-Involved Shooting",   "cat": "VIOLENT",  "icon": "🚔", "color": "#991B1B", "sev": 0.95},
@@ -397,14 +398,18 @@ def _compute_by_category() -> list[dict]:
 def _compute_by_location(top_n: int = 10) -> list[dict]:
     counts: dict = {}
     sev_sums: dict = {}
+    names: dict = {}
     for i in ALL_INCIDENTS:
         lid = i["location_id"]
         counts[lid] = counts.get(lid, 0) + 1
         sev_sums[lid] = sev_sums.get(lid, 0) + i["sev"]
+        # Remember a display name for ids not in the Brownsville LOC_MAP
+        # (live statewide incidents carry their own "City, TX" name).
+        names.setdefault(lid, i.get("location_name") or lid)
     top = sorted(counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
     result = []
     for lid, cnt in top:
-        loc = LOC_MAP.get(lid, {"name": lid, "icon": "📍"})
+        loc = LOC_MAP.get(lid, {"name": names.get(lid, lid), "icon": "📍"})
         result.append({
             "location_id":   lid,
             "location_name": loc["name"],
