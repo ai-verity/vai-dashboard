@@ -848,14 +848,25 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
         return None
     full_caption = row.get("full_caption") or ""
     preset = (row.get("preset") or "").strip()
-    # Feed id is normally the leading minio_key directory (the camera folder).
-    # The license_plate dataset instead nests every frame under a generic
-    # `input_data/frames/` prefix and encodes the real camera in the filename,
-    # so derive the feed from the filename for it (also unlocks location mapping).
-    if preset == _LPR_PRESET_RAW or minio_key.split("/")[0] in _GENERIC_KEY_DIRS:
+    # Resolve the camera/feed id from the minio_key. The pipeline nests frames as
+    #   <run-or-date-bucket>/<camera>/<frame>.jpg     (crowd / vehicle / dumping)
+    #   input_data/frames/<camera>_<timestamp>.jpg    (license_plate)
+    # so the leading segment is a dataset/date bucket, NOT a feed — the real
+    # camera is the middle path segment (or, for the generic LPR container, it's
+    # encoded in the filename). Keying off the leading segment used to collapse
+    # every "per-feed" view to run-dates ("Dataset 2026-05-18"), so derive the
+    # camera explicitly here.
+    _parts = minio_key.split("/") if minio_key else []
+    if preset == _LPR_PRESET_RAW or (_parts and _parts[0] in _GENERIC_KEY_DIRS):
         feed_id = _feed_from_filename(file_name) if file_name else "unknown"
+    elif len(_parts) >= 3:
+        feed_id = _parts[1]                       # <bucket>/<camera>/<frame>
+    elif len(_parts) == 2:
+        feed_id = _parts[0]                       # <camera>/<frame>
+    elif file_name:
+        feed_id = file_name.rsplit("_", 1)[0]
     else:
-        feed_id = minio_key.split("/")[0] if "/" in minio_key else (file_name.rsplit("_", 1)[0] if file_name else "unknown")
+        feed_id = "unknown"
     # Illegal-dumping captions use "KEY: value" lines; everything else uses
     # the numbered "1. answer" format. Picking the wrong parser would yield
     # an empty answers dict and silently blank the detail panel.
