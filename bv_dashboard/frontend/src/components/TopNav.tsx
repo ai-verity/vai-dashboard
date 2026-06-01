@@ -1,6 +1,7 @@
 // components/TopNav.tsx
 import { useState, useEffect } from 'react';
 import ThemeToggle from './ThemeToggle';
+import { useKpi } from '../hooks/useApi';
 
 type ViewKey = 'dashboard' | 'charts' | 'vlm';
 
@@ -9,8 +10,17 @@ interface Props {
   onViewChange: (v: ViewKey) => void;
 }
 
+// "2025-09-11" → "09-11-2025"
+function formatSince(iso: string | null | undefined): string | null {
+  if (!iso) return null;
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  return m ? `${m[2]}-${m[3]}-${m[1]}` : null;
+}
+
 export default function TopNav({ activeView, onViewChange }: Props) {
   const [clock, setClock] = useState('');
+  const { data: kpi } = useKpi();
+  const since = formatSince(kpi?.since);
 
   useEffect(() => {
     const tick = () => setClock(new Date().toLocaleTimeString('en-US', { hour12: false }));
@@ -39,7 +49,7 @@ export default function TopNav({ activeView, onViewChange }: Props) {
             Brownsville, TX — Public Safety Intelligence
           </div>
           <div style={{ fontSize: 9, color: 'var(--muted)', letterSpacing: '0.05em' }}>
-            Cameron County · Live feeds from 42 cameras · VLM ingest active
+            Cameron County · Live feeds from 42 cameras · VLM ingest active{since ? ` · Since ${since}` : ''}
           </div>
         </div>
       </div>

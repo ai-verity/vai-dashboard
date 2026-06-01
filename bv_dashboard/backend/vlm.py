@@ -207,7 +207,7 @@ def _humanize_feed(feed_id: str) -> str:
     m = _DATASET_TS_RE.match(feed_id)
     if m:
         y, mo, d = m.groups()
-        return f"Dataset {y}-{mo}-{d}"
+        return f"{y}-{mo}-{d}"
     s = feed_id
     for pfx in _FEED_PREFIXES:
         if s.startswith(pfx):
@@ -275,7 +275,18 @@ _POSITIVE_KW = {
 }
 # Negation marker — if present in the same answer text alongside a positive
 # keyword, we treat the answer as negative ("no weapons visible").
-_NEGATION_RE = re.compile(r"\b(no|not|none|zero|without|absence|absent)\b", re.I)
+# Negation / non-detection marker. A positive keyword (e.g. "weapon") alongside
+# any of these means the model did NOT actually detect the thing — it is saying
+# "no weapon", "weapons cannot be identified", "unable to determine ... due to
+# the image's distortion", etc. Without this the VLM's overwhelmingly common
+# "cannot be identified due to image quality" answers get counted as detections.
+_NEGATION_RE = re.compile(
+    r"\b(?:no|not|none|zero|without|absence|absent|cannot|can't|couldn't|unable|"
+    r"unclear|undetermined|unidentifiable|indiscernible|indeterminate)\b"
+    r"|could not\b|lack of\b|not (?:be )?(?:visible|identif\w*|determin\w*|discern\w*|detect\w*|clear|seen|confirm\w*)"
+    r"|due to (?:the )?(?:image|distort\w*|low|poor|blur\w*|pixel\w*|resolution|quality|lighting|angle|visibility|obstruct\w*|occlu\w*)"
+    r"|(?:image|low|poor)\s+(?:quality|resolution)|distort\w*|blurr\w*|pixelat\w*|obscured",
+    re.I)
 
 
 def _flag_yes(text: Optional[str], positive_re) -> bool:
@@ -377,7 +388,7 @@ def _ped_count(text: str) -> Optional[int]:
 _VEHICLE_POSITIVE_KW = {
     "speeding":    re.compile(r"\b(speeding|above (?:the )?(?:posted )?(?:speed )?limit|excessive speed|exceeds? (?:the )?speed)\b", re.I),
     "collision":   re.compile(r"\b(collide|collision|struck|crashed|impact)\b", re.I),
-    "fire_lane":   re.compile(r"\b(fire lane|emergency (?:access|corridor)|loading bay|no[- ]stopping zone)\b", re.I),
+    "fire_lane":   re.compile(r"\b(fire lane|emergency (?:access|corridor)|loading bay|no[- ](?:stopping|parking)(?: zone| area)?|restricted (?:area|zone)|closed (?:area|zone))\b", re.I),
     "erratic":     re.compile(r"\b(erratic|reverse|unexpected (?:maneuver|movement)|pursuit|threatening manner)\b", re.I),
     "near_person": re.compile(r"\b(crouching|crawling|passing by|near (?:the )?vehicle)\b", re.I),
     "tamper":      re.compile(r"\b(tamper|forced entry|breaking into|prying|jimmy|inconsistent with normal entry)\b", re.I),
@@ -406,6 +417,41 @@ def _vehicle_yes(text: Optional[str], positive_re=None) -> bool:
         return True
     if positive_re is not None and positive_re.search(t) and not _NEGATION_RE.search(t):
         return True
+    return False
+
+
+def _vehicle_flag(answers: dict[int, str], positive_re) -> bool:
+    """Topic-driven vehicle detection.
+
+    Returns True if ANY answer affirmatively mentions the topic keyword, search
+    independent of question-slot position. These CSVs' answer slots don't align
+    1:1 with the prompt order (e.g. the "wrong-way" slot actually carries
+    "person crouching near a vehicle" answers), so matching on content is far
+    more reliable than trusting a fixed slot + bare "Yes" prefix.
+
+    A "Yes …"-prefixed answer counts when the keyword is present (so positives
+    like "Yes, parked in a no-parking zone" aren't killed by the generic
+    negation check); otherwise the keyword must appear without a negation.
+    """
+    for a in answers.values():
+        if not a:
+            continue
+        t = str(a).strip()
+        m = positive_re.search(t)
+        if not m:
+            continue
+        low = t.lower()
+        if low in ("no", "none", "zero", "n/a") or \
+           low.startswith(("no ", "no.", "no,", "not ", "none", "zero")):
+            continue
+        # Drop the matched keyword before the negation check. A keyword that
+        # itself contains "no" (e.g. "no-parking zone") must not self-trigger
+        # negation, while a genuine "without <keyword>" still reads as negative —
+        # e.g. Q1's "operating safely, without erratic maneuvers or reverse
+        # movements" echoes the keywords but is NOT an erratic-maneuver event.
+        rest = t[:m.start()] + " " + t[m.end():]
+        if not _NEGATION_RE.search(rest):
+            return True
     return False
 
 
@@ -789,15 +835,18 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
     # Vehicle-prompts derived fields. Conversely, crowd_behavior frames
     # don't carry these — they stay False/None.
     if is_vehicle:
-        speeding = _vehicle_yes(answers.get(2), _VEHICLE_POSITIVE_KW["speeding"])
-        collision = _vehicle_yes(answers.get(3), _VEHICLE_POSITIVE_KW["collision"])
+        # Keyword-driven (slot-independent) so each flag reflects answers that
+        # actually mention its topic — the answer slots are misaligned in these
+        # CSVs, so reading a fixed slot mislabels signals.
+        speeding = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["speeding"])
+        collision = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["collision"])
         near_miss_count = _vehicle_count(answers.get(4))
-        fire_lane_violation = _vehicle_yes(answers.get(5), _VEHICLE_POSITIVE_KW["fire_lane"])
-        erratic_maneuver = _vehicle_yes(answers.get(6), _VEHICLE_POSITIVE_KW["erratic"])
-        person_near_vehicle = _vehicle_yes(answers.get(7), _VEHICLE_POSITIVE_KW["near_person"])
-        vehicle_tamper = _vehicle_yes(answers.get(8), _VEHICLE_POSITIVE_KW["tamper"])
-        wrong_way = _vehicle_yes(answers.get(9), _VEHICLE_POSITIVE_KW["wrong_way"])
-        building_contact = _vehicle_yes(answers.get(10), _VEHICLE_POSITIVE_KW["building"])
+        fire_lane_violation = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["fire_lane"])
+        erratic_maneuver = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["erratic"])
+        person_near_vehicle = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["near_person"])
+        vehicle_tamper = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["tamper"])
+        wrong_way = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["wrong_way"])
+        building_contact = _vehicle_flag(answers, _VEHICLE_POSITIVE_KW["building"])
         no_plate_count = _vehicle_count(answers.get(11))
         ped_struck_count = _vehicle_count(answers.get(15)) or 0
         ped_near_miss_count = _vehicle_count(answers.get(16)) or 0
@@ -1390,13 +1439,11 @@ def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
     """Stacked-by-incident-type counts per calendar month (YYYY-MM)."""
     by_month: dict[str, dict[str, int]] = {}
     for o in rows:
-        # Bucket by processed_at (when the VLM analyzed the frame), not
-        # captured_at (when the image was taken). The same VLM run can
-        # contain old recorded footage spanning weeks — bucketing by
-        # capture-time creates phantom older bars even though no ingest
-        # happened then. See the rolling-period charts below for the
-        # same fix.
-        ts = o.processed_at or o.captured_at
+        # Bucket by captured_at — the date in the output (when the footage was
+        # recorded) takes precedence over the file/processed date, so incidents
+        # land in the month they actually occurred. Falls back to processed_at
+        # only when captured_at is missing.
+        ts = o.captured_at or o.processed_at
         if not ts:
             continue
         try:
@@ -1418,12 +1465,12 @@ def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
 def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> dict:
     """Incident counts per (time-bucket, location). period ∈ {"week","month"}.
 
-    Buckets by `processed_at` (when the VLM run analyzed the frame) so the
-    chart reflects when we did the work, not when the underlying footage
-    was originally recorded. Falls back to captured_at when processed_at
-    is missing, so legacy rows still bucket somewhere instead of being
-    silently dropped. Limits to the top 10 locations by total to keep
-    the chart legible.
+    Buckets by `captured_at` — the date in the output (when the footage was
+    actually recorded) — which takes precedence over the file/processed date.
+    A run dated 05/26 can contain footage captured on 05/25 (or weeks earlier);
+    the chart should reflect when the incident occurred, not when the VLM ran.
+    Falls back to processed_at only when captured_at is missing. Limits to the
+    top 10 locations by total to keep the chart legible.
     """
     bucket_keys: list[str] = []
     bucket_set: set[str] = set()
@@ -1432,7 +1479,7 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
     for o in rows:
         if not _is_actionable(o):
             continue
-        ts = o.processed_at or o.captured_at
+        ts = o.captured_at or o.processed_at
         if not ts:
             continue
         try:
@@ -1634,10 +1681,11 @@ def _aggregate_people_by_period_location(rows: list[VlmObservation], period: str
     """Sum pedestrian_count per (time-bucket, location) — crowd_behavior only.
 
     Same bucketing rules as _aggregate_by_period_location (period in
-    {"week","month"}, bucket by processed_at, top 10 locations by total),
-    but the value summed is the per-frame pedestrian_count rather than a
-    frame count. Vehicle and illegal_dumping rows are skipped because
-    their pedestrian_count is always None.
+    {"week","month"}, bucket by captured_at — the output's recorded date —
+    falling back to processed_at; top 10 locations by total), but the value
+    summed is the per-frame pedestrian_count rather than a frame count.
+    Vehicle and illegal_dumping rows are skipped because their
+    pedestrian_count is always None.
     """
     bucket_keys: list[str] = []
     bucket_set: set[str] = set()
@@ -1648,7 +1696,7 @@ def _aggregate_people_by_period_location(rows: list[VlmObservation], period: str
             continue
         if not o.pedestrian_count or o.pedestrian_count <= 0:
             continue
-        ts = o.processed_at or o.captured_at
+        ts = o.captured_at or o.processed_at
         if not ts:
             continue
         try:
@@ -1689,7 +1737,7 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
     n = len(rows)
     if not n:
         return {
-            "total": 0, "feeds": 0, "runs": 0, "with_pedestrians": 0,
+            "total": 0, "feeds": 0, "runs": 0, "earliest": None, "with_pedestrians": 0,
             "imminent_threats": 0, "weapons": 0, "medical": 0, "fire_smoke": 0,
             "density": {}, "risk": {}, "loaded_at": loaded_at,
             "presets": {},
@@ -1786,8 +1834,11 @@ def _compute_stats_summary(rows: list[VlmObservation], loaded_at: Optional[str])
                 pt = p.get("plate_type")
                 if pt:
                     lpr_by_type[pt] = lpr_by_type.get(pt, 0) + 1
+    # Earliest run timestamp across all frames — "assessing since" date.
+    earliest = min((o.run_started_at for o in rows if o.run_started_at), default=None)
     return {
         "total": n, "feeds": len(feeds), "runs": len(runs),
+        "earliest": earliest,
         "with_pedestrians": with_peds,
         "imminent_threats": threats, "weapons": weapons, "medical": medical, "fire_smoke": fire,
         "density": density, "risk": risk,

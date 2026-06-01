@@ -212,13 +212,24 @@ const DUMPING_SECTION_ORDER = [
   'ENFORCEMENT',
 ];
 
-function StatCell({ label, value, color }: { label: string; value: number | string; color?: string }) {
+function StatCell({ label, value, color, sub }: { label: string; value: number | string; color?: string; sub?: string }) {
   return (
     <div style={{ background: 'var(--s0)', padding: '13px 16px' }}>
       <div style={{ fontFamily: 'var(--mono)', fontSize: '1.45rem', fontWeight: 500, lineHeight: 1.1, color: color ?? 'var(--text)' }}>{value}</div>
       <div style={{ fontSize: 8.5, color: 'var(--muted)', letterSpacing: '0.15em', textTransform: 'uppercase', marginTop: 4 }}>{label}</div>
+      {sub && <div style={{ fontFamily: 'var(--mono)', fontSize: 8.5, color: 'var(--muted)', opacity: 0.8, marginTop: 2 }}>{sub}</div>}
     </div>
   );
+}
+
+// Format an ISO timestamp as "Since MM-DD-YYYY" for the Total Frames cell.
+function sinceLabel(iso?: string | null): string | undefined {
+  if (!iso) return undefined;
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return undefined;
+  const mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const dd = String(d.getUTCDate()).padStart(2, '0');
+  return `Since ${mm}-${dd}-${d.getUTCFullYear()}`;
 }
 
 function Chip({ active, onClick, color, children }: { active?: boolean; onClick: () => void; color?: string; children: React.ReactNode }) {
@@ -249,7 +260,6 @@ function Badge({ color, children }: { color: string; children: React.ReactNode }
 }
 
 // ─── Aggregate charts ───────────────────────────────────────────────────────
-const RISK_KEYS = ['LOW', 'MODERATE', 'HIGH'] as const;
 const DENSITY_KEYS = ['SPARSE', 'MODERATE', 'DENSE'] as const;
 
 // Convert an ISO year+week (W1 = week containing Jan 4) into the Monday
@@ -301,75 +311,6 @@ const setupCv = setupCanvas;
 
 // HitRegion / useChartHover / ChartTooltip extracted to ../utils/chartHover
 // so AiMetricsPage can reuse the same plumbing.
-
-function HourRiskChart({ data }: { data: VlmAggregates['hour_risk'] }) {
-  const { tick } = useTheme();
-  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
-  const ref = useCanvas(cv => {
-    const g = setupCv(cv, 180);
-    if (!g) return;
-    const { ctx, W, H } = g;
-    const { MUTED, GRID } = chartColors();
-    const p = { l: 30, r: 10, t: 14, b: 28 };
-    const totals = data.map(r => r.LOW + r.MODERATE + r.HIGH);
-    const mx = Math.max(...totals, 1);
-    regions.current = [];
-    // grid
-    for (let i = 0; i <= 4; i++) {
-      const y = p.t + (H - p.t - p.b) * (1 - i / 4);
-      ctx.strokeStyle = GRID;
-      ctx.beginPath(); ctx.moveTo(p.l, y); ctx.lineTo(W - p.r, y); ctx.stroke();
-      ctx.fillStyle = MUTED;
-      ctx.font = '9px DM Mono, monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(String(Math.round(mx * i / 4)), p.l - 4, y + 3);
-    }
-    const bW = (W - p.l - p.r) / 24;
-    const colors: Record<string, string> = {
-      LOW: '#2DC9A8', MODERATE: '#F5B731', HIGH: '#EF4444',
-    };
-    data.forEach((row, h) => {
-      const x = p.l + h * bW + 1;
-      let yBase = H - p.b;
-      const barLabel = `Hour ${String(h).padStart(2, '0')}:00 UTC`;
-      RISK_KEYS.forEach(k => {
-        const n = (row[k as keyof typeof row] as number) || 0;
-        if (!n) return;
-        const hh = Math.max(1, (n / mx) * (H - p.t - p.b));
-        ctx.fillStyle = colors[k];
-        ctx.globalAlpha = 0.86;
-        ctx.fillRect(x, yBase - hh, bW - 2, hh);
-        ctx.globalAlpha = 1;
-        regions.current.push({
-          x, y: yBase - hh, w: bW - 2, h: hh,
-          label: k, value: n, color: colors[k], bar: barLabel,
-        });
-        yBase -= hh;
-      });
-      if (h % 3 === 0) {
-        ctx.fillStyle = MUTED;
-        ctx.font = '8px DM Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(String(h).padStart(2, '0'), x + bW / 2, H - 14);
-      }
-    });
-    RISK_KEYS.forEach((k, i) => {
-      const x = p.l + i * 78;
-      ctx.fillStyle = colors[k];
-      ctx.fillRect(x, H - 8, 8, 6);
-      ctx.fillStyle = MUTED;
-      ctx.font = '8px DM Mono, monospace';
-      ctx.textAlign = 'left';
-      ctx.fillText(k, x + 11, H - 2);
-    });
-  }, [data, tick]);
-  return (
-    <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
-      <canvas ref={ref} style={{ display: 'block', width: '100%', height: 180 }} />
-      <ChartTooltip hover={hover} />
-    </div>
-  );
-}
 
 function FeedDensityChart({ data }: { data: VlmAggregates['feed_density'] }) {
   const { tick } = useTheme();
@@ -1520,6 +1461,9 @@ export default function VlmPage() {
           <div style={{ fontFamily: 'var(--cond)', fontSize: 18, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             VLM Feed Observations
           </div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', marginTop: 4 }}>
+            {(stats?.total ?? 0).toLocaleString()} frames assessed{stats?.earliest ? ` · ${sinceLabel(stats?.earliest)}` : ''}
+          </div>
         </div>
         <button
           onClick={handleReload}
@@ -1560,7 +1504,7 @@ export default function VlmPage() {
           <StatCell label="Collisions" value={stats?.vehicle.collisions ?? 0} color={VEH_COLLISION} />
           <StatCell label="Speeding" value={stats?.vehicle.speeding ?? 0} color={VEH_SPEEDING} />
           <StatCell label="Fire-Lane" value={stats?.vehicle.fire_lane ?? 0} color={VEH_FIRE_LANE} />
-          <StatCell label="Wrong-Way" value={stats?.vehicle.wrong_way ?? 0} color={VEH_WRONG_WAY} />
+          <StatCell label="Person Near Vehicle" value={stats?.vehicle.person_near_vehicle ?? 0} color={VEH_WRONG_WAY} />
           <StatCell label="No-Plate Frames" value={stats?.vehicle.no_plate_frames ?? 0} color="var(--purple)" />
         </div>
       ) : isDumpingView ? (
@@ -1578,17 +1522,18 @@ export default function VlmPage() {
           <StatCell label="Unique Plates" value={stats?.plate.unique_plates ?? 0} color={LPR_TYPE} />
           <StatCell label="High Confidence" value={stats?.plate.high_confidence ?? 0} color="#22C55E" />
         </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-          <StatCell label="Total Frames" value={stats?.total ?? '—'} color="var(--accent)" />
-          <StatCell label="Feeds" value={stats?.feeds ?? '—'} color="var(--blue)" />
+      ) : isCrowdView ? (
+        // Crowd-only metrics (pedestrians, threats, weapons, medical, fire) are
+        // derived solely from crowd_behavior frames, so they live on this tab.
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <StatCell label="Crowd Frames" value={stats?.presets?.crowd_behavior ?? '—'} color="var(--accent)" sub={sinceLabel(stats?.earliest)} />
           <StatCell label="With Pedestrians" value={stats?.with_pedestrians ?? '—'} color="var(--teal)" />
           <StatCell label="Imminent Threats" value={stats?.imminent_threats ?? 0} color="var(--red)" />
           <StatCell label="Weapons" value={stats?.weapons ?? 0} color="var(--red)" />
           <StatCell label="Medical" value={stats?.medical ?? 0} color="var(--purple)" />
           <StatCell label="Fire / Smoke" value={stats?.fire_smoke ?? 0} color="var(--orange)" />
         </div>
-      )}
+      ) : null /* ALL view: per-type counts already live in the preset chips above */}
 
       {/* Cross-preset summary charts — visible regardless of which preset
           filter is active. Roll up incident-type breakdown by month and
@@ -1649,10 +1594,7 @@ export default function VlmPage() {
         </>
       ) : (
         <>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-            <ChartCard title="Hour-of-Day Risk Mix" sub="Stacked frames per UTC hour · LOW · MOD · MED · HIGH">
-              {aggregates ? <HourRiskChart data={aggregates.hour_risk} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
-            </ChartCard>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
             <ChartCard title="Per-Feed Density (top 10)" sub="Stacked share of SPARSE / MODERATE / DENSE per feed">
               {aggregates ? <FeedDensityChart data={aggregates.feed_density} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
             </ChartCard>
