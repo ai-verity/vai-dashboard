@@ -327,11 +327,15 @@ def _compute_kpi() -> dict:
     counts = {c: 0 for c in _CATS}
     sev_sum = 0.0
     critical = 0
+    earliest: Optional[str] = None
     for i in incs:
         counts[i["cat"]] = counts.get(i["cat"], 0) + 1
         sev_sum += i["sev"]
         if i["sev"] >= 0.75:
             critical += 1
+        d = i.get("date")
+        if d and (earliest is None or d < earliest):
+            earliest = d
     return {
         "total":     total,
         "violent":   counts["VIOLENT"],
@@ -342,6 +346,7 @@ def _compute_kpi() -> dict:
         "critical":  critical,
         "avg_daily": round(total / _TOTAL_DAYS, 2) if _TOTAL_DAYS else 0,
         "avg_sev":   round(sev_sum / total, 3) if total else 0,
+        "since":     earliest,
     }
 
 

@@ -30,6 +30,7 @@ export interface KpiData {
   critical: number;
   avg_daily: number;
   avg_sev: number;
+  since: string | null;
 }
 
 export interface MonthlyData {
@@ -286,6 +287,7 @@ export interface VlmStats {
   total: number;
   feeds: number;
   runs: number;
+  earliest: string | null;   // ISO ts of the earliest run — "assessing since"
   with_pedestrians: number;
   imminent_threats: number;
   weapons: number;
