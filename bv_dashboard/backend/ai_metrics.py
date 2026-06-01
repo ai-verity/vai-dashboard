@@ -1040,7 +1040,7 @@ def _load_lpr() -> None:
                 if not m:
                     continue
                 y, mo, d, hh, mm, ss = m.groups()
-                run_date = f"{y}-{mo}-{d}"
+                run_date = f"{y}-{mo}-{d} {hh}:{mm}"
                 ts_key = f"{y}{mo}{d}{hh}{mm}{ss}"
                 fallback_ts = f"{y}-{mo}-{d}T{hh}:{mm}:{ss}+00:00"
                 comp_path = os.path.join(LPR_DATA_DIR, name)

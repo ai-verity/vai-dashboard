@@ -943,7 +943,7 @@ function AiHeader({
           {/* Dataset tabs — switch the whole page between the general model
               metrics and the LPR fine-tuning pipeline. Left-aligned beside the title. */}
           <div style={{ display: 'flex', gap: 6 }}>
-            {([['ai_metrics', 'AI Metrics'], ['lpr', 'LPR']] as const).map(([src, label]) => (
+            {([['ai_metrics', 'People-Vehicle Detection'], ['lpr', 'LPR']] as const).map(([src, label]) => (
               <button
                 key={src}
                 onClick={() => onDataSourceChange(src)}
