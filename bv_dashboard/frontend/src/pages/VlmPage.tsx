@@ -1308,7 +1308,7 @@ export default function VlmPage() {
   const [page, setPage] = useState(0);
   const [feedId, setFeedId] = useState<string | undefined>();
   const [runId, setRunId] = useState<string | undefined>();
-  const [preset, setPreset] = useState<PresetFilter>('');
+  const [preset, setPreset] = useState<PresetFilter>('crowd_behavior');
   const [density, setDensity] = useState<string | undefined>();
   const [risk, setRisk] = useState<string | undefined>();
   const [elevatedRisk, setElevatedRisk] = useState(false);
@@ -1479,19 +1479,16 @@ export default function VlmPage() {
           which lens drives the strip / charts / filters below. */}
       <div style={{ padding: '8px 24px', borderBottom: '1px solid var(--border)', background: 'var(--s1)', display: 'flex', gap: 5, alignItems: 'center', flexWrap: 'wrap' }}>
         <span style={{ fontFamily: 'var(--cond)', fontSize: 10, fontWeight: 700, color: 'var(--muted)', letterSpacing: '0.12em', textTransform: 'uppercase', marginRight: 4 }}>Preset</span>
-        <Chip active={isAllView} onClick={() => switchPreset('')}>
-          ALL · {stats?.total ?? '—'}
-        </Chip>
-        <Chip active={isCrowdView} color="#2DC9A8" onClick={() => switchPreset(isCrowdView ? '' : 'crowd_behavior')}>
+        <Chip active={isCrowdView} color="#2DC9A8" onClick={() => switchPreset('crowd_behavior')}>
           CROWD BEHAVIOR · {stats?.presets?.crowd_behavior ?? 0}
         </Chip>
-        <Chip active={isVehicleView} color="#4A9EF5" onClick={() => switchPreset(isVehicleView ? '' : 'vehicle_prompts')}>
+        <Chip active={isVehicleView} color="#4A9EF5" onClick={() => switchPreset('vehicle_prompts')}>
           VEHICLE PROMPTS · {stats?.presets?.vehicle_prompts ?? 0}
         </Chip>
-        <Chip active={isDumpingView} color="#F97316" onClick={() => switchPreset(isDumpingView ? '' : 'illegal_dumping')}>
+        <Chip active={isDumpingView} color="#F97316" onClick={() => switchPreset('illegal_dumping')}>
           ILLEGAL DUMPING · {stats?.presets?.illegal_dumping ?? 0}
         </Chip>
-        <Chip active={isLprView} color={LPR_PLATE} onClick={() => switchPreset(isLprView ? '' : 'license_plate')}>
+        <Chip active={isLprView} color={LPR_PLATE} onClick={() => switchPreset('license_plate')}>
           LPR · {stats?.presets?.license_plate ?? 0}
         </Chip>
       </div>
@@ -1533,7 +1530,18 @@ export default function VlmPage() {
           <StatCell label="Medical" value={stats?.medical ?? 0} color="var(--purple)" />
           <StatCell label="Fire / Smoke" value={stats?.fire_smoke ?? 0} color="var(--orange)" />
         </div>
-      ) : null /* ALL view: per-type counts already live in the preset chips above */}
+      ) : (
+        // ALL view: preset-neutral breakdown so the strip describes every frame,
+        // not just the crowd subset (the per-preset charts/KPIs live on each tab).
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6,1fr)', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
+          <StatCell label="Total Frames" value={(stats?.total ?? 0).toLocaleString()} color="var(--accent)" sub={sinceLabel(stats?.earliest)} />
+          <StatCell label="Crowd" value={stats?.presets?.crowd_behavior ?? 0} color="#2DC9A8" />
+          <StatCell label="Vehicle" value={stats?.presets?.vehicle_prompts ?? 0} color="#4A9EF5" />
+          <StatCell label="Dumping" value={stats?.presets?.illegal_dumping ?? 0} color="#F97316" />
+          <StatCell label="LPR" value={stats?.presets?.license_plate ?? 0} color={LPR_PLATE} />
+          <StatCell label="Feeds" value={stats?.feeds ?? '—'} color="var(--blue)" />
+        </div>
+      )}
 
       {/* Cross-preset summary charts — visible regardless of which preset
           filter is active. Roll up incident-type breakdown by month and
@@ -1595,10 +1603,10 @@ export default function VlmPage() {
       ) : (
         <>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--border)', borderBottom: '1px solid var(--border)' }}>
-            <ChartCard title="Per-Feed Density (top 10)" sub="Stacked share of SPARSE / MODERATE / DENSE per feed">
+            <ChartCard title="Per-Feed Density (top 10)" sub={`Stacked share of SPARSE / MODERATE / DENSE per feed${isAllView ? ' · crowd subset' : ''}`}>
               {aggregates ? <FeedDensityChart data={aggregates.feed_density} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
             </ChartCard>
-            <ChartCard title="DENSE-Frame Share by Day" sub="Daily share of frames classified DENSE">
+            <ChartCard title="DENSE-Frame Share by Day" sub={`Daily share of frames classified DENSE${isAllView ? ' · crowd subset' : ''}`}>
               {aggregates ? <DailyDenseChart data={aggregates.daily_dense} /> : <div className="skeleton" style={{ width: '100%', height: 180 }} />}
             </ChartCard>
           </div>
