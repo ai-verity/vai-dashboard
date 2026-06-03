@@ -816,6 +816,165 @@ function SkeletonPanel({ title }: { title: string }) {
   );
 }
 
+// ─── Incident Explorer — count by location × type × month ─────────
+//
+// Interactive cross-tab over the same client-side incident set: pick any
+// combination of location, type and month, see the matching count and a
+// breakdown along whichever dimension you "group by". All in-memory, so it
+// updates instantly with no extra fetches.
+
+type GroupDim = 'type' | 'location' | 'month';
+
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// Turn a "YYYY-MM" key into a friendly "Mon YYYY" label; pass through anything
+// that doesn't parse so the UI never shows a blank.
+function fmtMonth(key: string) {
+  const [y, m] = key.split('-');
+  const idx = Number(m) - 1;
+  return MONTH_ABBR[idx] ? `${MONTH_ABBR[idx]} ${y}` : key;
+}
+
+function IncidentExplorer() {
+  const { incidents } = useIncidentsContext();
+  const [loc, setLoc] = useState('ALL');
+  const [type, setType] = useState('ALL');
+  const [month, setMonth] = useState('ALL');
+  const [groupBy, setGroupBy] = useState<GroupDim>('type');
+
+  const { locOptions, typeOptions, monthOptions } = useMemo(() => {
+    const L = new Set<string>(), T = new Set<string>(), M = new Set<string>();
+    for (const i of incidents) {
+      L.add(i.location_name); T.add(i.type); M.add(i.date.slice(0, 7));
+    }
+    return {
+      locOptions: [...L].sort(),
+      typeOptions: [...T].sort(),
+      monthOptions: [...M].sort().reverse(),
+    };
+  }, [incidents]);
+
+  const filtered = useMemo(() => incidents.filter(i =>
+    (loc === 'ALL' || i.location_name === loc) &&
+    (type === 'ALL' || i.type === type) &&
+    (month === 'ALL' || i.date.startsWith(month))
+  ), [incidents, loc, type, month]);
+
+  const breakdown = useMemo(() => {
+    const keyOf = (i: Incident) =>
+      groupBy === 'type' ? i.type : groupBy === 'location' ? i.location_name : i.date.slice(0, 7);
+    const m = new Map<string, { count: number; sev: number }>();
+    for (const i of filtered) {
+      const k = keyOf(i);
+      const e = m.get(k) ?? { count: 0, sev: 0 };
+      e.count += 1; e.sev = Math.max(e.sev, i.sev);
+      m.set(k, e);
+    }
+    return [...m.entries()]
+      .map(([label, v]) => ({ label, ...v }))
+      .sort((a, b) => (groupBy === 'month' ? a.label.localeCompare(b.label) : b.count - a.count));
+  }, [filtered, groupBy]);
+
+  const shown = breakdown.slice(0, 16);
+  const maxCount = Math.max(...shown.map(b => b.count), 1);
+  const dirty = loc !== 'ALL' || type !== 'ALL' || month !== 'ALL';
+
+  const sentence = `${filtered.length.toLocaleString()} ${type === 'ALL' ? '' : `“${type}” `}incident${filtered.length === 1 ? '' : 's'}`
+    + `${loc === 'ALL' ? ' across all locations' : ` at ${loc}`}`
+    + `${month === 'ALL' ? '' : ` in ${fmtMonth(month)}`}`;
+
+  const selStyle: React.CSSProperties = {
+    fontFamily: 'var(--mono)', fontSize: 10, padding: '4px 8px', borderRadius: 3,
+    border: '1px solid var(--border)', background: 'var(--s0)', color: 'var(--text)', maxWidth: 220,
+  };
+  const lblStyle: React.CSSProperties = {
+    fontFamily: 'var(--cond)', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
+    textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 4, display: 'block',
+  };
+
+  return (
+    <div style={S.panel}>
+      <div style={S.hdr}>
+        <div>
+          <div style={S.title}>Incident Explorer</div>
+          <div style={S.sub}>Count incidents by location · type · month</div>
+        </div>
+        <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: 9, color: 'var(--muted)' }}>group by</span>
+          {(['type', 'location', 'month'] as const).map(g => (
+            <button key={g} onClick={() => setGroupBy(g)} style={{
+              fontFamily: 'var(--mono)', fontSize: 9, padding: '4px 10px', borderRadius: 3, cursor: 'pointer',
+              background: groupBy === g ? 'rgba(74,158,245,0.12)' : 'transparent',
+              border: `1px solid ${groupBy === g ? 'var(--blue)' : 'var(--border)'}`,
+              color: groupBy === g ? 'var(--blue)' : 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em',
+            }}>{g}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={S.body}>
+        {/* Filters */}
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', alignItems: 'flex-end', marginBottom: 16 }}>
+          <div>
+            <label style={lblStyle}>Location</label>
+            <select value={loc} onChange={e => setLoc(e.target.value)} style={selStyle}>
+              <option value="ALL">All locations</option>
+              {locOptions.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={lblStyle}>Incident type</label>
+            <select value={type} onChange={e => setType(e.target.value)} style={selStyle}>
+              <option value="ALL">All types</option>
+              {typeOptions.map(o => <option key={o} value={o}>{o}</option>)}
+            </select>
+          </div>
+          <div>
+            <label style={lblStyle}>Month</label>
+            <select value={month} onChange={e => setMonth(e.target.value)} style={selStyle}>
+              <option value="ALL">All time</option>
+              {monthOptions.map(o => <option key={o} value={o}>{fmtMonth(o)}</option>)}
+            </select>
+          </div>
+          {dirty && (
+            <button onClick={() => { setLoc('ALL'); setType('ALL'); setMonth('ALL'); }} style={{
+              fontFamily: 'var(--mono)', fontSize: 9, padding: '5px 10px', borderRadius: 3, cursor: 'pointer',
+              background: 'rgba(232,93,47,0.10)', border: '1px solid var(--accent)', color: 'var(--accent)',
+            }}>Reset</button>
+          )}
+        </div>
+
+        {/* Count headline */}
+        <div style={{ fontFamily: 'var(--cond)', fontSize: 30, fontWeight: 700, lineHeight: 1 }}>
+          {filtered.length.toLocaleString()}
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4, marginBottom: 16 }}>{sentence}</div>
+
+        {/* Breakdown bars */}
+        <div style={{ fontFamily: 'var(--cond)', fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 8 }}>
+          Breakdown by {groupBy} {breakdown.length > 16 ? '(top 16)' : ''}
+        </div>
+        {shown.length === 0 ? (
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--muted)', padding: '12px 0' }}>
+            No incidents match the current filters.
+          </div>
+        ) : shown.map(row => {
+          const col = sevColor(row.sev);
+          const rowLabel = groupBy === 'month' ? fmtMonth(row.label) : row.label;
+          return (
+            <div key={row.label} style={{ display: 'grid', gridTemplateColumns: '170px 1fr 36px', gap: 10, alignItems: 'center', marginBottom: 5 }}>
+              <span style={{ fontSize: 10, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text)' }} title={rowLabel}>{rowLabel}</span>
+              <div style={{ background: 'var(--b2)', borderRadius: 2, height: 12 }}>
+                <div style={{ width: `${(row.count / maxCount) * 100}%`, height: '100%', background: col, borderRadius: 2, transition: 'width .3s' }} />
+              </div>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 11, color: 'var(--text)', textAlign: 'right' }}>{row.count}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function ChartsPage() {
   const [mode, setMode] = useState<Mode>('monthly');
   const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
@@ -876,7 +1035,12 @@ export default function ChartsPage() {
         {monthly ? <SeverityTrend data={monthly} /> : <SkeletonPanel title="Avg Severity Trend" />}
         {types ? <TypeRanking data={types} /> : <SkeletonPanel title="Incident Type Ranking" />}
 
-        {/* Row 4 — full-width searchable list, follows the chart's selection */}
+        {/* Row 4 — full-width interactive explorer: count by location × type × month */}
+        <div style={{ gridColumn: 'span 3' }}>
+          <IncidentExplorer />
+        </div>
+
+        {/* Row 5 — full-width searchable list, follows the chart's selection */}
         <div style={{ gridColumn: 'span 3' }}>
           <IncidentSearchList
             selectedLocation={selectedLocation}

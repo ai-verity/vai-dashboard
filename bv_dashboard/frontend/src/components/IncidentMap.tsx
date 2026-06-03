@@ -23,8 +23,16 @@ interface Props {
 
 export default function IncidentMap({ onSelect }: Props) {
   const [filter, setFilter] = useState<MapFilter>('all');
-  const incidents = useIncidentsForMap(filter);
+  const allIncidents = useIncidentsForMap(filter);
   const { data: locations } = useLocations();
+
+  // The live feed is statewide (Austin, Midland, …) but this is the Brownsville
+  // map: keep only incidents with finite coords inside the map's bounding box,
+  // so out-of-area items can't project off-screen and crowd out / blank the map.
+  const incidents = useMemo<Incident[]>(() => allIncidents.filter(i =>
+    Number.isFinite(i.lat) && Number.isFinite(i.lon) &&
+    i.lat >= LAT0 && i.lat <= LAT1 && i.lon >= LON0 && i.lon <= LON1
+  ), [allIncidents]);
 
   // Cluster incidents by location once per filter change instead of on
   // every render. The previous inline forEach + .find ran O(N*M) per render.
@@ -35,6 +43,21 @@ export default function IncidentMap({ onSelect }: Props) {
     }
     return out;
   }, [incidents]);
+
+  // Ranked monitored locations for the always-readable overlay panel — sidesteps
+  // the on-map label overlap in the dense downtown cluster. Active (with
+  // incidents) sites sort to the top; show the top 8.
+  const rankedLocations = useMemo(() => {
+    if (!locations) return [];
+    return locations
+      .map(loc => {
+        const incs = byLoc[loc.id] || [];
+        const cnt  = incs.length;
+        return { loc, cnt, col: cnt ? sevColor(Math.max(...incs.map(i => i.sev))) : '#9aa0aa' };
+      })
+      .sort((a, b) => b.cnt - a.cnt)
+      .slice(0, 8);
+  }, [locations, byLoc]);
 
   const buttons: Array<{ key: MapFilter; label: string }> = [
     { key: 'all', label: 'ALL' }, { key: 'violent', label: 'VIOLENT' },
@@ -55,7 +78,6 @@ export default function IncidentMap({ onSelect }: Props) {
         <path d="M40,285 Q180,265 320,295 Q430,315 580,282" fill="none" stroke="rgba(59,130,246,.12)" strokeWidth={3} />
         <line x1={600} y1={0} x2={600} y2={400} stroke="rgba(255,255,255,.04)" strokeWidth={8} />
         <line x1={0} y1={340} x2={700} y2={370} stroke="rgba(255,255,255,.03)" strokeWidth={5} />
-        <rect x={600} y={130} width={70} height={18} rx={3} fill="rgba(245,158,11,.06)" stroke="rgba(245,158,11,.2)" strokeWidth={1} />
         <line x1={215} y1={248} x2={188} y2={288} stroke="rgba(245,158,11,.28)" strokeWidth={5} />
 
         {/* Heat blobs */}
@@ -87,19 +109,48 @@ export default function IncidentMap({ onSelect }: Props) {
           );
         })}
 
-        {/* Location labels */}
+        {/* Monitored locations — a pin + haloed label for every primary site
+            (always shown, even with 0 incidents), so the key locations stay
+            readable over the heat blobs. The dark text halo (paint-order:stroke)
+            separates labels from the colored background. */}
         {locations?.map(loc => {
-          const cnt = (byLoc[loc.id] || []).length;
-          if (!cnt) return null;
-          const p = geo(loc.lat, loc.lon);
+          const incs = byLoc[loc.id] || [];
+          const cnt  = incs.length;
+          const col  = cnt ? sevColor(Math.max(...incs.map(i => i.sev))) : '#9aa0aa';
+          const p    = geo(loc.lat, loc.lon);
           return (
-            <text key={loc.id} x={p.x} y={p.y - 13} fontSize={8}
-              fill="rgba(216,213,204,.44)" textAnchor="middle" fontFamily="monospace">
-              {loc.name.split(' ').slice(0, 2).join(' ')}
-            </text>
+            <g key={loc.id} style={{ pointerEvents: 'none' }}>
+              <circle cx={p.x} cy={p.y} r={cnt ? 4 : 3} fill={col}
+                style={{ stroke: 'var(--bg)', strokeWidth: 1.5 }} />
+              <text x={p.x} y={p.y - 9} fontSize={9.5} textAnchor="middle"
+                style={{
+                  fill: 'var(--text)', stroke: 'var(--bg)', strokeWidth: 3,
+                  paintOrder: 'stroke', fontFamily: 'var(--mono)', fontWeight: 600,
+                  opacity: cnt ? 1 : 0.6,
+                }}>
+                {loc.name.split(' ').slice(0, 2).join(' ')}{cnt ? ` · ${cnt}` : ''}
+              </text>
+            </g>
           );
         })}
       </svg>
+
+      {/* Monitored-locations panel — always-readable ranked list (name · count),
+          so primary sites are legible even where on-map labels overlap. Anchored
+          bottom-right (the only free corner) so it grows upward and leaves the
+          map's denser center/left area unobscured. */}
+      <div style={{ position: 'absolute', bottom: 10, right: 10, background: 'var(--overlay-bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '9px 11px', maxWidth: 210 }}>
+        <div style={{ fontSize: 8, color: 'var(--muted)', letterSpacing: '0.12em', marginBottom: 6, fontFamily: 'var(--mono)' }}>MONITORED LOCATIONS</div>
+        {rankedLocations.map(({ loc, cnt, col }) => (
+          <div key={loc.id} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3, fontSize: 9 }}>
+            <div style={{ width: 7, height: 7, borderRadius: '50%', background: col, flexShrink: 0 }} />
+            <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--text)' }}>
+              {loc.icon} {loc.name}
+            </span>
+            <span style={{ fontFamily: 'var(--mono)', color: cnt ? 'var(--text)' : 'var(--muted)' }}>{cnt}</span>
+          </div>
+        ))}
+      </div>
 
       {/* Legend */}
       <div style={{ position: 'absolute', top: 10, right: 10, background: 'var(--overlay-bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '9px 11px' }}>
