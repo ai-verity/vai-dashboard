@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { CAT_META } from '../types';
 import type { Category } from '../types';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
+import { useChartHover, ChartTooltip } from '../utils/chartHover';
 
 const CATS: Category[] = ['VIOLENT', 'HEALTH', 'ENVIRON', 'ORDER', 'SECURITY'];
 const COLORS = ['#EF4444', '#A78BFA', '#4A9EF5', '#F5B731', '#2DC9A8'];
@@ -12,6 +13,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
 export default function MiniTimeline() {
   const { data, loading } = useMonthly();
   const { tick } = useTheme();
+  const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
 
   const canvasRef = useCanvas(cv => {
     if (!data) return;
@@ -34,6 +36,7 @@ export default function MiniTimeline() {
     // legend; the legend now lives in HTML above the canvas (see the
     // return value below).
     const bW = ((W - 32) / MONTHS.length) * 0.58;
+    regions.current = [];
     MONTHS.forEach((m, mi) => {
       const x = 16 + (mi * (W - 32)) / MONTHS.length + (((W - 32) / MONTHS.length) * 0.21);
       let yBase = H - 20;
@@ -45,6 +48,10 @@ export default function MiniTimeline() {
         ctx.globalAlpha = 0.8;
         ctx.fillRect(x, yBase - hh, bW, hh);
         ctx.globalAlpha = 1;
+        regions.current.push({
+          x, y: yBase - hh, w: bW, h: hh,
+          label: CAT_META[cat].label, value: n, color: COLORS[ci], bar: m,
+        });
         yBase -= hh;
       });
       ctx.fillStyle = MUTED;
@@ -85,10 +92,13 @@ export default function MiniTimeline() {
           </div>
         ))}
       </div>
-      <canvas
-        ref={canvasRef}
-        style={{ display: 'block', width: '100%', height: 128 }}
-      />
+      <div style={{ position: 'relative' }} onMouseMove={onMouseMove} onMouseLeave={onMouseLeave}>
+        <canvas
+          ref={canvasRef}
+          style={{ display: 'block', width: '100%', height: 128 }}
+        />
+        <ChartTooltip hover={hover} />
+      </div>
     </div>
   );
 }

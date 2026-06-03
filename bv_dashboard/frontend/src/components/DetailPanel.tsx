@@ -75,7 +75,6 @@ export default function DetailPanel({ incident }: Props) {
           border: '1px solid rgba(232,93,47,0.14)',
           borderRadius: 5, padding: 11,
         }}>
-          <div style={{ fontSize: 8, color: 'var(--accent)', letterSpacing: '0.14em', marginBottom: 7, fontFamily: 'var(--mono)' }}>⬡ GRAPH-RAG ANALYSIS</div>
           <div style={{ fontSize: 10.5, lineHeight: 1.7, color: '#a09d98' }}>
             {aiLoading && !aiText
               ? <><span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>Analyzing</span><span style={{ display: 'inline-block', width: 5, height: 10, background: 'var(--accent)', animation: 'cur .9s step-end infinite', verticalAlign: 'middle', marginLeft: 2 }} /></>

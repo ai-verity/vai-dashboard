@@ -20,9 +20,11 @@ interface IncidentsContextValue {
 
 const IncidentsContext = createContext<IncidentsContextValue | null>(null);
 
-// Fetch a full working set once. Backend caps `limit` at 1000; 500 is the
-// established upper bound used by IncidentMap pre-refactor.
-const FETCH_PARAMS = { limit: 500 } as const;
+// Fetch a full working set once. Backend caps `limit` at 1000. We fetch the
+// max because the live feed is statewide and sorted newest-first — a smaller
+// window can be dominated by out-of-area items, pushing Brownsville incidents
+// (which the map filters to its bounding box) out of range.
+const FETCH_PARAMS = { limit: 1000 } as const;
 
 export function IncidentsProvider({ children }: { children: ReactNode }) {
   const { data, loading, error, refetch } = useIncidents(FETCH_PARAMS);
