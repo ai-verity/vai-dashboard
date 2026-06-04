@@ -328,14 +328,30 @@ def _compute_kpi() -> dict:
     sev_sum = 0.0
     critical = 0
     earliest: Optional[str] = None
+    latest: Optional[str] = None
     for i in incs:
         counts[i["cat"]] = counts.get(i["cat"], 0) + 1
         sev_sum += i["sev"]
         if i["sev"] >= 0.75:
             critical += 1
         d = i.get("date")
-        if d and (earliest is None or d < earliest):
-            earliest = d
+        if d:
+            if earliest is None or d < earliest:
+                earliest = d
+            if latest is None or d > latest:
+                latest = d
+    # avg_daily denominator = days spanned from the project start anchor
+    # (2026-01-01, same as the monthly chart window) through the latest
+    # incident — computed live so it tracks the current month, while a rare
+    # pre-2026 outlier can't stretch the denominator.
+    span_days = _TOTAL_DAYS
+    if latest:
+        start_anchor = min(MONTH_DAYS) + "-01"   # "2026-01-01"
+        span_start = start_anchor if (not earliest or earliest < start_anchor) else earliest
+        try:
+            span_days = max((datetime.fromisoformat(latest) - datetime.fromisoformat(span_start)).days + 1, 1)
+        except ValueError:
+            pass
     return {
         "total":     total,
         "violent":   counts["VIOLENT"],
@@ -344,15 +360,36 @@ def _compute_kpi() -> dict:
         "order":     counts["ORDER"],
         "security":  counts["SECURITY"],
         "critical":  critical,
-        "avg_daily": round(total / _TOTAL_DAYS, 2) if _TOTAL_DAYS else 0,
+        "avg_daily": round(total / span_days, 2) if span_days else 0,
         "avg_sev":   round(sev_sum / total, 3) if total else 0,
         "since":     earliest,
     }
 
 
+def _month_range(start_ym: str, end_ym: str) -> list[str]:
+    """Contiguous YYYY-MM list from start_ym through end_ym (inclusive)."""
+    y, m = int(start_ym[:4]), int(start_ym[5:7])
+    ey, em = int(end_ym[:4]), int(end_ym[5:7])
+    out: list[str] = []
+    while (y, m) <= (ey, em):
+        out.append(f"{y:04d}-{m:02d}")
+        m += 1
+        if m > 12:
+            m, y = 1, y + 1
+    return out
+
+
 def _compute_monthly() -> list[dict]:
+    # Dynamic month window: contiguous from the project start (earliest
+    # MONTH_DAYS key, 2026-01) through the latest month that actually has
+    # incidents — so the current month (e.g. June, fed by the live feed)
+    # appears automatically. Incidents before the start anchor (rare
+    # mis-dated live items) are excluded so the axis stays clean.
+    start_ym = min(MONTH_DAYS)
+    present = [i["date"][:7] for i in ALL_INCIDENTS if i["date"][:7] >= start_ym]
+    end_ym = max(present) if present else max(MONTH_DAYS)
     by_month: dict[str, dict] = {}
-    for ym in MONTH_DAYS:
+    for ym in _month_range(start_ym, end_ym):
         by_month[ym] = {
             "month": ym, "label": ym[5:], "total": 0, "_sev_sum": 0.0,
             **{c.lower(): 0 for c in _CATS},
