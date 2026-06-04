@@ -8,17 +8,25 @@ import type {
   AiSummary, AiByClass, AiComparison, AiHistory, AiPeriod, AiDataset,
 } from '../types';
 
-function useFetch<T>(url: string) {
+// Auto-refresh interval (ms) for VLM data, so an upload / re-ingest shows up in
+// the dashboard without a manual page reload. Tune here; 0 would disable it.
+const VLM_POLL_MS = 30_000;
+
+function useFetch<T>(url: string, pollMs = 0) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const fetch_ = useCallback(async () => {
+  // A `silent` refetch (used by polling) refreshes data in place without
+  // flipping `loading` back on — so a routine background refresh swaps in newer
+  // data instead of flashing a skeleton. Manual refetch() stays non-silent.
+  const fetch_ = useCallback(async (silent: boolean = false) => {
+    const isSilent = silent === true;  // guard against being used as an event handler
     if (abortRef.current) abortRef.current.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
-    setLoading(true);
+    if (!isSilent) setLoading(true);
     setError(null);
     try {
       const r = await fetch(`${API_BASE}${url}`, { signal: ctrl.signal });
@@ -29,7 +37,7 @@ function useFetch<T>(url: string) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       setError(e instanceof Error ? e.message : String(e));
     } finally {
-      if (!ctrl.signal.aborted) setLoading(false);
+      if (!ctrl.signal.aborted && !isSilent) setLoading(false);
     }
   }, [url]);
 
@@ -37,6 +45,14 @@ function useFetch<T>(url: string) {
     fetch_();
     return () => { abortRef.current?.abort(); };
   }, [fetch_]);
+
+  // Optional background polling: silently refetch on an interval so newly
+  // uploaded / re-ingested data appears without a manual page refresh.
+  useEffect(() => {
+    if (!pollMs) return;
+    const id = setInterval(() => fetch_(true), pollMs);
+    return () => clearInterval(id);
+  }, [pollMs, fetch_]);
 
   return { data, loading, error, refetch: fetch_ };
 }
@@ -165,11 +181,12 @@ export function useVlmList(params: VlmListParams = {}) {
   const abortRef = useRef<AbortController | null>(null);
   const paramsKey = JSON.stringify(params);
 
-  const fetch_ = useCallback(async () => {
+  const fetch_ = useCallback(async (silent: boolean = false) => {
+    const isSilent = silent === true;
     if (abortRef.current) abortRef.current.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
-    setLoading(true);
+    if (!isSilent) setLoading(true);
     setError(null);
     const q = new URLSearchParams();
     Object.entries(params).forEach(([k, v]) => {
@@ -185,7 +202,7 @@ export function useVlmList(params: VlmListParams = {}) {
       if (e instanceof DOMException && e.name === 'AbortError') return;
       setError(e instanceof Error ? e.message : String(e));
     } finally {
-      if (!ctrl.signal.aborted) setLoading(false);
+      if (!ctrl.signal.aborted && !isSilent) setLoading(false);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paramsKey]);
@@ -195,23 +212,29 @@ export function useVlmList(params: VlmListParams = {}) {
     return () => { abortRef.current?.abort(); };
   }, [fetch_]);
 
+  // Silently re-poll the list so freshly ingested observations appear live.
+  useEffect(() => {
+    const id = setInterval(() => fetch_(true), VLM_POLL_MS);
+    return () => clearInterval(id);
+  }, [fetch_]);
+
   return { data, loading, error, refetch: fetch_ };
 }
 
 export function useVlmFeeds() {
-  return useFetch<{ feeds: VlmFeed[]; load: { loaded_at: string | null; row_count: number; files: Array<{ name: string; rows: number }> } }>('/api/vlm/feeds');
+  return useFetch<{ feeds: VlmFeed[]; load: { loaded_at: string | null; row_count: number; files: Array<{ name: string; rows: number }> } }>('/api/vlm/feeds', VLM_POLL_MS);
 }
 
 export function useVlmStats() {
-  return useFetch<VlmStats>('/api/vlm/stats');
+  return useFetch<VlmStats>('/api/vlm/stats', VLM_POLL_MS);
 }
 
 export function useVlmAggregates() {
-  return useFetch<VlmAggregates>('/api/vlm/aggregates');
+  return useFetch<VlmAggregates>('/api/vlm/aggregates', VLM_POLL_MS);
 }
 
 export function useVlmRuns() {
-  return useFetch<VlmRun[]>('/api/vlm/runs');
+  return useFetch<VlmRun[]>('/api/vlm/runs', VLM_POLL_MS);
 }
 
 export function useVlmPrompts() {

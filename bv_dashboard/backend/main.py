@@ -10,7 +10,7 @@ import os
 import random
 from datetime import datetime
 from typing import Optional
-from fastapi import FastAPI, Header, HTTPException, Query, Request
+from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from fastapi.staticfiles import StaticFiles
@@ -71,6 +71,15 @@ else:
 
 _ANALYZE_RATE = os.getenv("BV_ANALYZE_RATE", "20/minute")
 _RELOAD_RATE  = os.getenv("BV_RELOAD_RATE",  "5/minute")
+
+# Max accepted size for an uploaded CSV (MB). Existing batches are ~10MB; the
+# default cap is generous but bounds the disk-write + re-parse DoS surface.
+_UPLOAD_MAX_BYTES = int(os.getenv("BV_UPLOAD_MAX_MB", "100")) * 1024 * 1024
+# Columns the VLM parser depends on; a CSV missing any of these is rejected
+# before it is written, so we never persist a file load_all() can't use.
+_REQUIRED_CSV_COLS = {"run_id", "preset", "full_caption"}
+# Columns the model-metrics parser (ai_metrics._read_comparison_csv) depends on.
+_REQUIRED_METRICS_COLS = {"class", "metric", "after"}
 
 # ─── CONSTANTS ───────────────────────────────────────────────────────────────
 LOCATIONS = [
@@ -824,6 +833,99 @@ async def vlm_reload(
     return info
 
 
+async def _accept_csv_upload(file, dest_dir, required_cols, filename_res=()):
+    """Validate and atomically persist an uploaded CSV into ``dest_dir``.
+
+    Shared by the dataset upload endpoints. Returns ``(saved_name, byte_size)``;
+    raises HTTPException on any validation failure and never leaves a temp file
+    behind. The caller triggers the dataset-specific reload afterwards.
+
+    NOTE: these upload endpoints are intentionally OPEN (no token) for now —
+    anyone who can reach them can write files and trigger a re-parse. Re-add the
+    BV_RELOAD_TOKEN / X-Reload-Token gate (see /api/vlm/reload) before exposing
+    the server beyond a trusted network.
+
+    Steps: strip path components + require .csv (so a name can't escape the data
+    dir); reject names that won't match a loader's pattern; stream to a temp file
+    with a size cap; verify the header has the columns the parser needs; then
+    os.replace() into place so the loader never sees a partial file.
+    """
+    name = os.path.basename(file.filename or "")
+    if not name.lower().endswith(".csv"):
+        raise HTTPException(status_code=400, detail="file must be a .csv")
+    if filename_res and not any(r.match(name) for r in filename_res):
+        raise HTTPException(
+            status_code=400,
+            detail="filename does not match an accepted pattern for this dataset",
+        )
+    dest = os.path.join(dest_dir, name)
+    if os.path.dirname(os.path.abspath(dest)) != os.path.abspath(dest_dir):
+        raise HTTPException(status_code=400, detail="invalid filename")
+
+    os.makedirs(dest_dir, exist_ok=True)
+    tmp = dest + ".uploading"
+    size = 0
+    try:
+        with open(tmp, "wb") as out:
+            while True:
+                chunk = await file.read(1 << 20)  # 1 MiB
+                if not chunk:
+                    break
+                size += len(chunk)
+                if size > _UPLOAD_MAX_BYTES:
+                    raise HTTPException(
+                        status_code=413,
+                        detail=f"file exceeds {_UPLOAD_MAX_BYTES // (1024 * 1024)} MB limit",
+                    )
+                out.write(chunk)
+        if size == 0:
+            raise HTTPException(status_code=400, detail="empty file")
+
+        with open(tmp, "r", encoding="utf-8", newline="") as fh:
+            header = fh.readline().lstrip("﻿")  # tolerate a UTF-8 BOM
+        cols = {c.strip() for c in header.rstrip("\r\n").split(",")}
+        missing = required_cols - cols
+        if missing:
+            raise HTTPException(
+                status_code=400,
+                detail=f"CSV missing required column(s): {', '.join(sorted(missing))}",
+            )
+
+        os.replace(tmp, dest)  # atomic — the file appears complete in one step
+    except Exception:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+    return name, size
+
+
+@app.post("/api/vlm/upload")
+@rate_limit(_RELOAD_RATE)
+async def vlm_upload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    file: UploadFile = File(...),
+):
+    """Upload a VLM caption CSV into data/vlm_outputs/ and re-ingest it.
+
+    On success the whole VLM dataset is reloaded — identical to a fresh restart
+    — and a short summary is returned. Open (no token); see _accept_csv_upload.
+    """
+    name, size = await _accept_csv_upload(file, vlm.DATA_DIR, _REQUIRED_CSV_COLS)
+    info = await run_in_threadpool(vlm.load_all)
+    saved = next((f for f in info["files"] if f["name"] == name), None)
+    logger.info(
+        "vlm upload: saved %s (%d bytes); reloaded %d observations from %d file(s)",
+        name, size, info["row_count"], len(info["files"]),
+    )
+    return {
+        "filename": name,
+        "bytes": size,
+        "rows_in_file": (saved or {}).get("rows", 0),
+        "total_rows": info["row_count"],
+        "file_count": len(info["files"]),
+    }
+
+
 @app.get("/api/vlm/{obs_id}")
 def vlm_one(obs_id: str):
     o = vlm.get_observation(obs_id)
@@ -1001,6 +1103,29 @@ async def ai_metrics_reload(
     return ai_metrics.state()
 
 
+@app.post("/api/ai_metrics/upload")
+@rate_limit(_RELOAD_RATE)
+async def ai_metrics_upload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    file: UploadFile = File(...),
+):
+    """Upload an AI-model-metrics comparison CSV into data/ai_model_metrics/
+    and re-ingest it. Open (no token), like /api/vlm/upload.
+
+    The loader selects files by name, so the upload is rejected unless it
+    matches an accepted comparison-file pattern (e.g. comparison_YYYYMMDD.csv or
+    compare_YYYYMMDD_HHMMSS_comparison.csv) — otherwise it would land on disk
+    but never load.
+    """
+    name, size = await _accept_csv_upload(
+        file, ai_metrics.DATA_DIR, _REQUIRED_METRICS_COLS,
+        filename_res=ai_metrics.HISTORY_FILE_RES,
+    )
+    await run_in_threadpool(ai_metrics.load)
+    logger.info("ai_metrics upload: saved %s (%d bytes); reloaded", name, size)
+    return {"filename": name, "bytes": size, "state": ai_metrics.state()}
+
+
 # ─── LPR model metrics ───────────────────────────────────────────────────────
 # Second dataset (data/lpr/), same response shapes as /api/ai_metrics/* — the
 # frontend reuses the identical types and renders them in a separate "LPR" tab.
@@ -1054,6 +1179,25 @@ async def lpr_metrics_reload(
         raise HTTPException(status_code=401, detail="invalid reload token")
     await run_in_threadpool(ai_metrics.lpr.load)
     return ai_metrics.lpr.state()
+
+
+@app.post("/api/lpr_metrics/upload")
+@rate_limit(_RELOAD_RATE)
+async def lpr_metrics_upload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    file: UploadFile = File(...),
+):
+    """Upload an LPR metrics comparison CSV into data/lpr/ and re-ingest it.
+    Open (no token). Filename must match comparison_YYYYMMDD_HHMMSS.csv — the
+    only shape the LPR loader recognizes.
+    """
+    name, size = await _accept_csv_upload(
+        file, ai_metrics.LPR_DATA_DIR, _REQUIRED_METRICS_COLS,
+        filename_res=ai_metrics.LPR_COMPARISON_RES,
+    )
+    await run_in_threadpool(ai_metrics.lpr.load)
+    logger.info("lpr_metrics upload: saved %s (%d bytes); reloaded", name, size)
+    return {"filename": name, "bytes": size, "state": ai_metrics.lpr.state()}
 
 
 # ─── Live Brownsville feed ──────────────────────────────────────────────────
