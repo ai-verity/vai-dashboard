@@ -65,6 +65,12 @@ _HISTORY_FILE_RES = (
     re.compile(r"^comparison-[A-Za-z0-9_]+-(\d{4})(\d{2})(\d{2})\.csv$"),
 )
 
+# Public aliases of the accepted comparison-file name patterns, so the upload
+# API can reject a mis-named CSV before it lands on disk (the loaders pick
+# files by name, so an off-pattern upload would otherwise never be ingested).
+HISTORY_FILE_RES = _HISTORY_FILE_RES
+LPR_COMPARISON_RES = (_LPR_COMPARISON_RE,)
+
 
 # ─── Dataclasses ────────────────────────────────────────────────────────────
 

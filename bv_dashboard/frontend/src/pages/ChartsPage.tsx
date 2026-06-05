@@ -12,7 +12,10 @@ import { useTheme } from '../hooks/useTheme';
 
 const CATS: Category[] = ['VIOLENT', 'HEALTH', 'ENVIRON', 'ORDER', 'SECURITY'];
 const COLORS = ['#EF4444', '#A78BFA', '#4A9EF5', '#F5B731', '#2DC9A8'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
+const MON_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// "2026-06" → "Jun". Month labels are derived from the data (which now spans
+// through the current month) rather than a fixed Jan–May array.
+const monLabel = (ym: string) => MON_ABBR[(parseInt(ym.slice(5, 7), 10) || 1) - 1] ?? ym.slice(5);
 const ACCENT = '#e85d2f';
 
 type Padding = { l: number; r: number; t: number; b: number };
@@ -66,7 +69,7 @@ function MonthlyVolume({ data }: { data: MonthlyData[] }) {
     const p: Padding = { l: 38, r: 18, t: 18, b: 28 };
     const mx = Math.max(...totals, 1);
     drawGrid(ctx, W, H, p, mx);
-    const xs = MONTHS.map((_, i) => p.l + (i * (W - p.l - p.r)) / (MONTHS.length - 1));
+    const xs = data.map((_, i) => p.l + (i * (W - p.l - p.r)) / Math.max(data.length - 1, 1));
     const ys = totals.map(v => p.t + (H - p.t - p.b) * (1 - v / mx));
 
     const grad = ctx.createLinearGradient(0, p.t, 0, H - p.b);
@@ -101,7 +104,7 @@ function MonthlyVolume({ data }: { data: MonthlyData[] }) {
       ctx.fillText(String(totals[i]), x, ys[i] - 11);
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
-      ctx.fillText(MONTHS[i], x, H - 7);
+      ctx.fillText(monLabel(data[i].month), x, H - 7);
     });
   }, [data, tick]);
 
@@ -197,7 +200,7 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
     const totals = data.map((_, mi) => series.reduce((s, d) => s + d[mi], 0));
     const mx = Math.max(...totals, 1);
     drawGrid(ctx, W, H, p, mx);
-    const xs = MONTHS.map((_, i) => p.l + (i * (W - p.l - p.r)) / (MONTHS.length - 1));
+    const xs = data.map((_, i) => p.l + (i * (W - p.l - p.r)) / Math.max(data.length - 1, 1));
     const stacked = data.map((_, mi) => {
       let acc = 0;
       return CATS.map((_, ci) => { acc += series[ci][mi]; return acc; });
@@ -206,7 +209,7 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
       const topY = stacked.map(s => p.t + (H - p.t - p.b) * (1 - s[ci] / mx));
       const botY = ci > 0
         ? stacked.map(s => p.t + (H - p.t - p.b) * (1 - s[ci - 1] / mx))
-        : MONTHS.map(() => H - p.b);
+        : data.map(() => H - p.b);
       ctx.beginPath();
       ctx.moveTo(xs[0], botY[0]);
       xs.forEach((x, i) => ctx.lineTo(x, topY[i]));
@@ -225,7 +228,7 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(MONTHS[i], x, H - 7);
+      ctx.fillText(monLabel(data[i].month), x, H - 7);
     });
     CATS.forEach((c, ci) => {
       const x = p.l + (ci * (W - p.l - p.r)) / CATS.length;
@@ -267,12 +270,31 @@ type LocBreakdownRow = {
   total: number;
 };
 
+// Sentinel id for the statewide summary row (clicking it clears the list filter).
+const TEXAS_ROW_ID = '__all_texas__';
+// Brownsville bounding box — matches IncidentMap, so "Brownsville" means the
+// same thing on the map and here.
+const BV_LAT0 = 25.82, BV_LAT1 = 25.97, BV_LON0 = -97.60, BV_LON1 = -97.36;
+const inBrownsville = (i: Incident) =>
+  Number.isFinite(i.lat) && Number.isFinite(i.lon) &&
+  i.lat >= BV_LAT0 && i.lat <= BV_LAT1 && i.lon >= BV_LON0 && i.lon <= BV_LON1;
+
 function useLocationBreakdown(): LocBreakdownRow[] {
   const { incidents } = useIncidentsContext();
   return useMemo(() => {
-    const map = new Map<string, LocBreakdownRow>();
+    // First row = statewide total (every incident, all cities). Remaining rows =
+    // top Brownsville-only hotspots, so the chart contrasts the all-Texas volume
+    // against the local breakdown without other cities polluting the ranking.
+    const texas: LocBreakdownRow = {
+      id: TEXAS_ROW_ID, name: 'Texas (All)',
+      cats: { VIOLENT: 0, HEALTH: 0, ENVIRON: 0, ORDER: 0, SECURITY: 0 }, total: 0,
+    };
+    const bv = new Map<string, LocBreakdownRow>();
     for (const inc of incidents) {
-      let row = map.get(inc.location_id);
+      texas.cats[inc.cat] += 1;
+      texas.total += 1;
+      if (!inBrownsville(inc)) continue;          // local rows exclude other cities
+      let row = bv.get(inc.location_id);
       if (!row) {
         row = {
           id: inc.location_id,
@@ -280,14 +302,15 @@ function useLocationBreakdown(): LocBreakdownRow[] {
           cats: { VIOLENT: 0, HEALTH: 0, ENVIRON: 0, ORDER: 0, SECURITY: 0 },
           total: 0,
         };
-        map.set(inc.location_id, row);
+        bv.set(inc.location_id, row);
       }
       row.cats[inc.cat] += 1;
       row.total += 1;
     }
-    return Array.from(map.values())
+    const bvTop = Array.from(bv.values())
       .sort((a, b) => b.total - a.total)
-      .slice(0, 8);
+      .slice(0, 7);
+    return [texas, ...bvTop];
   }, [incidents]);
 }
 
@@ -369,6 +392,9 @@ function HotspotBreakdown({
     const y = e.clientY - rect.top;
     const hit = hitsRef.current.find(h => x >= h.x0 && x <= h.x1 && y >= h.y0 && y <= h.y1);
     if (!hit) return;
+    // The "Texas (All)" summary row isn't a real location — clicking it just
+    // clears any active location filter (shows everything in the list below).
+    if (hit.id === TEXAS_ROW_ID) { onSelect(null); return; }
     onSelect(hit.id === selectedLocation ? null : hit.id);
   }
 
@@ -376,8 +402,8 @@ function HotspotBreakdown({
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
-          <div style={S.title}>Top 8 Hotspot Locations — Type Mix</div>
-          <div style={S.sub}>Stacked by category · click a row to filter the list below</div>
+          <div style={S.title}>Hotspot Locations — Type Mix</div>
+          <div style={S.sub}>First bar = all Texas incidents · rest = top Brownsville locations · click a row to filter</div>
         </div>
         {selectedLocation && (
           <button
@@ -653,7 +679,7 @@ function SeverityTrend({ data }: { data: MonthlyData[] }) {
       return v && v > 0 ? v : null;
     }));
     drawGrid(ctx, W, H, p, 1, 5);
-    const xs = MONTHS.map((_, i) => p.l + (i * (W - p.l - p.r)) / (MONTHS.length - 1));
+    const xs = data.map((_, i) => p.l + (i * (W - p.l - p.r)) / Math.max(data.length - 1, 1));
     series.forEach((line, ci) => {
       ctx.beginPath();
       let first = true;
@@ -679,7 +705,7 @@ function SeverityTrend({ data }: { data: MonthlyData[] }) {
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(MONTHS[i], x, H - 12);
+      ctx.fillText(monLabel(data[i].month), x, H - 12);
     });
     CATS.forEach((c, ci) => {
       const x = p.l + (ci * (W - p.l - p.r)) / CATS.length;
@@ -990,10 +1016,12 @@ export default function ChartsPage() {
       <div style={{ background: 'var(--s1)', borderBottom: '1px solid var(--border)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontFamily: 'var(--cond)', fontSize: 18, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-            Charts &amp; Trends — Jan–May 2026
+            Charts &amp; Trends{monthly && monthly.length
+              ? ` — ${monLabel(monthly[0].month)}–${monLabel(monthly[monthly.length - 1].month)} ${monthly[monthly.length - 1].month.slice(0, 4)}`
+              : ''}
           </div>
           <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-            All 16 monitored locations · 5 months · Monthly, weekly &amp; category breakdowns
+            All 16 monitored locations · {monthly?.length ?? 0} months · Monthly, weekly &amp; category breakdowns
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

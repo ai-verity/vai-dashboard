@@ -8,7 +8,9 @@ import { useChartHover, ChartTooltip } from '../utils/chartHover';
 
 const CATS: Category[] = ['VIOLENT', 'HEALTH', 'ENVIRON', 'ORDER', 'SECURITY'];
 const COLORS = ['#EF4444', '#A78BFA', '#4A9EF5', '#F5B731', '#2DC9A8'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May'];
+const MON_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// "2026-06" → "Jun" — labels come from the data, which spans through the current month.
+const monLabel = (ym: string) => MON_ABBR[(parseInt(ym.slice(5, 7), 10) || 1) - 1] ?? ym.slice(5);
 
 export default function MiniTimeline() {
   const { data, loading } = useMonthly();
@@ -35,10 +37,11 @@ export default function MiniTimeline() {
     // Bars use the full canvas width — no more overlap with the in-canvas
     // legend; the legend now lives in HTML above the canvas (see the
     // return value below).
-    const bW = ((W - 32) / MONTHS.length) * 0.58;
+    const bW = ((W - 32) / data.length) * 0.58;
     regions.current = [];
-    MONTHS.forEach((m, mi) => {
-      const x = 16 + (mi * (W - 32)) / MONTHS.length + (((W - 32) / MONTHS.length) * 0.21);
+    data.forEach((d, mi) => {
+      const m = monLabel(d.month);
+      const x = 16 + (mi * (W - 32)) / data.length + (((W - 32) / data.length) * 0.21);
       let yBase = H - 20;
       CATS.forEach((cat, ci) => {
         const n = byCat[cat][mi];
