@@ -486,7 +486,7 @@ def _compute_severity_dist() -> list[dict]:
     ]
 
 
-_WEEKDAY_LABELS = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+_WEEKDAY_LABELS = ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
 
 def _compute_heatmap() -> list[dict]:
@@ -497,7 +497,7 @@ def _compute_heatmap() -> list[dict]:
             dt = datetime.fromisoformat(f"{inc['date']}T{inc['time']}")
         except ValueError:
             continue
-        dow = dt.weekday()
+        dow = (dt.weekday() + 1) % 7  # remap Mon=0..Sun=6 → Sun=0..Sat=6
         bi  = dt.hour // 3
         grid_sums[bi][dow]   += inc["sev"]
         grid_counts[bi][dow] += 1
@@ -594,7 +594,7 @@ def get_severity_dist():
 
 @app.get("/api/stats/heatmap")
 def get_heatmap():
-    """Return avg severity and count by weekday (0=Mon..6=Sun) × 3-hour block (0-7)."""
+    """Return avg severity and count by weekday (0=Sun..6=Sat) × 3-hour block (0-7)."""
     return _STATS_HEATMAP
 
 

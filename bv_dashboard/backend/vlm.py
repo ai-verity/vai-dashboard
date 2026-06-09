@@ -170,6 +170,23 @@ def _run_id_from_date(date_field: Optional[str]) -> str:
     return f"{y}{mo}{d}T000000Z"
 
 
+def _normalize_run_id(run_id: Optional[str], date_field: Optional[str] = None) -> str:
+    """Return a canonical YYYYMMDDTHHMMSSZ run_id.
+
+    Legacy exports already carry that format. Newer exports put a date bucket
+    like 'vlm_runs/2026-06-06' in the run_id column (or in a separate `date`
+    column); synthesize a canonical id from whichever carries the date so all
+    of a day's frames group into one run and run_started_at parses. Without
+    this, crowd/vehicle/lpr frames stay under the raw 'vlm_runs/<date>' key
+    (with run_started_at=None) while the split-dumping path already normalizes,
+    fragmenting a single day's run across two ids.
+    """
+    run_id = (run_id or "").strip()
+    if _RUN_ID_RE.match(run_id):
+        return run_id
+    return _run_id_from_date(run_id) or _run_id_from_date(date_field)
+
+
 def _parse_run_started_at(run_id: str) -> Optional[str]:
     """run_id is YYYYMMDDTHHMMSSZ; convert to ISO 8601 UTC."""
     if not run_id:
@@ -1092,7 +1109,7 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
 
     # Legacy exports carry run_id; the newer LPR export keys the run off its
     # `date` bucket (e.g. "vlm_runs/2026-06-05") instead.
-    run_id_val = (row.get("run_id") or "").strip() or _run_id_from_date(row.get("date"))
+    run_id_val = _normalize_run_id(row.get("run_id"), row.get("date"))
     is_vehicle = preset == "vehicle_prompts"
     is_dumping = preset == "illegal_dumping"
     is_lpr = preset in _LPR_PRESET_RAWS
@@ -1333,7 +1350,7 @@ def _build_split_dumping_obs(group: dict[str, dict], idx: int) -> Optional[VlmOb
     # encoded in the filename, so recover it there rather than from the bucket.
     feed_id = _feed_from_filename(file_name) if file_name else "unknown"
     # run_id is a date bucket ("vlm_runs/2026-06-05"), not a timestamp id.
-    run_id_val = _run_id_from_date(rep_row.get("run_id") or rep_row.get("date"))
+    run_id_val = _normalize_run_id(rep_row.get("run_id"), rep_row.get("date"))
 
     present = _split_present(detect)
     ordinance_violation = _split_ord_violation(detect)
@@ -1877,6 +1894,16 @@ def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
     return out
 
 
+def _week_bucket(dt: datetime) -> str:
+    """Week bucket key (``YYYY-Www``) with Sunday as the first day of the week.
+
+    Uses ``%U`` (week-of-year, Sunday-first) so weeks run Sun–Sat. Days in
+    early January that fall before the year's first Sunday land in week ``00``.
+    The frontend reverses this same scheme to label "Week of <Sunday>".
+    """
+    return dt.strftime("%Y-W%U")
+
+
 def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> dict:
     """Incident counts per (time-bucket, location). period ∈ {"week","month"}.
 
@@ -1902,8 +1929,7 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -1966,8 +1992,7 @@ def _aggregate_vehicles_by_period_location(rows: list[VlmObservation], period: s
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -2022,8 +2047,7 @@ def _aggregate_dumping_by_period_location(rows: list[VlmObservation], period: st
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -2078,8 +2102,7 @@ def _aggregate_plates_by_period_location(rows: list[VlmObservation], period: str
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -2139,8 +2162,7 @@ def _aggregate_people_by_period_location(rows: list[VlmObservation], period: str
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:

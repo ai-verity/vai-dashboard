@@ -20,7 +20,7 @@
 // Coordinates pushed into `regions` are CSS-pixel space (matching the
 // W/H surface used by `setupCanvas` after the DPR scale is applied).
 
-import { useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { MutableRefObject } from 'react';
 
 export type HitRegion = {
@@ -58,15 +58,41 @@ export function useChartHover() {
 }
 
 export function ChartTooltip({ hover }: { hover: { x: number; y: number; region: HitRegion } | null }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // Flip the tooltip to the opposite side of the cursor when the default
+  // offset would push it past the edge of its (relative) container, so it
+  // stays fully on-screen near the right/bottom edges of the chart.
+  const [pos, setPos] = useState<{ left: number; top: number }>({ left: 0, top: 0 });
+
+  useLayoutEffect(() => {
+    if (!hover) return;
+    const el = ref.current;
+    const parent = el?.offsetParent as HTMLElement | null;
+    if (!el || !parent) {
+      setPos({ left: hover.x + 12, top: hover.y + 12 });
+      return;
+    }
+    const tw = el.offsetWidth;
+    const th = el.offsetHeight;
+    const pw = parent.clientWidth;
+    const ph = parent.clientHeight;
+    const pad = 6;
+    let left = hover.x + 12;
+    let top = hover.y + 12;
+    if (left + tw + pad > pw) left = Math.max(pad, hover.x - 12 - tw);
+    if (top + th + pad > ph) top = Math.max(pad, hover.y - 12 - th);
+    setPos({ left, top });
+  }, [hover]);
+
   if (!hover) return null;
-  const { x, y, region } = hover;
+  const { region } = hover;
   // Offset the tooltip slightly off the cursor so it doesn't flicker
   // when the mouse moves between adjacent segments.
   return (
-    <div style={{
+    <div ref={ref} style={{
       position: 'absolute',
-      left: x + 12,
-      top: y + 12,
+      left: pos.left,
+      top: pos.top,
       pointerEvents: 'none',
       zIndex: 4,
       background: 'var(--s1)',

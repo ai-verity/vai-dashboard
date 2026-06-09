@@ -262,15 +262,17 @@ function Badge({ color, children }: { color: string; children: React.ReactNode }
 // ─── Aggregate charts ───────────────────────────────────────────────────────
 const DENSITY_KEYS = ['SPARSE', 'MODERATE', 'DENSE'] as const;
 
-// Convert an ISO year+week (W1 = week containing Jan 4) into the Monday
-// of that week as a UTC Date. Used to humanize "YYYY-Www" bucket strings.
-function isoWeekStart(year: number, week: number): Date {
-  const jan4 = new Date(Date.UTC(year, 0, 4));
-  const dow = (jan4.getUTCDay() + 6) % 7; // 0 = Mon … 6 = Sun
-  const week1Mon = new Date(jan4);
-  week1Mon.setUTCDate(jan4.getUTCDate() - dow);
-  const d = new Date(week1Mon);
-  d.setUTCDate(week1Mon.getUTCDate() + (week - 1) * 7);
+// Convert a year + %U week number (Sunday-first; week 1 contains the year's
+// first Sunday, days before it are week 0) into the Sunday that starts that
+// week, as a UTC Date. Mirrors the backend's strftime("%Y-W%U") bucketing and
+// is used to humanize "YYYY-Www" bucket strings.
+function weekStart(year: number, week: number): Date {
+  const jan1 = new Date(Date.UTC(year, 0, 1));
+  if (week === 0) return jan1; // partial week before the first Sunday
+  const firstSunday = new Date(jan1);
+  firstSunday.setUTCDate(1 + ((7 - jan1.getUTCDay()) % 7)); // 0 = Sun
+  const d = new Date(firstSunday);
+  d.setUTCDate(firstSunday.getUTCDate() + (week - 1) * 7);
   return d;
 }
 
@@ -282,7 +284,7 @@ function formatBucket(bucket: string, mode: 'short' | 'long' = 'short'): string 
   const w = bucket.match(/^(\d{4})-W(\d{2})$/);
   if (w) {
     const [, y, ww] = w;
-    const start = isoWeekStart(parseInt(y, 10), parseInt(ww, 10));
+    const start = weekStart(parseInt(y, 10), parseInt(ww, 10));
     const end = new Date(start);
     end.setUTCDate(start.getUTCDate() + 6);
     const startMonth = start.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
