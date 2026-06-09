@@ -77,7 +77,11 @@ _RELOAD_RATE  = os.getenv("BV_RELOAD_RATE",  "5/minute")
 _UPLOAD_MAX_BYTES = int(os.getenv("BV_UPLOAD_MAX_MB", "100")) * 1024 * 1024
 # Columns the VLM parser depends on; a CSV missing any of these is rejected
 # before it is written, so we never persist a file load_all() can't use.
-_REQUIRED_CSV_COLS = {"run_id", "preset", "full_caption"}
+# Only `preset` + `full_caption` are universal across export schemas. The run id
+# is optional: legacy exports ship `run_id`, the newer LPR export ships a `date`
+# bucket the parser derives the run from instead — so requiring `run_id` here
+# would wrongly reject otherwise-valid LPR CSVs.
+_REQUIRED_CSV_COLS = {"preset", "full_caption"}
 # Columns the model-metrics parser (ai_metrics._read_comparison_csv) depends on.
 _REQUIRED_METRICS_COLS = {"class", "metric", "after"}
 
