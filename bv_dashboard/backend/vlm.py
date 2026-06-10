@@ -1663,8 +1663,11 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
       vehicle_feed_issue:      [{feed_id, feed_label, collisions, speeding, fire_lane,
                                  other, total}]
       vehicle_daily_collision: [{date, collisions, total, share}]
-      monthly_by_type:         [{month, <type1>, <type2>, …}] — counts per
-                                "incident type" per calendar month
+      daily_by_type:           [{bucket, <type1>, <type2>, …}] — counts per
+                                "incident type" per calendar day
+      weekly_by_type:          [{bucket, …}] — same, per week (YYYY-Www)
+      monthly_by_type:         [{bucket, …}] — same, per calendar month
+      daily_by_location:       {buckets, locations, data}
       weekly_by_location:      {buckets, locations, data}
       monthly_by_location:     {buckets, locations, data}
     """
@@ -1829,7 +1832,10 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     weekly_plates_by_location = _aggregate_plates_by_period_location(rows, "week")
     monthly_plates_by_location = _aggregate_plates_by_period_location(rows, "month")
 
-    monthly_by_type = _aggregate_monthly_by_type(rows)
+    daily_by_type = _aggregate_by_type(rows, "day")
+    weekly_by_type = _aggregate_by_type(rows, "week")
+    monthly_by_type = _aggregate_by_type(rows, "month")
+    daily_by_location = _aggregate_by_period_location(rows, "day")
     weekly_by_location = _aggregate_by_period_location(rows, "week")
     monthly_by_location = _aggregate_by_period_location(rows, "month")
     weekly_people_by_location = _aggregate_people_by_period_location(rows, "week")
@@ -1850,7 +1856,10 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
         "dumping_waste_type": dmp_waste_top,
         "dumping_feed": dmp_feeds_top,
         "dumping_daily": dmp_daily_list,
+        "daily_by_type": daily_by_type,
+        "weekly_by_type": weekly_by_type,
         "monthly_by_type": monthly_by_type,
+        "daily_by_location": daily_by_location,
         "weekly_by_location": weekly_by_location,
         "monthly_by_location": monthly_by_location,
         "weekly_people_by_location": weekly_people_by_location,
@@ -1867,29 +1876,39 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     }
 
 
-def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
-    """Stacked-by-incident-type counts per calendar month (YYYY-MM)."""
-    by_month: dict[str, dict[str, int]] = {}
+def _aggregate_by_type(rows: list[VlmObservation], period: str) -> list[dict]:
+    """Stacked-by-incident-type counts per time bucket.
+
+    period ∈ {"day","week","month"} → buckets keyed YYYY-MM-DD, YYYY-Www, YYYY-MM.
+    Bucket by captured_at — the date in the output (when the footage was
+    recorded) takes precedence over the file/processed date, so incidents land
+    in the period they actually occurred. Falls back to processed_at only when
+    captured_at is missing. Each row carries a `bucket` field plus one count
+    per incident-type group.
+    """
+    by_bucket: dict[str, dict[str, int]] = {}
     for o in rows:
-        # Bucket by captured_at — the date in the output (when the footage was
-        # recorded) takes precedence over the file/processed date, so incidents
-        # land in the month they actually occurred. Falls back to processed_at
-        # only when captured_at is missing.
         ts = o.captured_at or o.processed_at
         if not ts:
             continue
         try:
-            month = datetime.fromisoformat(ts).strftime("%Y-%m")
+            dt = datetime.fromisoformat(ts)
         except ValueError:
             continue
-        slot = by_month.setdefault(month, {key: 0 for _, key in _INCIDENT_TYPE_GROUPS})
+        if period == "day":
+            bucket = dt.strftime("%Y-%m-%d")
+        elif period == "week":
+            bucket = _week_bucket(dt)
+        else:
+            bucket = dt.strftime("%Y-%m")
+        slot = by_bucket.setdefault(bucket, {key: 0 for _, key in _INCIDENT_TYPE_GROUPS})
         for _, key in _INCIDENT_TYPE_GROUPS:
             if _matches_type(o, key):
                 slot[key] += 1
     out: list[dict] = []
-    for month in sorted(by_month.keys()):
-        row = {"month": month}
-        row.update(by_month[month])
+    for bucket in sorted(by_bucket.keys()):
+        row = {"bucket": bucket}
+        row.update(by_bucket[bucket])
         out.append(row)
     return out
 
@@ -1913,6 +1932,8 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
     the chart should reflect when the incident occurred, not when the VLM ran.
     Falls back to processed_at only when captured_at is missing. Limits to the
     top 10 locations by total to keep the chart legible.
+
+    period ∈ {"day","week","month"} → buckets keyed YYYY-MM-DD, YYYY-Www, YYYY-MM.
     """
     bucket_keys: list[str] = []
     bucket_set: set[str] = set()
@@ -1928,7 +1949,9 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
             dt = datetime.fromisoformat(ts)
         except ValueError:
             continue
-        if period == "week":
+        if period == "day":
+            bucket = dt.strftime("%Y-%m-%d")
+        elif period == "week":
             bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")

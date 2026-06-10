@@ -297,6 +297,16 @@ function formatBucket(bucket: string, mode: 'short' | 'long' = 'short'): string 
     }
     return `${startMonth} ${startDay}`;
   }
+  const day = bucket.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (day) {
+    const [, y, mm, dd] = day;
+    const d = new Date(Date.UTC(parseInt(y, 10), parseInt(mm, 10) - 1, parseInt(dd, 10)));
+    const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+    const weekday = d.toLocaleString('en-US', { weekday: 'short', timeZone: 'UTC' });
+    return mode === 'long'
+      ? `${weekday}, ${month} ${parseInt(dd, 10)}`
+      : `${month} ${parseInt(dd, 10)}`;
+  }
   const m = bucket.match(/^(\d{4})-(\d{2})$/);
   if (m) {
     const [, y, mm] = m;
@@ -305,6 +315,40 @@ function formatBucket(bucket: string, mode: 'short' | 'long' = 'short'): string 
     return mode === 'long' ? `${month} ${y}` : `${month} ${y.slice(2)}`;
   }
   return bucket;
+}
+
+// YYYY-MM key for a UTC date.
+function ymKey(d: Date): string {
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+}
+
+// Does a day/week bucket fall within the given YYYY-MM month? A week that
+// straddles a month boundary matches either month it touches. The 'all'
+// sentinel and month buckets always pass.
+function bucketInMonth(bucket: string, month: string): boolean {
+  if (month === 'all') return true;
+  const w = bucket.match(/^(\d{4})-W(\d{2})$/);
+  if (w) {
+    const start = weekStart(parseInt(w[1], 10), parseInt(w[2], 10));
+    const end = new Date(start);
+    end.setUTCDate(start.getUTCDate() + 6);
+    return ymKey(start) === month || ymKey(end) === month;
+  }
+  return bucket.slice(0, 7) === month; // day (YYYY-MM-DD) or month (YYYY-MM)
+}
+
+// Distinct YYYY-MM months touched by a set of day/week bucket keys, ascending.
+function monthsFromBuckets(buckets: string[]): string[] {
+  const s = new Set<string>();
+  for (const b of buckets) {
+    const w = b.match(/^(\d{4})-W(\d{2})$/);
+    if (w) {
+      s.add(ymKey(weekStart(parseInt(w[1], 10), parseInt(w[2], 10))));
+    } else {
+      s.add(b.slice(0, 7));
+    }
+  }
+  return [...s].sort();
 }
 
 // Canvas helpers live in utils/canvas.ts; alias setupCanvas → setupCv to
@@ -929,7 +973,7 @@ function PlateDailyChart({ data }: { data: VlmAggregates['plate_daily'] }) {
 // viewer sees the overall incident pattern. Mounted above the
 // preset-specific charts on VlmPage.
 
-function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }) {
+function ByTypeChart({ data }: { data: VlmAggregates['daily_by_type'] }) {
   const { tick } = useTheme();
   const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
@@ -978,14 +1022,14 @@ function MonthlyByTypeChart({ data }: { data: VlmAggregates['monthly_by_type'] }
         regions.current.push({
           x, y: yBase - hh, w: barW, h: hh,
           label: group.label, value: n, color: group.color,
-          bar: formatBucket(String(row.month), 'long'),
+          bar: formatBucket(String(row.bucket), 'long'),
         });
         yBase -= hh;
       });
       ctx.fillStyle = MUTED;
       ctx.font = '8.5px DM Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(formatBucket(String(row.month), 'short'), cx, H - 10);
+      ctx.fillText(formatBucket(String(row.bucket), 'short'), cx, H - 10);
       // Total on top of stack
       if (totals[mi] > 0) {
         const yTop = p.t + (H - p.t - p.b) * (1 - totals[mi] / mx);
@@ -1122,62 +1166,163 @@ function PeriodByLocationChart({ data }: { data: VlmPeriodLocationAggregate }) {
   );
 }
 
+type CrossPeriod = 'day' | 'week' | 'month';
+const periodLabelOf = (p: CrossPeriod) => (p === 'day' ? 'Day' : p === 'week' ? 'Week' : 'Month');
+
+// Day/Week/Month segmented toggle, shared by the cross-preset charts.
+function PeriodToggle({ period, onChange }: { period: CrossPeriod; onChange: (p: CrossPeriod) => void }) {
+  return (
+    <div style={{ display: 'flex', gap: 4 }}>
+      {(['day', 'week', 'month'] as const).map(p => (
+        <button
+          key={p}
+          onClick={() => onChange(p)}
+          style={{
+            fontFamily: 'var(--mono)', fontSize: 9,
+            padding: '3px 9px', borderRadius: 3, cursor: 'pointer',
+            background: period === p ? 'rgba(74,158,245,0.12)' : 'transparent',
+            border: `1px solid ${period === p ? 'var(--blue)' : 'var(--border)'}`,
+            color: period === p ? 'var(--blue)' : 'var(--muted)',
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+          }}
+        >
+          {p}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// Month dropdown ("All" + each month present), used to narrow the busy
+// day/week views down to a single month.
+function MonthFilter({ months, month, onChange }: {
+  months: string[]; month: string; onChange: (m: string) => void;
+}) {
+  return (
+    <select
+      value={month}
+      onChange={e => onChange(e.target.value)}
+      style={{
+        fontFamily: 'var(--mono)', fontSize: 9, letterSpacing: '0.06em',
+        padding: '3px 6px', borderRadius: 3, cursor: 'pointer',
+        background: 'transparent', border: '1px solid var(--border)',
+        color: 'var(--dim)', textTransform: 'uppercase',
+      }}
+    >
+      {months.map(m => (
+        <option key={m} value={m}>{formatBucket(m, 'long')}</option>
+      ))}
+    </select>
+  );
+}
+
+// Card header with an inline period toggle (and an optional month filter,
+// shown for the day/week views), used by both cross-preset charts.
+function ToggleCardHeader({ title, sub, period, onChange, months, month, onMonth }: {
+  title: string; sub: string; period: CrossPeriod; onChange: (p: CrossPeriod) => void;
+  months?: string[]; month?: string; onMonth?: (m: string) => void;
+}) {
+  return (
+    <div style={{
+      padding: '10px 14px', borderBottom: '1px solid var(--border)',
+      background: 'var(--s1)',
+      display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
+      gap: 12,
+    }}>
+      <div>
+        <div style={{ fontFamily: 'var(--cond)', fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 9, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 2 }}>
+          {sub}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+        {/* Month filter only applies to the denser day/week views. */}
+        {period !== 'month' && months && months.length > 0 && month !== undefined && onMonth && (
+          <MonthFilter months={months} month={month} onChange={onMonth} />
+        )}
+        <PeriodToggle period={period} onChange={onChange} />
+      </div>
+    </div>
+  );
+}
+
 function CrossPresetCharts({ aggregates }: { aggregates: VlmAggregates | null }) {
-  const [period, setPeriod] = useState<'week' | 'month'>('week');
-  const locationsAgg = aggregates
-    ? (period === 'week' ? aggregates.weekly_by_location : aggregates.monthly_by_location)
+  const [typePeriod, setTypePeriod] = useState<CrossPeriod>('day');
+  const [locPeriod, setLocPeriod] = useState<CrossPeriod>('day');
+  const [typeMonth, setTypeMonth] = useState('');
+  const [locMonth, setLocMonth] = useState('');
+
+  // Month options derived from the most granular (daily) buckets so the list
+  // stays stable regardless of the selected period.
+  const typeMonths = useMemo(
+    () => (aggregates ? monthsFromBuckets(aggregates.daily_by_type.map(r => String(r.bucket))) : []),
+    [aggregates]);
+  const locMonths = useMemo(
+    () => (aggregates ? monthsFromBuckets(aggregates.daily_by_location.buckets) : []),
+    [aggregates]);
+
+  // A month is mandatory for the day/week views; when none is picked yet (or
+  // the picked one isn't in range) fall back to the most recent month.
+  const effTypeMonth = typeMonths.includes(typeMonth) ? typeMonth : (typeMonths[typeMonths.length - 1] ?? '');
+  const effLocMonth = locMonths.includes(locMonth) ? locMonth : (locMonths[locMonths.length - 1] ?? '');
+
+  const rawTypeData = aggregates
+    ? (typePeriod === 'day' ? aggregates.daily_by_type
+      : typePeriod === 'week' ? aggregates.weekly_by_type
+      : aggregates.monthly_by_type)
     : null;
+  const typeData = rawTypeData && typePeriod !== 'month'
+    ? rawTypeData.filter(r => bucketInMonth(String(r.bucket), effTypeMonth))
+    : rawTypeData;
+
+  const rawLocationsAgg = aggregates
+    ? (locPeriod === 'day' ? aggregates.daily_by_location
+      : locPeriod === 'week' ? aggregates.weekly_by_location
+      : aggregates.monthly_by_location)
+    : null;
+  const locationsAgg = rawLocationsAgg && locPeriod !== 'month'
+    ? {
+        ...rawLocationsAgg,
+        buckets: rawLocationsAgg.buckets.filter(b => bucketInMonth(b, effLocMonth)),
+        data: rawLocationsAgg.data.filter(d => bucketInMonth(d.bucket, effLocMonth)),
+      }
+    : rawLocationsAgg;
 
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1,
       background: 'var(--border)', borderBottom: '1px solid var(--border)',
     }}>
-      <ChartCard
-        title="Incidents per Month — by Type"
-        sub="Stacked counts of VLM-flagged events grouped by category · bucketed by VLM run month"
-      >
-        {aggregates
-          ? <MonthlyByTypeChart data={aggregates.monthly_by_type} />
-          : <div className="skeleton" style={{ width: '100%', height: 200 }} />}
-      </ChartCard>
+      <div style={{ background: 'var(--s0)' }}>
+        <ToggleCardHeader
+          title={`Incidents per ${periodLabelOf(typePeriod)} — by Type`}
+          sub={`Stacked counts of VLM-flagged events grouped by category · bucketed by VLM run ${periodLabelOf(typePeriod).toLowerCase()}`}
+          period={typePeriod}
+          onChange={setTypePeriod}
+          months={typeMonths}
+          month={effTypeMonth}
+          onMonth={setTypeMonth}
+        />
+        <div style={{ padding: '10px 14px' }}>
+          {typeData
+            ? <ByTypeChart data={typeData} />
+            : <div className="skeleton" style={{ width: '100%', height: 200 }} />}
+        </div>
+      </div>
 
       <div style={{ background: 'var(--s0)' }}>
-        {/* Custom header here so we can host the week/month toggle inline. */}
-        <div style={{
-          padding: '10px 14px', borderBottom: '1px solid var(--border)',
-          background: 'var(--s1)',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start',
-          gap: 12,
-        }}>
-          <div>
-            <div style={{ fontFamily: 'var(--cond)', fontSize: 11, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
-              Incidents per Location — by {period === 'week' ? 'Week' : 'Month'}
-            </div>
-            <div style={{ fontSize: 9, color: 'var(--muted)', fontFamily: 'var(--mono)', marginTop: 2 }}>
-              Top 10 locations · stacked counts · bucketed by VLM run {period === 'week' ? 'week' : 'month'}
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 4 }}>
-            {(['week', 'month'] as const).map(p => (
-              <button
-                key={p}
-                onClick={() => setPeriod(p)}
-                style={{
-                  fontFamily: 'var(--mono)', fontSize: 9,
-                  padding: '3px 9px', borderRadius: 3, cursor: 'pointer',
-                  background: period === p ? 'rgba(74,158,245,0.12)' : 'transparent',
-                  border: `1px solid ${period === p ? 'var(--blue)' : 'var(--border)'}`,
-                  color: period === p ? 'var(--blue)' : 'var(--muted)',
-                  letterSpacing: '0.06em',
-                  textTransform: 'uppercase',
-                }}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        </div>
+        <ToggleCardHeader
+          title={`Incidents per Location — by ${periodLabelOf(locPeriod)}`}
+          sub={`Top 10 locations · stacked counts · bucketed by VLM run ${periodLabelOf(locPeriod).toLowerCase()}`}
+          period={locPeriod}
+          onChange={setLocPeriod}
+          months={locMonths}
+          month={effLocMonth}
+          onMonth={setLocMonth}
+        />
         <div style={{ padding: '10px 14px' }}>
           {locationsAgg
             ? <PeriodByLocationChart data={locationsAgg} />
