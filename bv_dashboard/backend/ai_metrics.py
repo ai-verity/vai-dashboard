@@ -445,11 +445,15 @@ def _parse_class_mapping_txt(path: str, fallback_run_date: str,
                     "total": int(mi.group(4)),
                 })
 
-    # Pull the dropped-regions number from the first all-digits line that
-    # appears directly after the "Dropped class regions" heading. The
-    # column is unlabelled, which is awkward to anchor in a single pass —
-    # do a second scan for it specifically.
+    # Sum the dropped-region counts that follow the "Dropped class regions"
+    # heading. Two formats appear across pipeline versions and we total both:
+    #   older — a single unlabelled aggregate line ("            15")
+    #   newer — one named row per dropped class ("  utility_veh   5")
+    # Each row ends with its count, so we add the trailing integer of every
+    # row until the block ends (blank line, the separate "_background_images"
+    # stat, or a non-count line). A second scan keeps this anchoring simple.
     seen_drop_heading = False
+    dropped_regions = 0
     for raw in lines:
         line = raw.rstrip()
         if "Dropped class regions" in line:
@@ -458,15 +462,13 @@ def _parse_class_mapping_txt(path: str, fallback_run_date: str,
         if seen_drop_heading:
             stripped = line.strip()
             if not stripped:
-                continue
+                break  # blank line ends the block
             if stripped.startswith("_background_images"):
-                break  # passed the dropped count without finding a number
-            try:
-                dropped_regions = int(stripped)
-                break
-            except ValueError:
-                # Hit a labelled row first — no anonymous dropped count.
-                break
+                break  # a separate stat, not a dropped-region row
+            mi = re.search(r"(\d+)\s*$", stripped)
+            if mi is None:
+                break  # hit a non-count line — end of block
+            dropped_regions += int(mi.group(1))
 
     if train_images == 0 and val_images == 0 and not by_class:
         return None
