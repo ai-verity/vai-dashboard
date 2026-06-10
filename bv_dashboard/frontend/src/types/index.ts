@@ -338,8 +338,8 @@ export const VLM_TYPE_GROUPS: Array<{ key: string; label: string; color: string 
   { key: 'illegal_dumping',   label: 'Illegal Dumping',  color: '#2DC9A8' },
 ];
 
-export interface VlmMonthlyTypeRow {
-  month: string;
+export interface VlmTypeBucketRow {
+  bucket: string;       // YYYY-MM-DD, YYYY-Www, or YYYY-MM
   // dynamic — one numeric field per VLM_TYPE_GROUPS key
   [key: string]: string | number;
 }
@@ -351,13 +351,13 @@ export interface VlmPeriodLocationLocation {
 }
 
 export interface VlmPeriodLocationDatum {
-  bucket: string;        // YYYY-MM or YYYY-Www
+  bucket: string;        // YYYY-MM-DD, YYYY-Www, or YYYY-MM
   location_id: string;
   count: number;
 }
 
 export interface VlmPeriodLocationAggregate {
-  period: 'week' | 'month';
+  period: 'day' | 'week' | 'month';
   buckets: string[];
   locations: VlmPeriodLocationLocation[];
   data: VlmPeriodLocationDatum[];
@@ -396,7 +396,10 @@ export interface VlmAggregates {
   dumping_waste_type: VlmDumpingWasteRow[];
   dumping_feed: VlmDumpingFeedRow[];
   dumping_daily: VlmDumpingDailyRow[];
-  monthly_by_type: VlmMonthlyTypeRow[];
+  daily_by_type: VlmTypeBucketRow[];
+  weekly_by_type: VlmTypeBucketRow[];
+  monthly_by_type: VlmTypeBucketRow[];
+  daily_by_location: VlmPeriodLocationAggregate;
   weekly_by_location: VlmPeriodLocationAggregate;
   monthly_by_location: VlmPeriodLocationAggregate;
   // Sum of pedestrian_count per (bucket, location) — crowd_behavior only.

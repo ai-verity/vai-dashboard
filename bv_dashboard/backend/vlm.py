@@ -148,6 +148,45 @@ class VlmObservation:
 _RUN_ID_RE = re.compile(r"^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$")
 
 
+# Date bucket like "vlm_runs/2026-06-05" (or a bare "2026-06-05") — used by the
+# newer LPR export, which has no run_id column.
+_DATE_PATH_RE = re.compile(r"(\d{4})-(\d{2})-(\d{2})")
+
+
+def _run_id_from_date(date_field: Optional[str]) -> str:
+    """Synthesize a run_id (YYYYMMDDTHHMMSSZ) from a date bucket.
+
+    The newer LPR export drops the run_id column and instead carries a `date`
+    like 'vlm_runs/2026-06-05'. We key the run off that capture date so its
+    frames group into one daily run and get a valid run_started_at. Returns ''
+    when no date is parseable (caller falls back to an empty run_id).
+    """
+    if not date_field:
+        return ""
+    m = _DATE_PATH_RE.search(date_field)
+    if not m:
+        return ""
+    y, mo, d = m.groups()
+    return f"{y}{mo}{d}T000000Z"
+
+
+def _normalize_run_id(run_id: Optional[str], date_field: Optional[str] = None) -> str:
+    """Return a canonical YYYYMMDDTHHMMSSZ run_id.
+
+    Legacy exports already carry that format. Newer exports put a date bucket
+    like 'vlm_runs/2026-06-06' in the run_id column (or in a separate `date`
+    column); synthesize a canonical id from whichever carries the date so all
+    of a day's frames group into one run and run_started_at parses. Without
+    this, crowd/vehicle/lpr frames stay under the raw 'vlm_runs/<date>' key
+    (with run_started_at=None) while the split-dumping path already normalizes,
+    fragmenting a single day's run across two ids.
+    """
+    run_id = (run_id or "").strip()
+    if _RUN_ID_RE.match(run_id):
+        return run_id
+    return _run_id_from_date(run_id) or _run_id_from_date(date_field)
+
+
 def _parse_run_started_at(run_id: str) -> Optional[str]:
     """run_id is YYYYMMDDTHHMMSSZ; convert to ISO 8601 UTC."""
     if not run_id:
@@ -602,6 +641,166 @@ def _parse_dumping_answers(caption: str) -> dict[int, str]:
     return out
 
 
+# ─── Split illegal-dumping presets ───────────────────────────────────────────
+# The newer dumping export splits the single 16-question pass into four separate
+# preset passes per frame:
+#   illegal_dumping_detect    → DUMPING PRESENT / ORDINANCE CHECK 1-3 (Yes/No)
+#   illegal_dumping_classify  → WASTE TYPE/VOLUME/ORIGIN, PROPERTY TYPE, etc.
+#   illegal_dumping_evidence  → chronic-site signs + vehicles present
+#   illegal_dumping_report    → SEVERITY, ORDINANCE, PRIORITY, enforcement text
+# Each pass is highly format-inconsistent (plain "KEY: value", semicolon lists,
+# prose paragraphs, and ```json``` blocks all appear). load_all() groups a
+# frame's four rows and merges them into ONE synthetic `illegal_dumping`
+# observation so the existing stats/aggregates/UI (which expect one dumping row
+# per frame) work unchanged.
+_DUMPING_SPLIT_PRESETS = frozenset({
+    "illegal_dumping_detect",
+    "illegal_dumping_classify",
+    "illegal_dumping_evidence",
+    "illegal_dumping_report",
+})
+# Priority → pseudo-severity. Explicit 1-5 severity appears in only ~15% of
+# frames, but priority is present ~86% of the time; we map it so the dashboard's
+# severity gate (dumping_present requires severity ≥ 2) and severity histogram
+# stay populated and consistent with the legacy data's strictness.
+_PRIORITY_TO_SEVERITY = {"LOW": 2, "MEDIUM": 3, "HIGH": 4}
+
+
+# Field labels that terminate a value. Used to trim the comma-separated
+# single-line classify variant ("WASTE TYPE: 5, WASTE VOLUME: small, …") where
+# there's no ';'/newline to stop the capture, so a field doesn't swallow the
+# ones after it.
+_DUMP_NEXT_KEY = re.compile(
+    r"\b(?:WASTE\s+TYPE|WASTE\s+VOLUME|WASTE\s+ORIGIN|PROPERTY\s+TYPE"
+    r"|GUTTER\s*/?\s*ALLEY|WATER\s+PROXIMITY)\b",
+    re.I,
+)
+
+
+def _dump_kv(cap: str, key_pat: str) -> Optional[str]:
+    """Extract a 'KEY: value' field tolerant of the three classify formats.
+
+    Matches `KEY: value`, `"KEY": "value"` (JSON) and `KEY = value`; the value
+    runs until the next `;`, newline, quote or `}`, then is further trimmed at
+    the next field label (for the comma-separated single-line variant that lacks
+    those terminators). Returns None when the key is absent (prose-only
+    captions). Commas are NOT terminators so multi-code waste types ("1, 2, 8")
+    survive intact.
+    """
+    m = re.search(key_pat + r'["\s]*[:=]\s*"?([^;\n"}]+)', cap, re.I)
+    if not m:
+        return None
+    val = m.group(1)
+    nk = _DUMP_NEXT_KEY.search(val)
+    if nk:
+        val = val[:nk.start()]
+    return val.strip().strip(",;").strip() or None
+
+
+def _dump_clean(val: Optional[str]) -> Optional[str]:
+    """Trim a free-text dumping field, dropping placeholders but preserving
+    inner punctuation. Unlike _clean_value it does NOT strip wrapping brackets,
+    so values like 'small (pickup)' keep their closing paren."""
+    if not val:
+        return None
+    t = val.strip().strip('"').strip()
+    if not t:
+        return None
+    # Normalize wrapping parens/brackets + trailing punctuation for the
+    # placeholder check only ('(none)', 'Not applicable.' → dropped); the
+    # original value is returned so 'small (pickup)' keeps its paren.
+    low = re.sub(r"^[(\[\s]+|[)\]\.\s]+$", "", t).lower()
+    if low in ("none", "no", "not visible", "not applicable", "n/a", "unknown", "unclear"):
+        return None
+    return t[:160]
+
+
+_WASTE_CODE_RE = re.compile(r"\b([1-8])\b")
+
+
+def _normalize_waste_type(val: Optional[str]) -> Optional[str]:
+    """Reduce a WASTE TYPE value to its raw numeric code(s).
+
+    The classify pass reports waste type as a code, sometimes with the label
+    echoed ("8) mixed") or several codes ("2) construction debris, (5) yard
+    waste"). We keep just the de-duplicated codes (per the chosen 'raw code'
+    handling — no label mapping) so the same waste type doesn't fragment into
+    several chart buckets. Falls back to cleaned free text when no code is found.
+    """
+    if not val:
+        return None
+    codes = _WASTE_CODE_RE.findall(val)
+    if codes:
+        seen: list[str] = []
+        for c in codes:
+            if c not in seen:
+                seen.append(c)
+        return ", ".join(seen)
+    return _dump_clean(val)
+
+
+def _split_present(cap: str) -> bool:
+    return bool(re.search(r"dumping\s+present\s*:?\s*yes", cap, re.I))
+
+
+def _split_ord_violation(cap: str) -> bool:
+    """True if any of the three ordinance checks came back Yes."""
+    return bool(re.search(r"ordinance\s+check\s*\d*\s*:?\s*yes", cap, re.I))
+
+
+def _split_chronic(cap: str) -> bool:
+    """Chronic-site flag from the evidence pass.
+
+    'No chronic site …' is checked first so a negated mention isn't read as a
+    positive by the looser 'chronic site signs/indicators' clause.
+    """
+    if not cap:
+        return False
+    if re.search(r"no\s+chronic\s+site", cap, re.I):
+        return False
+    if re.search(r"chronic\s+site\s*:?\s*yes", cap, re.I):
+        return True
+    return bool(re.search(r"chronic\s+site\s+(?:signs?|indicators?)", cap, re.I))
+
+
+_SPLIT_PRIORITY_LABELLED = re.compile(
+    r"(?:recommended[_ ]priority|priority)\"?\s*[:=]\s*\"?\s*(LOW|MEDIUM|HIGH)", re.I)
+_SPLIT_PRIORITY_POSITIONAL = re.compile(r"\(\s*6\s*\)\s*:?\s*(LOW|MEDIUM|HIGH)", re.I)
+_SPLIT_PRIORITY_ANY = re.compile(r"\b(LOW|MEDIUM|HIGH)\b", re.I)
+_SPLIT_SEVERITY = re.compile(r"severity\"?\s*[:=]\s*\"?\s*([1-5])", re.I)
+
+
+def _split_priority(cap: str) -> Optional[str]:
+    """Pull the recommended priority from the report pass.
+
+    Tries the labelled form ('PRIORITY: MEDIUM' / 'recommended_priority'),
+    then the positional enforcement-report form ('(6) MEDIUM'), then falls back
+    to the last LOW/MEDIUM/HIGH token in the text.
+    """
+    if not cap:
+        return None
+    m = _SPLIT_PRIORITY_LABELLED.search(cap) or _SPLIT_PRIORITY_POSITIONAL.search(cap)
+    if m:
+        return m.group(1).upper()
+    found = _SPLIT_PRIORITY_ANY.findall(cap)
+    return found[-1].upper() if found else None
+
+
+def _split_severity(cap: str) -> Optional[int]:
+    m = _SPLIT_SEVERITY.search(cap)
+    return int(m.group(1)) if m else None
+
+
+def _split_summary(cap: str) -> Optional[str]:
+    """Condense the report pass into a one-line summary (code fences/whitespace
+    stripped, capped) for the detail panel."""
+    if not cap:
+        return None
+    t = re.sub(r"```(?:json)?", " ", cap)
+    t = re.sub(r"\s+", " ", t).strip(" `\n")
+    return t[:200] or None
+
+
 def _is_yes(text: Optional[str]) -> bool:
     """True for any answer starting with 'Yes' (case-insensitive)."""
     if not text:
@@ -718,6 +917,10 @@ def _count_vehicles_in_desc(desc: Optional[str]) -> int:
 # canonical key "license_plate" so the API/UI key off a readable value.
 _LPR_PRESET_RAW = "vehicle_prompts_2"
 _LPR_PRESET = "license_plate"
+# Raw CSV preset values that all denote the license-plate pipeline. Older runs
+# tag it "vehicle_prompts_2"; the newer LPR export tags it "lpr_prompts". Both
+# normalize to _LPR_PRESET ("license_plate") for the API/UI.
+_LPR_PRESET_RAWS = frozenset({_LPR_PRESET_RAW, "lpr_prompts"})
 _JSON_FENCE_RE = re.compile(r"```(?:json)?\s*(.*?)\s*```", re.S | re.I)
 
 # Generic minio_key container dirs that don't identify a camera; when a frame
@@ -836,28 +1039,47 @@ def _parse_lpr_caption(full_caption: str) -> dict:
             "body_style": _norm_body_style(v.get("body_style")),
         })
 
+    # vehicle_count is an int in the legacy export but a structured object in
+    # the newer one: {"total": N, "count_confidence": ..., "breakdown": {...}}.
+    # Fall back to the count of parsed vehicles when neither is usable.
     vc = analysis.get("vehicle_count")
-    vehicle_count = vc if isinstance(vc, int) else len(vehicles)
+    if isinstance(vc, bool):
+        vehicle_count = len(vehicles)
+    elif isinstance(vc, int):
+        vehicle_count = vc
+    elif isinstance(vc, dict) and isinstance(vc.get("total"), int):
+        vehicle_count = vc["total"]
+    else:
+        vehicle_count = len(vehicles)
     return {"plates": plates, "vehicles": vehicles, "vehicle_count": vehicle_count}
 
 
 def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
-    file_name = (row.get("file_name") or "").strip()
+    # Column names differ across exports: legacy uses file_name; the newer LPR
+    # export uses filename (+ a camera column naming the feed directly).
+    file_name = (row.get("file_name") or row.get("filename") or "").strip()
+    camera = (row.get("camera") or "").strip()
     minio_key = (row.get("minio_key") or "").strip()
     if not minio_key and not file_name:
         return None
     full_caption = row.get("full_caption") or ""
     preset = (row.get("preset") or "").strip()
-    # Resolve the camera/feed id from the minio_key. The pipeline nests frames as
+    # Resolve the camera/feed id. Newer exports carry an explicit `camera`
+    # column — authoritative, so prefer it for every preset. Otherwise fall back
+    # to the minio_key, which nests frames as
     #   <run-or-date-bucket>/<camera>/<frame>.jpg     (crowd / vehicle / dumping)
     #   input_data/frames/<camera>_<timestamp>.jpg    (license_plate)
-    # so the leading segment is a dataset/date bucket, NOT a feed — the real
+    # where the leading segment is a dataset/date bucket, NOT a feed — the real
     # camera is the middle path segment (or, for the generic LPR container, it's
     # encoded in the filename). Keying off the leading segment used to collapse
     # every "per-feed" view to run-dates ("Dataset 2026-05-18"), so derive the
-    # camera explicitly here.
+    # camera explicitly here. Note the newer date-bucketed keys are 4 segments
+    # (vlm_runs/<date>/<camera>/<frame>), which is exactly why the `camera`
+    # column takes precedence — _parts[1] would otherwise be the date.
     _parts = minio_key.split("/") if minio_key else []
-    if preset == _LPR_PRESET_RAW or (_parts and _parts[0] in _GENERIC_KEY_DIRS):
+    if camera:
+        feed_id = camera                          # newer exports name the feed directly
+    elif preset in _LPR_PRESET_RAWS or (_parts and _parts[0] in _GENERIC_KEY_DIRS):
         feed_id = _feed_from_filename(file_name) if file_name else "unknown"
     elif len(_parts) >= 3:
         feed_id = _parts[1]                       # <bucket>/<camera>/<frame>
@@ -877,16 +1099,20 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
 
     captured = _parse_capture_time(file_name)
     started_at = (row.get("started_at") or "").strip() or None
-    total = row.get("total_seconds")
+    # The newer LPR export has no total_seconds; caption_seconds is the closest
+    # per-frame timing it carries.
+    total = row.get("total_seconds") or row.get("caption_seconds")
     try:
         total_f = float(total) if total else None
     except ValueError:
         total_f = None
 
-    run_id_val = (row.get("run_id") or "").strip()
+    # Legacy exports carry run_id; the newer LPR export keys the run off its
+    # `date` bucket (e.g. "vlm_runs/2026-06-05") instead.
+    run_id_val = _normalize_run_id(row.get("run_id"), row.get("date"))
     is_vehicle = preset == "vehicle_prompts"
     is_dumping = preset == "illegal_dumping"
-    is_lpr = preset == _LPR_PRESET_RAW
+    is_lpr = preset in _LPR_PRESET_RAWS
 
     # Crowd-behavior derived fields. Only crowd_behavior rows populate these;
     # other presets skip the crowd parsers (they'd misfire on prompts like
@@ -1099,6 +1325,114 @@ def _parse_row(row: dict, idx: int) -> Optional[VlmObservation]:
     )
 
 
+def _build_split_dumping_obs(group: dict[str, dict], idx: int) -> Optional[VlmObservation]:
+    """Merge a frame's four split-dumping preset rows into one observation.
+
+    `group` maps preset → CSV row for a single frame. We extract each pass with
+    the format-tolerant helpers above and emit a single `illegal_dumping`
+    VlmObservation so the rest of the pipeline (stats/aggregates/UI) treats it
+    exactly like a legacy single-pass dumping row.
+    """
+    rep_row = group.get("illegal_dumping_detect") or next(iter(group.values()), None)
+    if not rep_row:
+        return None
+    file_name = (rep_row.get("file_name") or rep_row.get("filename") or "").strip()
+    minio_key = (rep_row.get("minio_key") or "").strip()
+    if not file_name and not minio_key:
+        return None
+
+    detect = (group.get("illegal_dumping_detect", {}).get("full_caption") or "")
+    classify = (group.get("illegal_dumping_classify", {}).get("full_caption") or "")
+    evidence = (group.get("illegal_dumping_evidence", {}).get("full_caption") or "")
+    report = (group.get("illegal_dumping_report", {}).get("full_caption") or "")
+
+    # Frames sit under vlm_runs/<date>/<camera>/<frame>; the camera (feed) is
+    # encoded in the filename, so recover it there rather than from the bucket.
+    feed_id = _feed_from_filename(file_name) if file_name else "unknown"
+    # run_id is a date bucket ("vlm_runs/2026-06-05"), not a timestamp id.
+    run_id_val = _normalize_run_id(rep_row.get("run_id"), rep_row.get("date"))
+
+    present = _split_present(detect)
+    ordinance_violation = _split_ord_violation(detect)
+    waste_type = _normalize_waste_type(_dump_kv(classify, r"WASTE\s+TYPE"))
+    waste_volume = _dump_clean(_dump_kv(classify, r"WASTE\s+VOLUME"))
+    waste_origin = _dump_clean(_dump_kv(classify, r"WASTE\s+ORIGIN"))
+    property_type = _dump_clean(_dump_kv(classify, r"PROPERTY\s+TYPE"))
+    gutter_alley = bool(re.search(r"gutter/alley\"?\s*[:=]\s*\"?\s*yes", classify, re.I))
+    water_proximity = bool(re.search(r"water\s+proximity\"?\s*[:=]\s*\"?\s*yes", classify, re.I))
+    chronic_site = _split_chronic(evidence)
+    priority = _split_priority(report)
+    ordinance = _parse_ordinance(report)
+    # Explicit 1-5 severity when stated, else derived from priority.
+    severity = _split_severity(report)
+    if severity is None and priority:
+        severity = _PRIORITY_TO_SEVERITY.get(priority)
+    dumping_summary = _split_summary(report)
+    # Actionable-dumping signal: detected AND severity ≥ 2 — same gate the legacy
+    # single-pass parser applies.
+    dumping_present = present and (severity or 0) >= 2
+
+    # Rebuild a q_number → text answers dict so the frontend prompt accordion
+    # still shows per-field values (mirrors the legacy _DUMPING_KEY_TO_Q slots).
+    answers: dict[int, str] = {}
+    answers[1] = "Yes" if present else "No"
+    answers[2] = "Yes" if ordinance_violation else "No"
+    if waste_type:    answers[3] = waste_type
+    if waste_volume:  answers[4] = waste_volume
+    if waste_origin:  answers[5] = waste_origin
+    if property_type: answers[6] = property_type
+    answers[8] = "Yes" if gutter_alley else "No"
+    answers[9] = "Yes" if water_proximity else "No"
+    answers[10] = "Yes" if chronic_site else "No"
+    if severity is not None: answers[13] = str(severity)
+    if ordinance:   answers[14] = ordinance
+    if priority:    answers[15] = priority
+    if dumping_summary: answers[16] = dumping_summary
+
+    full_caption = (
+        f"[DETECT]\n{detect.strip()}\n\n[CLASSIFY]\n{classify.strip()}\n\n"
+        f"[EVIDENCE]\n{evidence.strip()}\n\n[REPORT]\n{report.strip()}"
+    )
+
+    return VlmObservation(
+        id=f"{run_id_val}-{idx:06d}",
+        run_id=run_id_val,
+        run_started_at=_parse_run_started_at(run_id_val),
+        feed_id=feed_id,
+        feed_label=_humanize_feed(feed_id),
+        location_id=_map_location(feed_id),
+        image_name=file_name,
+        captured_at=_parse_capture_time(file_name),
+        processed_at=(rep_row.get("started_at") or "").strip() or None,
+        preset="illegal_dumping",
+        model=(rep_row.get("model") or "").strip(),
+        total_seconds=None,
+        pedestrian_count=None, density_zone=None, risk_level=None,
+        has_imminent_threat=False, weapons_visible=False, medical_emergency=False,
+        fire_smoke=False, fallen_person=False, unsupervised_children=False,
+        physical_altercation=False,
+        speeding=False, collision=False, near_miss_count=None,
+        fire_lane_violation=False, erratic_maneuver=False, person_near_vehicle=False,
+        vehicle_tamper=False, wrong_way=False, building_contact=False,
+        no_plate_count=None, pedestrian_struck=False, pedestrian_near_miss=False,
+        child_struck=False, vehicle_description=None,
+        dumping_present=dumping_present,
+        ordinance_violation=ordinance_violation,
+        waste_type=waste_type, waste_volume=waste_volume, waste_origin=waste_origin,
+        property_type=property_type, gutter_alley=gutter_alley,
+        water_proximity=water_proximity, chronic_site=chronic_site,
+        severity=severity, ordinance=ordinance, priority=priority,
+        dumping_summary=dumping_summary,
+        plate_count=None, plates_detected=False, plate_text=None, plate_state=None,
+        plate_type=None, plate_confidence=None, vehicle_count=None,
+        vehicle_make=None, vehicle_model=None, vehicle_color=None,
+        vehicle_body_style=None,
+        answers=answers,
+        full_caption=full_caption,
+        plates=[], vehicles=[],
+    )
+
+
 _OBSERVATIONS: list[VlmObservation] = []
 _BY_ID: dict[str, VlmObservation] = {}
 _LOAD_INFO: dict = {"loaded_at": None, "files": [], "row_count": 0}
@@ -1141,13 +1475,29 @@ def load_all() -> dict:
                 continue
             path = os.path.join(DATA_DIR, fn)
             cnt = 0
+            # Split-dumping rows (4 presets per frame) are buffered and merged
+            # into one observation each after the file is read; every other row
+            # parses 1:1 as usual.
+            split_dumping: dict[str, dict[str, dict]] = {}
             with open(path, newline="", encoding="utf-8") as fh:
                 reader = csv.DictReader(fh)
                 for row in reader:
+                    preset = (row.get("preset") or "").strip()
+                    if preset in _DUMPING_SPLIT_PRESETS:
+                        key = (row.get("minio_key")
+                               or row.get("file_name") or row.get("filename") or "").strip()
+                        if key:
+                            split_dumping.setdefault(key, {})[preset] = row
+                        continue
                     obs = _parse_row(row, len(rows))
                     if obs:
                         rows.append(obs)
                         cnt += 1
+            for group in split_dumping.values():
+                obs = _build_split_dumping_obs(group, len(rows))
+                if obs:
+                    rows.append(obs)
+                    cnt += 1
             files.append({"name": fn, "rows": cnt})
 
     by_id = {o.id: o for o in rows}
@@ -1313,8 +1663,11 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
       vehicle_feed_issue:      [{feed_id, feed_label, collisions, speeding, fire_lane,
                                  other, total}]
       vehicle_daily_collision: [{date, collisions, total, share}]
-      monthly_by_type:         [{month, <type1>, <type2>, …}] — counts per
-                                "incident type" per calendar month
+      daily_by_type:           [{bucket, <type1>, <type2>, …}] — counts per
+                                "incident type" per calendar day
+      weekly_by_type:          [{bucket, …}] — same, per week (YYYY-Www)
+      monthly_by_type:         [{bucket, …}] — same, per calendar month
+      daily_by_location:       {buckets, locations, data}
       weekly_by_location:      {buckets, locations, data}
       monthly_by_location:     {buckets, locations, data}
     """
@@ -1479,7 +1832,10 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     weekly_plates_by_location = _aggregate_plates_by_period_location(rows, "week")
     monthly_plates_by_location = _aggregate_plates_by_period_location(rows, "month")
 
-    monthly_by_type = _aggregate_monthly_by_type(rows)
+    daily_by_type = _aggregate_by_type(rows, "day")
+    weekly_by_type = _aggregate_by_type(rows, "week")
+    monthly_by_type = _aggregate_by_type(rows, "month")
+    daily_by_location = _aggregate_by_period_location(rows, "day")
     weekly_by_location = _aggregate_by_period_location(rows, "week")
     monthly_by_location = _aggregate_by_period_location(rows, "month")
     weekly_people_by_location = _aggregate_people_by_period_location(rows, "week")
@@ -1500,7 +1856,10 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
         "dumping_waste_type": dmp_waste_top,
         "dumping_feed": dmp_feeds_top,
         "dumping_daily": dmp_daily_list,
+        "daily_by_type": daily_by_type,
+        "weekly_by_type": weekly_by_type,
         "monthly_by_type": monthly_by_type,
+        "daily_by_location": daily_by_location,
         "weekly_by_location": weekly_by_location,
         "monthly_by_location": monthly_by_location,
         "weekly_people_by_location": weekly_people_by_location,
@@ -1517,31 +1876,51 @@ def _compute_aggregates(rows: list[VlmObservation]) -> dict:
     }
 
 
-def _aggregate_monthly_by_type(rows: list[VlmObservation]) -> list[dict]:
-    """Stacked-by-incident-type counts per calendar month (YYYY-MM)."""
-    by_month: dict[str, dict[str, int]] = {}
+def _aggregate_by_type(rows: list[VlmObservation], period: str) -> list[dict]:
+    """Stacked-by-incident-type counts per time bucket.
+
+    period ∈ {"day","week","month"} → buckets keyed YYYY-MM-DD, YYYY-Www, YYYY-MM.
+    Bucket by captured_at — the date in the output (when the footage was
+    recorded) takes precedence over the file/processed date, so incidents land
+    in the period they actually occurred. Falls back to processed_at only when
+    captured_at is missing. Each row carries a `bucket` field plus one count
+    per incident-type group.
+    """
+    by_bucket: dict[str, dict[str, int]] = {}
     for o in rows:
-        # Bucket by captured_at — the date in the output (when the footage was
-        # recorded) takes precedence over the file/processed date, so incidents
-        # land in the month they actually occurred. Falls back to processed_at
-        # only when captured_at is missing.
         ts = o.captured_at or o.processed_at
         if not ts:
             continue
         try:
-            month = datetime.fromisoformat(ts).strftime("%Y-%m")
+            dt = datetime.fromisoformat(ts)
         except ValueError:
             continue
-        slot = by_month.setdefault(month, {key: 0 for _, key in _INCIDENT_TYPE_GROUPS})
+        if period == "day":
+            bucket = dt.strftime("%Y-%m-%d")
+        elif period == "week":
+            bucket = _week_bucket(dt)
+        else:
+            bucket = dt.strftime("%Y-%m")
+        slot = by_bucket.setdefault(bucket, {key: 0 for _, key in _INCIDENT_TYPE_GROUPS})
         for _, key in _INCIDENT_TYPE_GROUPS:
             if _matches_type(o, key):
                 slot[key] += 1
     out: list[dict] = []
-    for month in sorted(by_month.keys()):
-        row = {"month": month}
-        row.update(by_month[month])
+    for bucket in sorted(by_bucket.keys()):
+        row = {"bucket": bucket}
+        row.update(by_bucket[bucket])
         out.append(row)
     return out
+
+
+def _week_bucket(dt: datetime) -> str:
+    """Week bucket key (``YYYY-Www``) with Sunday as the first day of the week.
+
+    Uses ``%U`` (week-of-year, Sunday-first) so weeks run Sun–Sat. Days in
+    early January that fall before the year's first Sunday land in week ``00``.
+    The frontend reverses this same scheme to label "Week of <Sunday>".
+    """
+    return dt.strftime("%Y-W%U")
 
 
 def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> dict:
@@ -1553,6 +1932,8 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
     the chart should reflect when the incident occurred, not when the VLM ran.
     Falls back to processed_at only when captured_at is missing. Limits to the
     top 10 locations by total to keep the chart legible.
+
+    period ∈ {"day","week","month"} → buckets keyed YYYY-MM-DD, YYYY-Www, YYYY-MM.
     """
     bucket_keys: list[str] = []
     bucket_set: set[str] = set()
@@ -1568,9 +1949,10 @@ def _aggregate_by_period_location(rows: list[VlmObservation], period: str) -> di
             dt = datetime.fromisoformat(ts)
         except ValueError:
             continue
-        if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+        if period == "day":
+            bucket = dt.strftime("%Y-%m-%d")
+        elif period == "week":
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -1633,8 +2015,7 @@ def _aggregate_vehicles_by_period_location(rows: list[VlmObservation], period: s
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -1689,8 +2070,7 @@ def _aggregate_dumping_by_period_location(rows: list[VlmObservation], period: st
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -1745,8 +2125,7 @@ def _aggregate_plates_by_period_location(rows: list[VlmObservation], period: str
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
@@ -1806,8 +2185,7 @@ def _aggregate_people_by_period_location(rows: list[VlmObservation], period: str
         except ValueError:
             continue
         if period == "week":
-            iso_year, iso_week, _ = dt.isocalendar()
-            bucket = f"{iso_year}-W{iso_week:02d}"
+            bucket = _week_bucket(dt)
         else:
             bucket = dt.strftime("%Y-%m")
         if bucket not in bucket_set:
