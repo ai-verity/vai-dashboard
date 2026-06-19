@@ -20,6 +20,7 @@ import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
 import { useChartHover, ChartTooltip } from '../utils/chartHover';
 import { useTheme } from '../hooks/useTheme';
 import ThemeToggle from '../components/ThemeToggle';
+import LprnetView from './LprnetView';
 
 const METRICS = ['Precision', 'Recall', 'F1'] as const;
 
@@ -900,7 +901,7 @@ function DatasetByClassChart({ latest }: { latest: AiDatasetPoint | null }) {
 }
 
 // ─── Page header (self-contained — does NOT use TopNav) ─────────────
-type DataSource = 'ai_metrics' | 'lpr';
+type DataSource = 'ai_metrics' | 'lpr' | 'lprnet';
 
 function AiHeader({
   runDate, model, runName, period, onPeriodChange, dataSource, onDataSourceChange,
@@ -943,7 +944,7 @@ function AiHeader({
           {/* Dataset tabs — switch the whole page between the general model
               metrics and the LPR fine-tuning pipeline. Left-aligned beside the title. */}
           <div style={{ display: 'flex', gap: 6 }}>
-            {([['ai_metrics', 'People-Vehicle Detection'], ['lpr', 'License Plate Detection']] as const).map(([src, label]) => (
+            {([['ai_metrics', 'People-Vehicle Detection'], ['lpr', 'License Plate Detection'], ['lprnet', 'License Plate OCR']] as const).map(([src, label]) => (
               <button
                 key={src}
                 onClick={() => onDataSourceChange(src)}
@@ -979,6 +980,10 @@ function AiHeader({
         </div>
       </nav>
 
+      {/* Detection-only sub-header (metric title + period selector). The OCR
+          tab renders its own sub-header (LprnetSubHeader) since it has no
+          daily/weekly/monthly comparison, so this bar is hidden there. */}
+      {dataSource !== 'lprnet' && (
       <div style={{
         background: 'var(--s1)', borderBottom: '1px solid var(--border)',
         padding: '16px 24px',
@@ -1017,6 +1022,7 @@ function AiHeader({
           ))}
         </div>
       </div>
+      )}
     </>
   );
 }
@@ -1058,6 +1064,26 @@ export default function AiMetricsPage() {
   // breakdown), surface that explicitly so readers know the headline numbers
   // are aggregate, not a single class. byClass === null means still loading.
   const aggregateOnly = byClass !== null && byClass.classes.length === 0;
+
+  // OCR tab: the LPRNet metrics have a different shape from the two detection
+  // datasets, so it renders its own component (LprnetView) with its own
+  // sub-header and panels. We still render AiHeader for the shared nav + tabs.
+  if (dataSource === 'lprnet') {
+    return (
+      <div>
+        <AiHeader
+          runDate={undefined}
+          model={undefined}
+          runName={undefined}
+          period={period}
+          onPeriodChange={setPeriod}
+          dataSource={dataSource}
+          onDataSourceChange={setDataSource}
+        />
+        <LprnetView />
+      </div>
+    );
+  }
 
   if (summary && !summary.available) {
     return (

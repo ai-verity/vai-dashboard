@@ -557,3 +557,189 @@ export const AI_METRIC_COLORS: Record<AiMetricName, string> = {
   Recall:    '#2DC9A8',
   F1:        '#e85d2f',
 };
+
+// ─── LPRNet OCR metrics (license-plate character recognition) ─────────
+// Distinct metric shape from the detection tabs above: every metric is a
+// baseline (pretrained) vs trained (fine-tuned) pair. Served by
+// /api/lprnet_metrics/* and rendered in the "License Plate OCR" tab.
+
+export interface OcrModelMeta {
+  arch?: string | null;
+  nlayers?: string | number | null;
+  hidden_units?: string | number | null;
+  max_label_length?: string | number | null;
+  pretrained?: string | null;
+  characters_count?: string | number | null;
+}
+
+export interface OcrTrainingMeta {
+  num_epochs?: string | number | null;
+  batch_size_per_gpu?: string | number | null;
+  epochs_done?: number | null;
+  wall_clock_seconds?: number | null;
+  time_per_epoch_s?: number | null;
+  final_train_loss?: number | null;
+  best_epoch?: number | null;
+  best_seq_accuracy?: number | null;
+  best_train_loss?: number | null;
+}
+
+export interface OcrTaoEval {
+  tao_correct?: number | null;
+  tao_total?: number | null;
+  tao_accuracy?: number | null;
+}
+
+export interface OcrHeadlineRow {
+  key: string;
+  label: string;
+  lower_is_better: boolean;
+  baseline: number | null;
+  trained: number | null;
+  delta: number | null;
+  pct_change: string | null;
+}
+
+export interface OcrSummary {
+  available: boolean;
+  reason?: string;
+  run_name?: string;
+  run_date?: string;
+  run_timestamp?: string | null;
+  model?: OcrModelMeta;
+  training?: OcrTrainingMeta;
+  tao_eval?: OcrTaoEval;
+  n_eval_samples?: number | null;
+  headline?: OcrHeadlineRow[];
+}
+
+export interface OcrComparisonCell {
+  baseline: number | null;
+  trained: number | null;
+  delta: number | null;
+  pct_change: string | null;
+  improvement: string | null;
+}
+
+export interface OcrPerPositionRow {
+  position: number;
+  baseline: number | null;
+  trained: number | null;
+  delta: number | null;
+}
+
+export interface OcrComparison {
+  available: boolean;
+  run_date?: string;
+  metrics?: Record<string, OcrComparisonCell>;
+  per_position?: OcrPerPositionRow[];
+  worst_chars?: { baseline?: string | null; trained?: string | null };
+}
+
+export interface OcrLenAccRow {
+  length: number | null;
+  count: number | null;
+  correct: number | null;
+  accuracy: number | null;
+}
+
+export interface OcrEditDistRow {
+  edit_distance: number | null;
+  count: number | null;
+}
+
+export interface OcrLatency {
+  min?: number | null;
+  max?: number | null;
+  mean?: number | null;
+  p50?: number | null;
+  p90?: number | null;
+  p95?: number | null;
+  p99?: number | null;
+  throughput_qps?: number | null;
+  warmup_ms?: number | null;
+  iters?: number | null;
+}
+
+export interface OcrDetail {
+  available: boolean;
+  run_date?: string;
+  n_eval_samples?: number | null;
+  len_acc?: OcrLenAccRow[];
+  editdist_hist?: OcrEditDistRow[];
+  latency?: OcrLatency;
+}
+
+export interface OcrConfusionRow {
+  gt: string;
+  counts: number[];
+  total: number;
+}
+
+export interface OcrConfusion {
+  available: boolean;
+  run_date?: string;
+  labels: string[];
+  rows: OcrConfusionRow[];
+}
+
+export interface OcrDatasetSummary {
+  n_crops?: number | null;
+  train_size?: number | null;
+  val_size?: number | null;
+  plate_length_mean?: number | null;
+  plate_length_max?: number | null;
+  crop_width_mean?: number | null;
+  crop_height_mean?: number | null;
+  skipped?: Record<string, number | null>;
+}
+
+export interface OcrPlateLengthRow {
+  length: number | null;
+  count: number | null;
+}
+
+export interface OcrDataset {
+  available: boolean;
+  run_date?: string;
+  summary?: OcrDatasetSummary;
+  plate_length?: OcrPlateLengthRow[];
+}
+
+export interface OcrTrainingPoint {
+  epoch: number | null;
+  accuracy: number | null;
+  loss: number | null;
+  lr: number | null;
+}
+
+export interface OcrTraining {
+  available: boolean;
+  run_date?: string;
+  points: OcrTrainingPoint[];
+  best_epoch?: number | null;
+}
+
+export interface OcrHistoryPoint {
+  run_date: string;
+  run_name: string;
+  seq_accuracy: number | null;
+  char_accuracy: number | null;
+  cer_mean: number | null;
+  edit_distance_mean: number | null;
+}
+
+export interface OcrHistory {
+  available: boolean;
+  points: OcrHistoryPoint[];
+  points_captured: number;
+  points_required: number;
+}
+
+// Color per headline OCR metric, keyed by the backend metric key.
+export const OCR_METRIC_COLORS: Record<string, string> = {
+  seq_accuracy:       '#4A9EF5',  // blue
+  char_accuracy:      '#2DC9A8',  // teal
+  cer_mean:           '#e85d2f',  // accent (lower better)
+  edit_distance_mean: '#A78BFA',  // purple (lower better)
+};

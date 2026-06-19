@@ -21,6 +21,7 @@ import json
 
 import vlm
 import ai_metrics
+import lprnet_metrics
 from agents import orchestrator as live_feed
 
 # Optional rate-limit. slowapi is only required for production deployments;
@@ -1204,6 +1205,79 @@ async def lpr_metrics_upload(
     return {"filename": name, "bytes": size, "state": ai_metrics.lpr.state()}
 
 
+# ─── LPRNet OCR metrics ──────────────────────────────────────────────────────
+# Third dataset (data/lprnet/) — the license-plate OCR (character recognition)
+# pipeline. Unlike the two detection tabs above, the metrics are OCR-shaped
+# (sequence/char accuracy, CER, edit distance, per-position accuracy), so this
+# has its own loader (lprnet_metrics) and its own response shapes. The frontend
+# renders these in a dedicated "License Plate OCR" tab.
+
+
+@app.get("/api/lprnet_metrics/summary")
+def lprnet_metrics_summary():
+    return lprnet_metrics.summary()
+
+
+@app.get("/api/lprnet_metrics/comparison")
+def lprnet_metrics_comparison():
+    return lprnet_metrics.comparison()
+
+
+@app.get("/api/lprnet_metrics/detail")
+def lprnet_metrics_detail():
+    return lprnet_metrics.detail()
+
+
+@app.get("/api/lprnet_metrics/confusion")
+def lprnet_metrics_confusion():
+    return lprnet_metrics.confusion()
+
+
+@app.get("/api/lprnet_metrics/char_freq")
+def lprnet_metrics_char_freq():
+    return lprnet_metrics.char_freq()
+
+
+@app.get("/api/lprnet_metrics/dataset")
+def lprnet_metrics_dataset():
+    return lprnet_metrics.dataset()
+
+
+@app.get("/api/lprnet_metrics/training")
+def lprnet_metrics_training():
+    return lprnet_metrics.training()
+
+
+@app.get("/api/lprnet_metrics/history")
+def lprnet_metrics_history():
+    return lprnet_metrics.history()
+
+
+@app.get("/api/lprnet_metrics/state")
+def lprnet_metrics_state():
+    return lprnet_metrics.state()
+
+
+@app.post("/api/lprnet_metrics/reload")
+@rate_limit(_RELOAD_RATE)
+async def lprnet_metrics_reload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    x_reload_token: Optional[str] = Header(default=None),
+):
+    """Re-read LPRNet OCR runs from disk. Same fail-closed token contract as
+    /api/ai_metrics/reload."""
+    expected = os.getenv("BV_RELOAD_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="reload disabled: set BV_RELOAD_TOKEN on the server to enable",
+        )
+    if not x_reload_token or not hmac.compare_digest(x_reload_token, expected):
+        raise HTTPException(status_code=401, detail="invalid reload token")
+    await run_in_threadpool(lprnet_metrics.load)
+    return lprnet_metrics.state()
+
+
 # ─── Live Brownsville feed ──────────────────────────────────────────────────
 @app.get("/api/feeds/status")
 def feeds_status():
@@ -1241,6 +1315,7 @@ def health():
         "live_feed_last_run": _fs.get("last_run"),
         "vlm_observations": vlm.load_info().get("row_count", 0),
         "ai_metrics_runs": ai_metrics.state().get("runs", 0),
+        "lprnet_runs": lprnet_metrics.state().get("runs", 0),
         "timestamp": datetime.now().isoformat(),
     }
 

@@ -1,0 +1,4 @@
+{"date": "6/18/2026", "time": "13:27:18", "status": "STARTED", "verbosity": "INFO", "message": "Starting LPRNet evaluation."}
+{"date": "6/18/2026", "time": "13:27:23", "status": "SUCCESS", "verbosity": "INFO", "message": "Evaluation finished successfully.", "kpi": {"Accuracy": 0.5588235294117647}}
+{"date": "6/18/2026", "time": "13:28:4", "status": "STARTED", "verbosity": "INFO", "message": "Starting LPRNet Inference."}
+{"date": "6/18/2026", "time": "13:28:9", "status": "SUCCESS", "verbosity": "INFO", "message": "Inference finished successfully."}

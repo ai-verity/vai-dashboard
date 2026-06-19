@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "n_crops": 510.0,
+  "train_size": 408.0,
+  "val_size": 102.0,
+  "plate_length_mean": 6.817647058823529,
+  "plate_length_max": 8.0,
+  "crop_width_mean": 61.05490196078431,
+  "crop_height_mean": 45.26862745098039,
+  "skipped": {
+    "non_plate": 23863.0,
+    "no_text": 7323.0,
+    "short": 4.0,
+    "bad_shape": 0.0,
+    "missing_images": 0.0
+  }
+}

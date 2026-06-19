@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "trt_fp16_inference_ms_min": 0.557434,
+    "trt_fp16_inference_ms_max": 4.20856,
+    "trt_fp16_inference_ms_mean": 0.651923,
+    "trt_fp16_inference_ms_p50": 0.569458,
+    "trt_fp16_inference_ms_p90": 0.574951,
+    "trt_fp16_inference_ms_p95": 0.95874,
+    "trt_fp16_inference_ms_p99": 2.96216,
+    "trt_fp16_throughput_qps": 1494.53
+  },
+  "warmup_ms": 200,
+  "iters": 100,
+  "engine_path": "./results/exported/best.engine"
+}
