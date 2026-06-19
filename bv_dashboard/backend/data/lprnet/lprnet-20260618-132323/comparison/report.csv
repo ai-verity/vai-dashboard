@@ -1,0 +1,5 @@
+metric,explainer,baseline,trained,delta,pct_change,improvement
+seq_accuracy,Fraction of plates where the FULL string matched.,0.000000,0.531250,+0.531250,—,↑
+char_accuracy,Fraction of characters correctly predicted (positional).,0.510294,0.814199,+0.303905,+59.6%,↑
+cer_mean,Character Error Rate via edit distance. Lower is better.,0.509772,0.184028,-0.325744,-63.9%,↑
+edit_distance_mean,Average Levenshtein distance between predicted and true plate.,3.468750,1.281250,-2.187500,-63.1%,↑

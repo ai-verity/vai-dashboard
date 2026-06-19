@@ -6,6 +6,8 @@ import type {
   SeverityTier, HeatmapCell, TypeRankingItem, Location,
   VlmObservation, VlmDetail, VlmFeed, VlmStats, VlmPrompt, VlmAggregates, VlmRun,
   AiSummary, AiByClass, AiComparison, AiHistory, AiPeriod, AiDataset,
+  OcrSummary, OcrComparison, OcrDetail, OcrConfusion, OcrDataset,
+  OcrTraining, OcrHistory,
 } from '../types';
 
 // Auto-refresh interval (ms) for VLM data, so an upload / re-ingest shows up in
@@ -295,6 +297,40 @@ export function useAiHistory(period: AiPeriod, basePath: string = '/api/ai_metri
 
 export function useAiDataset(basePath: string = '/api/ai_metrics') {
   return useFetch<AiDataset>(`${basePath}/dataset`);
+}
+
+// ─── LPRNet OCR metrics hooks ────────────────────────────────────────────
+// Separate metric shape from the detection tabs (sequence/char accuracy, CER,
+// edit distance, per-position), so these have their own hooks/types rather
+// than reusing the useAi* family.
+const OCR_BASE = '/api/lprnet_metrics';
+
+export function useOcrSummary() {
+  return useFetch<OcrSummary>(`${OCR_BASE}/summary`);
+}
+
+export function useOcrComparison() {
+  return useFetch<OcrComparison>(`${OCR_BASE}/comparison`);
+}
+
+export function useOcrDetail() {
+  return useFetch<OcrDetail>(`${OCR_BASE}/detail`);
+}
+
+export function useOcrConfusion() {
+  return useFetch<OcrConfusion>(`${OCR_BASE}/confusion`);
+}
+
+export function useOcrDataset() {
+  return useFetch<OcrDataset>(`${OCR_BASE}/dataset`);
+}
+
+export function useOcrTraining() {
+  return useFetch<OcrTraining>(`${OCR_BASE}/training`);
+}
+
+export function useOcrHistory() {
+  return useFetch<OcrHistory>(`${OCR_BASE}/history`);
 }
 
 // Streaming AI analysis

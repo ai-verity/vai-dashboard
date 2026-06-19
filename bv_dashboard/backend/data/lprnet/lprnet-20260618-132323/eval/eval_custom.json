@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "n_eval_samples": 96,
+  "metrics": {
+    "seq_accuracy": 0.53125,
+    "char_accuracy": 0.8141993957703928,
+    "cer_mean": 0.18402777777777776,
+    "cer_median": 0.0,
+    "per_position_accuracy_p0": 0.6875,
+    "per_position_accuracy_p1": 0.625,
+    "per_position_accuracy_p2": 0.59375,
+    "per_position_accuracy_p3": 0.8229166666666666,
+    "per_position_accuracy_p4": 0.8125,
+    "per_position_accuracy_p5": 0.7692307692307693,
+    "per_position_accuracy_p6": 0.7386363636363636,
+    "per_position_accuracy_p7": 0.0,
+    "per_position_accuracy_p8": 0.0,
+    "per_position_accuracy_p9": 0.0,
+    "per_position_accuracy_p10": 0.0,
+    "per_position_accuracy_p11": 0.0,
+    "edit_distance_mean": 1.28125,
+    "trt_fp16_inference_ms_min": 0.557434,
+    "trt_fp16_inference_ms_max": 4.20856,
+    "trt_fp16_inference_ms_mean": 0.651923,
+    "trt_fp16_inference_ms_p50": 0.569458,
+    "trt_fp16_inference_ms_p90": 0.574951,
+    "trt_fp16_inference_ms_p95": 0.95874,
+    "trt_fp16_inference_ms_p99": 2.96216,
+    "trt_fp16_throughput_qps": 1494.53
+  },
+  "tables": {
+    "edit_distance_histogram": "eval_custom_editdist_hist.csv",
+    "plate_length_accuracy": "eval_custom_len_acc.csv",
+    "confusion_matrix": "eval_custom_confusion.csv"
+  },
+  "plots": [
+    "eval_custom_editdist_hist.png",
+    "eval_custom_confusion.png"
+  ]
+}
