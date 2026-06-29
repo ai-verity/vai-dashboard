@@ -8,9 +8,14 @@ import { useChartHover, ChartTooltip } from '../utils/chartHover';
 
 const CATS: Category[] = ['VIOLENT', 'HEALTH', 'ENVIRON', 'ORDER', 'SECURITY'];
 const COLORS = ['#EF4444', '#A78BFA', '#4A9EF5', '#F5B731', '#2DC9A8'];
-const MON_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-// "2026-06" → "Jun" — labels come from the data, which spans through the current month.
-const monLabel = (ym: string) => MON_ABBR[(parseInt(ym.slice(5, 7), 10) || 1) - 1] ?? ym.slice(5);
+// The series is now a per-day breakdown across the rolling last-31-day window,
+// so each entry's `month` field carries an ISO date "YYYY-MM-DD".
+const dayLabel = (d: string) => {
+  const p = d.split('-');
+  return p.length === 3 ? `${parseInt(p[1], 10)}/${parseInt(p[2], 10)}` : d;
+};
+// Show ~7 evenly-spaced labels so 31 daily bars don't overlap their captions.
+const labelStep = (n: number) => Math.max(1, Math.ceil(n / 7));
 
 export default function MiniTimeline() {
   const { data, loading } = useMonthly();
@@ -37,11 +42,12 @@ export default function MiniTimeline() {
     // Bars use the full canvas width — no more overlap with the in-canvas
     // legend; the legend now lives in HTML above the canvas (see the
     // return value below).
-    const bW = ((W - 32) / data.length) * 0.58;
+    const bW = ((W - 32) / data.length) * 0.72;
+    const step = labelStep(data.length);
     regions.current = [];
     data.forEach((d, mi) => {
-      const m = monLabel(d.month);
-      const x = 16 + (mi * (W - 32)) / data.length + (((W - 32) / data.length) * 0.21);
+      const m = dayLabel(d.month);
+      const x = 16 + (mi * (W - 32)) / data.length + (((W - 32) / data.length) * 0.14);
       let yBase = H - 20;
       CATS.forEach((cat, ci) => {
         const n = byCat[cat][mi];
@@ -57,13 +63,19 @@ export default function MiniTimeline() {
         });
         yBase -= hh;
       });
-      ctx.fillStyle = MUTED;
-      ctx.font = '9px DM Mono, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(m, x + bW / 2, H - 6);
-      ctx.fillStyle = TEXT;
-      ctx.font = 'bold 9px monospace';
-      ctx.fillText(String(totals[mi]), x + bW / 2, yBase - 5);
+      if (mi % step === 0 || mi === data.length - 1) {
+        ctx.fillStyle = MUTED;
+        ctx.font = '9px DM Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(m, x + bW / 2, H - 6);
+      }
+      // Per-bar total only on days with incidents — keeps zero-days uncluttered.
+      if (totals[mi] > 0) {
+        ctx.fillStyle = TEXT;
+        ctx.font = 'bold 9px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(totals[mi]), x + bW / 2, yBase - 5);
+      }
     });
   }, [data, tick]);
 

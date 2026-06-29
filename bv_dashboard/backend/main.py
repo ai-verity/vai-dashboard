@@ -8,7 +8,7 @@ import hmac
 import logging
 import os
 import random
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -312,8 +312,14 @@ def get_incidents(
     incs = ALL_INCIDENTS
     if cat and cat != "ALL":
         incs = [i for i in incs if i["cat"] == cat]
+    # The Dashboard and Charts views (which never pin a month) must show only the
+    # rolling last-31-day window so no past incidents leak in. An explicit
+    # ?month= is still honored for any caller that pins a specific month.
     if month:
         incs = [i for i in incs if i["date"].startswith(month)]
+    else:
+        start = _window_start()
+        incs = [i for i in incs if i.get("date", "") >= start]
     if min_sev is not None and min_sev > 0.0:
         incs = [i for i in incs if i["sev"] >= min_sev]
     if search:
@@ -334,9 +340,28 @@ def get_incident(incident_id: str):
 _TOTAL_DAYS = sum(MONTH_DAYS.values())
 _CATS = ("VIOLENT", "HEALTH", "ENVIRON", "ORDER", "SECURITY")
 
+# Rolling window (in days) the Dashboard and Charts views are scoped to. Every
+# "current state" panel — the KPI strip, by-category, severity distribution,
+# time-of-day heatmap, type ranking, the daily trend charts and the incident
+# feed/map/list — shows only incidents dated within this many days back from
+# today, so past data never leaks in.
+_WINDOW_DAYS = 31
 
-def _compute_kpi() -> dict:
-    incs = ALL_INCIDENTS
+
+def _window_start() -> str:
+    """Inclusive start date 'YYYY-MM-DD' of the rolling window (today − 30 days,
+    a 31-day span that includes today)."""
+    return (datetime.now() - timedelta(days=_WINDOW_DAYS - 1)).strftime("%Y-%m-%d")
+
+
+def _window_incidents() -> list:
+    """Subset of ALL_INCIDENTS dated within the rolling last-31-day window."""
+    start = _window_start()
+    return [i for i in ALL_INCIDENTS if i.get("date", "") >= start]
+
+
+def _compute_kpi(incs: Optional[list] = None) -> dict:
+    incs = ALL_INCIDENTS if incs is None else incs
     total = len(incs)
     counts = {c: 0 for c in _CATS}
     sev_sum = 0.0
@@ -354,10 +379,10 @@ def _compute_kpi() -> dict:
                 earliest = d
             if latest is None or d > latest:
                 latest = d
-    # avg_daily denominator = days spanned from the project start anchor
-    # (2026-01-01, same as the monthly chart window) through the latest
-    # incident — computed live so it tracks the current month, while a rare
-    # pre-2026 outlier can't stretch the denominator.
+    # avg_daily denominator = days spanned by the incident set passed in. When
+    # scoped to the rolling 31-day window (the Dashboard/Charts case) this is the
+    # active span within that window; a rare pre-2026 outlier can't stretch it
+    # because the span never starts before the project anchor (2026-01-01).
     span_days = _TOTAL_DAYS
     if latest:
         start_anchor = min(MONTH_DAYS) + "-01"   # "2026-01-01"
@@ -380,38 +405,26 @@ def _compute_kpi() -> dict:
     }
 
 
-def _month_range(start_ym: str, end_ym: str) -> list[str]:
-    """Contiguous YYYY-MM list from start_ym through end_ym (inclusive)."""
-    y, m = int(start_ym[:4]), int(start_ym[5:7])
-    ey, em = int(end_ym[:4]), int(end_ym[5:7])
-    out: list[str] = []
-    while (y, m) <= (ey, em):
-        out.append(f"{y:04d}-{m:02d}")
-        m += 1
-        if m > 12:
-            m, y = 1, y + 1
-    return out
+def _compute_daily() -> list[dict]:
+    """Per-day trend across the rolling 31-day window.
 
-
-def _compute_monthly() -> list[dict]:
-    # Dynamic month window: contiguous from the project start (earliest
-    # MONTH_DAYS key, 2026-01) through the latest month that actually has
-    # incidents — so the current month (e.g. June, fed by the live feed)
-    # appears automatically. Incidents before the start anchor (rare
-    # mis-dated live items) are excluded so the axis stays clean.
-    start_ym = min(MONTH_DAYS)
-    present = [i["date"][:7] for i in ALL_INCIDENTS if i["date"][:7] >= start_ym]
-    end_ym = max(present) if present else max(MONTH_DAYS)
-    by_month: dict[str, dict] = {}
-    for ym in _month_range(start_ym, end_ym):
-        by_month[ym] = {
-            "month": ym, "label": ym[5:], "total": 0, "_sev_sum": 0.0,
+    One row per calendar day (zero-incident days included, so the trend line
+    stays continuous). Same response shape as the old monthly series — the
+    `month` field carries the day's ISO date 'YYYY-MM-DD' so the frontend can
+    label it — which keeps the MonthlyData type and chart code unchanged.
+    """
+    start_dt = datetime.now() - timedelta(days=_WINDOW_DAYS - 1)
+    days = [(start_dt + timedelta(days=k)).strftime("%Y-%m-%d") for k in range(_WINDOW_DAYS)]
+    by_day: dict[str, dict] = {}
+    for d in days:
+        by_day[d] = {
+            "month": d, "label": d[5:], "total": 0, "_sev_sum": 0.0,
             **{c.lower(): 0 for c in _CATS},
             **{f"{c.lower()}_sev_sum": 0.0 for c in _CATS},
         }
     for i in ALL_INCIDENTS:
-        m = i["date"][:7]
-        entry = by_month.get(m)
+        d = i.get("date", "")[:10]
+        entry = by_day.get(d)
         if entry is None:
             continue
         entry["total"] += 1
@@ -420,8 +433,8 @@ def _compute_monthly() -> list[dict]:
         entry[c] += 1
         entry[f"{c}_sev_sum"] += i["sev"]
     result: list[dict] = []
-    for ym in sorted(by_month):
-        e = by_month[ym]
+    for d in days:
+        e = by_day[d]
         row = {"month": e["month"], "label": e["label"], "total": e["total"]}
         for c in _CATS:
             cl = c.lower()
@@ -433,10 +446,11 @@ def _compute_monthly() -> list[dict]:
     return result
 
 
-def _compute_by_category() -> list[dict]:
+def _compute_by_category(incs: Optional[list] = None) -> list[dict]:
+    incs = ALL_INCIDENTS if incs is None else incs
     counts = {c: 0 for c in _CATS}
     sev_sum = {c: 0.0 for c in _CATS}
-    for i in ALL_INCIDENTS:
+    for i in incs:
         cat = i["cat"]
         if cat in counts:
             counts[cat] += 1
@@ -476,8 +490,8 @@ def _compute_by_location(top_n: int = 10) -> list[dict]:
     return result
 
 
-def _compute_severity_dist() -> list[dict]:
-    incs = ALL_INCIDENTS
+def _compute_severity_dist(incs: Optional[list] = None) -> list[dict]:
+    incs = ALL_INCIDENTS if incs is None else incs
     return [
         {"tier": "Critical ≥0.9",   "min": 0.9, "max": 1.0, "count": sum(1 for i in incs if i["sev"] >= 0.9),             "color": "#7f1d1d"},
         {"tier": "High 0.7–0.9",    "min": 0.7, "max": 0.9, "count": sum(1 for i in incs if 0.7 <= i["sev"] < 0.9),       "color": "#EF4444"},
@@ -490,10 +504,11 @@ def _compute_severity_dist() -> list[dict]:
 _WEEKDAY_LABELS = ("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
 
-def _compute_heatmap() -> list[dict]:
+def _compute_heatmap(incs: Optional[list] = None) -> list[dict]:
+    incs = ALL_INCIDENTS if incs is None else incs
     grid_sums   = [[0.0] * 7 for _ in range(8)]
     grid_counts = [[0]   * 7 for _ in range(8)]
-    for inc in ALL_INCIDENTS:
+    for inc in incs:
         try:
             dt = datetime.fromisoformat(f"{inc['date']}T{inc['time']}")
         except ValueError:
@@ -517,10 +532,11 @@ def _compute_heatmap() -> list[dict]:
     return result
 
 
-def _compute_type_ranking(top_n: int = 12) -> list[dict]:
+def _compute_type_ranking(top_n: int = 12, incs: Optional[list] = None) -> list[dict]:
+    incs = ALL_INCIDENTS if incs is None else incs
     counts: dict = {}
     sev_sums: dict = {}
-    for i in ALL_INCIDENTS:
+    for i in incs:
         t = i["type"]
         counts[t] = counts.get(t, 0) + 1
         sev_sums[t] = sev_sums.get(t, 0) + i["sev"]
@@ -555,13 +571,18 @@ def _recompute_stats() -> None:
     """Rebuild all /api/stats/* snapshots from the current ALL_INCIDENTS."""
     global _STATS_KPI, _STATS_MONTHLY, _STATS_BY_CATEGORY, _STATS_BY_LOCATION
     global _STATS_SEVERITY_DIST, _STATS_HEATMAP, _STATS_TYPE_RANKING
-    _STATS_KPI                  = _compute_kpi()
-    _STATS_MONTHLY              = _compute_monthly()
-    _STATS_BY_CATEGORY          = _compute_by_category()
+    # Every Dashboard/Charts snapshot is scoped to the rolling 31-day window so
+    # neither view ever surfaces past data — including the trend chart, which is
+    # now a per-day series across the same window. by_location (not shown on
+    # either tab) is left all-time.
+    win_incs                    = _window_incidents()
+    _STATS_KPI                  = _compute_kpi(win_incs)
+    _STATS_MONTHLY              = _compute_daily()
+    _STATS_BY_CATEGORY          = _compute_by_category(win_incs)
     _STATS_BY_LOCATION          = _compute_by_location()
-    _STATS_SEVERITY_DIST        = _compute_severity_dist()
-    _STATS_HEATMAP              = _compute_heatmap()
-    _STATS_TYPE_RANKING         = _compute_type_ranking()
+    _STATS_SEVERITY_DIST        = _compute_severity_dist(win_incs)
+    _STATS_HEATMAP              = _compute_heatmap(win_incs)
+    _STATS_TYPE_RANKING         = _compute_type_ranking(incs=win_incs)
 
 
 # Initial snapshot from the baseline incidents; refreshed once the live feed loads.

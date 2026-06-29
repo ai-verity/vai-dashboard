@@ -13,9 +13,19 @@ import { useTheme } from '../hooks/useTheme';
 const CATS: Category[] = ['VIOLENT', 'HEALTH', 'ENVIRON', 'ORDER', 'SECURITY'];
 const COLORS = ['#EF4444', '#A78BFA', '#4A9EF5', '#F5B731', '#2DC9A8'];
 const MON_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-// "2026-06" → "Jun". Month labels are derived from the data (which now spans
-// through the current month) rather than a fixed Jan–May array.
-const monLabel = (ym: string) => MON_ABBR[(parseInt(ym.slice(5, 7), 10) || 1) - 1] ?? ym.slice(5);
+// The trend series is now a per-day breakdown across the rolling last-31-day
+// window, so each entry's `month` field carries an ISO date "YYYY-MM-DD".
+// dayLabel → compact "M/D" for chart axes; fmtDay → "Mon D" for prose.
+const dayLabel = (d: string) => {
+  const p = d.split('-');
+  return p.length === 3 ? `${parseInt(p[1], 10)}/${parseInt(p[2], 10)}` : d;
+};
+const fmtDay = (d: string) => {
+  const [, m, dd] = d.split('-').map(Number);
+  return MON_ABBR[(m || 1) - 1] ? `${MON_ABBR[(m || 1) - 1]} ${dd}` : d;
+};
+// Show ~8 evenly-spaced axis labels so 31 daily ticks don't overlap.
+const labelStep = (n: number) => Math.max(1, Math.ceil(n / 8));
 const ACCENT = '#e85d2f';
 
 type Padding = { l: number; r: number; t: number; b: number };
@@ -90,21 +100,29 @@ function MonthlyVolume({ data }: { data: MonthlyData[] }) {
     ctx.lineWidth = 2.5;
     ctx.stroke();
 
+    const step = labelStep(data.length);
     xs.forEach((x, i) => {
       ctx.beginPath();
-      ctx.arc(x, ys[i], 4.5, 0, Math.PI * 2);
+      ctx.arc(x, ys[i], 3.5, 0, Math.PI * 2);
       ctx.fillStyle = ACCENT;
       ctx.fill();
       ctx.strokeStyle = BG;
       ctx.lineWidth = 1.5;
       ctx.stroke();
-      ctx.fillStyle = TEXT;
-      ctx.font = 'bold 11px DM Mono, monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(String(totals[i]), x, ys[i] - 11);
-      ctx.fillStyle = MUTED;
-      ctx.font = '9px DM Mono, monospace';
-      ctx.fillText(monLabel(data[i].month), x, H - 7);
+      // Value label only on days that actually had incidents — keeps the many
+      // zero-days in the window from littering the chart with "0"s.
+      if (totals[i] > 0) {
+        ctx.fillStyle = TEXT;
+        ctx.font = 'bold 10px DM Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(String(totals[i]), x, ys[i] - 9);
+      }
+      if (i % step === 0 || i === data.length - 1) {
+        ctx.fillStyle = MUTED;
+        ctx.font = '9px DM Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(dayLabel(data[i].month), x, H - 7);
+      }
     });
   }, [data, tick]);
 
@@ -112,11 +130,11 @@ function MonthlyVolume({ data }: { data: MonthlyData[] }) {
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
-          <div style={S.title}>Monthly Incident Volume</div>
-          <div style={S.sub}>Total incidents per month with trend line overlay</div>
+          <div style={S.title}>Daily Incident Volume</div>
+          <div style={S.sub}>Total incidents per day · last 31 days, with trend line overlay</div>
         </div>
         <div style={{ fontFamily: 'var(--mono)', fontSize: 11, color: delta > 0 ? 'var(--red)' : 'var(--green)' }}>
-          {delta >= 0 ? '↑ +' : '↓ '}{Math.abs(delta)} vs Jan
+          {delta >= 0 ? '↑ +' : '↓ '}{Math.abs(delta)} vs {data.length ? dayLabel(data[0].month) : 'start'}
         </div>
       </div>
       <div style={S.body}>
@@ -169,7 +187,7 @@ function SeverityDonut({ data }: { data: SeverityTier[] }) {
       <div style={S.hdr}>
         <div>
           <div style={S.title}>Severity Distribution</div>
-          <div style={S.sub}>YTD by severity tier</div>
+          <div style={S.sub}>Last 31 days by severity tier</div>
         </div>
       </div>
       <div style={{ ...S.body, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -224,11 +242,13 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
       ctx.lineWidth = 1.8;
       ctx.stroke();
     }
+    const step = labelStep(data.length);
     xs.forEach((x, i) => {
+      if (i % step !== 0 && i !== data.length - 1) return;
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(monLabel(data[i].month), x, H - 7);
+      ctx.fillText(dayLabel(data[i].month), x, H - 7);
     });
     CATS.forEach((c, ci) => {
       const x = p.l + (ci * (W - p.l - p.r)) / CATS.length;
@@ -245,8 +265,8 @@ function StackedCategory({ data }: { data: MonthlyData[] }) {
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
-          <div style={S.title}>Category Breakdown by Month</div>
-          <div style={S.sub}>Stacked area — Violent, Health, Environmental, Order, Security</div>
+          <div style={S.title}>Category Breakdown by Day</div>
+          <div style={S.sub}>Stacked area · last 31 days — Violent, Health, Environmental, Order, Security</div>
         </div>
       </div>
       <div style={S.body}>
@@ -701,11 +721,13 @@ function SeverityTrend({ data }: { data: MonthlyData[] }) {
         ctx.fill();
       });
     });
+    const step = labelStep(data.length);
     xs.forEach((x, i) => {
+      if (i % step !== 0 && i !== data.length - 1) return;
       ctx.fillStyle = MUTED;
       ctx.font = '9px DM Mono, monospace';
       ctx.textAlign = 'center';
-      ctx.fillText(monLabel(data[i].month), x, H - 12);
+      ctx.fillText(dayLabel(data[i].month), x, H - 12);
     });
     CATS.forEach((c, ci) => {
       const x = p.l + (ci * (W - p.l - p.r)) / CATS.length;
@@ -723,7 +745,7 @@ function SeverityTrend({ data }: { data: MonthlyData[] }) {
       <div style={S.hdr}>
         <div>
           <div style={S.title}>Avg Severity Trend</div>
-          <div style={S.sub}>Monthly avg severity per category</div>
+          <div style={S.sub}>Daily avg severity per category · last 31 days</div>
         </div>
       </div>
       <div style={S.body}>
@@ -768,7 +790,7 @@ function TypeRanking({ data }: { data: TypeRankingItem[] }) {
       <div style={S.hdr}>
         <div>
           <div style={S.title}>Incident Type Ranking</div>
-          <div style={S.sub}>Top 10 types YTD</div>
+          <div style={S.sub}>Top 10 types · last 31 days</div>
         </div>
       </div>
       <div style={S.body}>
@@ -779,37 +801,26 @@ function TypeRanking({ data }: { data: TypeRankingItem[] }) {
 }
 
 // ─── Insight cards ───────────────────────────────────────────────
-const MONTH_LABEL = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function InsightCards({ monthly, cat }: { monthly: MonthlyData[] | null; cat: CategoryData[] | null }) {
   if (!monthly || !cat || monthly.length === 0) return null;
 
-  // Peak month: highest average severity. Latest month: last entry chronologically.
-  const peak = monthly.reduce((a, b) => (b.avg_sev > a.avg_sev ? b : a));
-  const latest = monthly[monthly.length - 1];
-  const baseline = monthly[0];
-  const peakDelta = baseline.total > 0
-    ? Math.round(((peak.total - baseline.total) / baseline.total) * 100)
-    : 0;
-
-  // Annualize the latest (partial) month by extrapolating from days-elapsed.
-  const [latestYear, latestMonth] = latest.month.split('-').map(Number);
-  const daysInLatest = new Date(latestYear, latestMonth, 0).getDate();
-  const now = new Date();
-  const isCurrentMonth = now.getFullYear() === latestYear && now.getMonth() + 1 === latestMonth;
-  const daysElapsed = isCurrentMonth ? Math.max(1, now.getDate()) : daysInLatest;
-  const latestPace = Math.round(latest.total * (daysInLatest / daysElapsed));
-  const peakLabel = `${MONTH_LABEL[Number(peak.month.split('-')[1]) - 1]} ${peak.month.split('-')[0]}`;
-  const latestLabel = MONTH_LABEL[latestMonth - 1];
+  // `monthly` is now a per-day series across the rolling 31-day window. Peak day:
+  // highest average severity among days that actually had incidents.
+  const active = monthly.filter(d => d.total > 0);
+  const peak = (active.length ? active : monthly).reduce((a, b) => (b.avg_sev > a.avg_sev ? b : a));
+  const windowTotal = monthly.reduce((s, d) => s + d.total, 0);
+  const avgPerDay = windowTotal / monthly.length;
+  const peakLabel = fmtDay(peak.month);
 
   const violent = cat.find(c => c.cat === 'VIOLENT');
   const health = cat.find(c => c.cat === 'HEALTH');
 
   const cards = [
-    { n: peak.total, col: 'var(--red)', label: `${peakLabel} — Peak Severity Month`, desc: `Highest average severity of the period (${peak.avg_sev.toFixed(2)}). Pablo Kisel Blvd and downtown corridors accounted for the bulk of high-severity incidents.`, trend: `${peakDelta >= 0 ? '↑' : '↓'} ${Math.abs(peakDelta)}% vs ${MONTH_LABEL[Number(baseline.month.split('-')[1]) - 1]} baseline`, tc: 'var(--red)' },
-    { n: violent?.count ?? 0, col: 'var(--orange)', label: 'Violent Incidents YTD', desc: `Avg violent severity ${(violent?.avg_sev ?? 0).toFixed(2)}. Pablo Kisel Blvd and downtown corridors account for majority of incidents. Two OIS events in 2026.`, trend: '↑ Trend: entertainment district concentration', tc: 'var(--red)' },
-    { n: health?.count ?? 0, col: 'var(--purple)', label: 'Health / Medical Calls', desc: 'Cameron County: 30% diabetic, 80% obese/overweight. Medical emergencies are a consistent monthly category. Valley Regional Medical Center is primary EMS destination.', trend: '→ Steady · Seasonal heat will escalate May–Sep', tc: 'var(--muted)' },
-    { n: latestPace, col: 'var(--accent)', label: `${latestLabel} Paced Rate`, desc: `${latest.total} incidents in first ${daysElapsed} day(s) of ${latestLabel}. Annualized pace projects ${latestPace} total for ${latestLabel}. Hurricane season begins June 1 — elevated flood risk ahead.`, trend: '⚠ Hurricane season starts Jun 1', tc: 'var(--red)' },
+    { n: peak.total, col: 'var(--red)', label: `${peakLabel} — Peak Severity Day`, desc: `Highest average severity of the window (${peak.avg_sev.toFixed(2)}). Pablo Kisel Blvd and downtown corridors accounted for the bulk of high-severity incidents.`, trend: `${peak.total} incident${peak.total === 1 ? '' : 's'} that day`, tc: 'var(--red)' },
+    { n: violent?.count ?? 0, col: 'var(--orange)', label: 'Violent Incidents · Last 31 Days', desc: `Avg violent severity ${(violent?.avg_sev ?? 0).toFixed(2)}. Pablo Kisel Blvd and downtown corridors account for majority of incidents. Two OIS events in 2026.`, trend: '↑ Trend: entertainment district concentration', tc: 'var(--red)' },
+    { n: health?.count ?? 0, col: 'var(--purple)', label: 'Health / Medical Calls', desc: 'Cameron County: 30% diabetic, 80% obese/overweight. Medical emergencies are a consistent category. Valley Regional Medical Center is primary EMS destination.', trend: '→ Steady · Seasonal heat will escalate May–Sep', tc: 'var(--muted)' },
+    { n: windowTotal, col: 'var(--accent)', label: 'Last 31 Days · Total', desc: `${windowTotal} incident${windowTotal === 1 ? '' : 's'} across the rolling window — averaging ${avgPerDay.toFixed(1)} per day. Hurricane season begins June 1 — elevated flood risk ahead.`, trend: `≈ ${avgPerDay.toFixed(1)} / day`, tc: 'var(--muted)' },
   ];
 
   return (
@@ -1017,11 +1028,11 @@ export default function ChartsPage() {
         <div>
           <div style={{ fontFamily: 'var(--cond)', fontSize: 18, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Charts &amp; Trends{monthly && monthly.length
-              ? ` — ${monLabel(monthly[0].month)}–${monLabel(monthly[monthly.length - 1].month)} ${monthly[monthly.length - 1].month.slice(0, 4)}`
+              ? ` — ${fmtDay(monthly[0].month)}–${fmtDay(monthly[monthly.length - 1].month)} ${monthly[monthly.length - 1].month.slice(0, 4)}`
               : ''}
           </div>
           <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 2 }}>
-            All 16 monitored locations · {monthly?.length ?? 0} months · Monthly, weekly &amp; category breakdowns
+            All 16 monitored locations · last 31 days · daily, severity &amp; category breakdowns
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
