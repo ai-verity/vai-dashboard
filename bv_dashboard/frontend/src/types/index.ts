@@ -636,6 +636,36 @@ export interface OcrComparison {
   worst_chars?: { baseline?: string | null; trained?: string | null };
 }
 
+// Run-over-run headline comparison (this run's trained metrics vs the prior
+// run's trained metrics). `compared_to` is "baseline" when only one run is on
+// disk and we fall back to the current run's own baseline column.
+export interface OcrRunComparisonRow {
+  key: string;
+  label: string;
+  lower_is_better: boolean;
+  current: number | null;
+  previous: number | null;
+  delta: number | null;
+}
+
+export interface OcrRunPositionRow {
+  position: number;
+  current: number | null;
+  previous: number | null;
+  delta: number | null;
+}
+
+export interface OcrRunComparison {
+  available: boolean;
+  compared_to?: 'prior_run' | 'baseline';
+  current_run_date?: string;
+  current_run_name?: string;
+  previous_run_date?: string | null;
+  previous_run_name?: string | null;
+  headline?: OcrRunComparisonRow[];
+  per_position?: OcrRunPositionRow[];
+}
+
 export interface OcrLenAccRow {
   length: number | null;
   count: number | null;

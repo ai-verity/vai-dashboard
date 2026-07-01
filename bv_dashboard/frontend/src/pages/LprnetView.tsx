@@ -11,13 +11,13 @@
 import { useMemo } from 'react';
 import type { CSSProperties } from 'react';
 import {
-  useOcrSummary, useOcrComparison, useOcrDetail, useOcrConfusion,
+  useOcrSummary, useOcrRunComparison, useOcrDetail, useOcrConfusion,
   useOcrDataset, useOcrTraining, useOcrHistory,
 } from '../hooks/useApi';
 import type {
-  OcrHeadlineRow, OcrPerPositionRow, OcrLenAccRow, OcrEditDistRow,
+  OcrRunPositionRow, OcrLenAccRow, OcrEditDistRow,
   OcrConfusion, OcrLatency, OcrTrainingPoint, OcrDatasetSummary,
-  OcrPlateLengthRow, OcrHistory, OcrSummary,
+  OcrPlateLengthRow, OcrHistory, OcrSummary, OcrRunComparison,
 } from '../types';
 import { OCR_METRIC_COLORS } from '../types';
 import { setupCanvas, useCanvas, chartColors } from '../utils/canvas';
@@ -90,8 +90,17 @@ function SkeletonPanel({ title, h = 220 }: { title: string; h?: number }) {
   );
 }
 
-// ─── Headline cards: baseline → trained per OCR metric ──────────────
-function HeadlineCards({ rows }: { rows: OcrHeadlineRow[] }) {
+// ─── Headline cards: current run → prior run per OCR metric ─────────
+// Run-over-run comparison (mirrors the detection tab): the big number is the
+// current run's trained metric; the delta is versus the previous LPRNet run.
+// With only one run on disk the backend falls back to that run's own baseline
+// column (compared_to === 'baseline'), which we label accordingly.
+function HeadlineCards({ cmp }: { cmp: OcrRunComparison }) {
+  const rows = cmp.headline ?? [];
+  const priorRun = cmp.compared_to === 'prior_run';
+  const cmpLabel = priorRun
+    ? `prior run${cmp.previous_run_date ? ` · ${cmp.previous_run_date}` : ''}`
+    : 'baseline';
   return (
     <div style={{
       display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1,
@@ -118,19 +127,22 @@ function HeadlineCards({ rows }: { rows: OcrHeadlineRow[] }) {
                   border: '1px solid var(--border)',
                 }}>↓ BETTER</span>
               )}
+              <span style={{ marginLeft: 'auto', color: 'var(--dim)' }}>
+                {cmp.current_run_date ?? '—'}
+              </span>
             </div>
             <div style={{
               fontFamily: 'var(--mono)', fontSize: 34, fontWeight: 500,
               color: col, lineHeight: 1.05, marginBottom: 6,
             }}>
-              {show(r.trained)}
+              {show(r.current)}
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, fontFamily: 'var(--mono)', fontSize: 11 }}>
               <span style={{ color: improveColor(r.delta, r.lower_is_better) }}>
                 {r.delta === null ? '—' : `${r.delta >= 0 ? '+' : ''}${isCount ? num(r.delta) : (r.delta * 100).toFixed(2) + ' pp'}`}
               </span>
               <span style={{ color: 'var(--muted)', fontSize: 10 }}>
-                vs baseline {show(r.baseline)}
+                vs {cmpLabel} {show(r.previous)}
               </span>
             </div>
           </div>
@@ -140,8 +152,12 @@ function HeadlineCards({ rows }: { rows: OcrHeadlineRow[] }) {
   );
 }
 
-// ─── Per-position accuracy: baseline vs trained grouped bars ─────────
-function PerPositionBars({ rows }: { rows: OcrPerPositionRow[] }) {
+// ─── Per-position accuracy: prior run vs this run grouped bars ───────
+// Run-over-run: the grey bar is the previous run's trained accuracy at each
+// character slot, the green bar is this run's. `priorLabel` reads "Prior run"
+// normally, or "Baseline" when only one run is on disk (the backend falls back
+// to that run's baseline column).
+function PerPositionBars({ rows, priorLabel }: { rows: OcrRunPositionRow[]; priorLabel: string }) {
   const { tick } = useTheme();
   const { regions, hover, onMouseMove, onMouseLeave } = useChartHover();
   const ref = useCanvas(cv => {
@@ -169,27 +185,27 @@ function PerPositionBars({ rows }: { rows: OcrPerPositionRow[] }) {
 
     rows.forEach((row, i) => {
       const cx = p.l + slot * i + slot / 2;
-      const xBase = cx - groupW / 2;
-      const xTr = xBase + barW + gap;
-      const baseV = row.baseline ?? 0, trV = row.trained ?? 0;
-      const baseH = (H - p.t - p.b) * baseV, trH = (H - p.t - p.b) * trV;
+      const xPrev = cx - groupW / 2;
+      const xCur = xPrev + barW + gap;
+      const prevV = row.previous ?? 0, curV = row.current ?? 0;
+      const prevH = (H - p.t - p.b) * prevV, curH = (H - p.t - p.b) * curV;
 
       ctx.fillStyle = MUTED; ctx.globalAlpha = 0.25;
-      ctx.fillRect(xBase, H - p.b - baseH, barW, baseH); ctx.globalAlpha = 1;
+      ctx.fillRect(xPrev, H - p.b - prevH, barW, prevH); ctx.globalAlpha = 1;
       regions.current.push({
-        x: xBase, y: H - p.b - Math.max(baseH, 12), w: barW, h: Math.max(baseH, 12),
-        label: 'Baseline', value: pct(row.baseline), color: MUTED, bar: `Position ${row.position}`,
+        x: xPrev, y: H - p.b - Math.max(prevH, 12), w: barW, h: Math.max(prevH, 12),
+        label: priorLabel, value: pct(row.previous), color: MUTED, bar: `Position ${row.position}`,
       });
 
       ctx.fillStyle = ACCENT;
-      ctx.fillRect(xTr, H - p.b - trH, barW, trH);
+      ctx.fillRect(xCur, H - p.b - curH, barW, curH);
       regions.current.push({
-        x: xTr, y: H - p.b - Math.max(trH, 12), w: barW, h: Math.max(trH, 12),
-        label: 'Trained', value: pct(row.trained), color: ACCENT, bar: `Position ${row.position}`,
+        x: xCur, y: H - p.b - Math.max(curH, 12), w: barW, h: Math.max(curH, 12),
+        label: 'This run', value: pct(row.current), color: ACCENT, bar: `Position ${row.position}`,
       });
 
       ctx.fillStyle = TEXT; ctx.font = 'bold 9px DM Mono, monospace'; ctx.textAlign = 'center';
-      ctx.fillText((trV * 100).toFixed(0), xTr + barW / 2, Math.max(H - p.b - trH - 4, p.t + 8));
+      ctx.fillText((curV * 100).toFixed(0), xCur + barW / 2, Math.max(H - p.b - curH - 4, p.t + 8));
       ctx.fillStyle = MUTED; ctx.font = '9px Barlow, sans-serif';
       ctx.fillText(`p${row.position}`, cx, H - 18);
       if (row.delta !== null) {
@@ -199,20 +215,20 @@ function PerPositionBars({ rows }: { rows: OcrPerPositionRow[] }) {
       }
     });
 
-    [{ col: MUTED, label: 'Baseline', alpha: 0.5 }, { col: ACCENT, label: 'Trained', alpha: 1 }].forEach((it, li) => {
+    [{ col: MUTED, label: priorLabel, alpha: 0.5 }, { col: ACCENT, label: 'This run', alpha: 1 }].forEach((it, li) => {
       const x = W - p.r - 170 + li * 90, y = p.t - 4;
       ctx.globalAlpha = it.alpha; ctx.fillStyle = it.col; ctx.fillRect(x, y, 10, 8); ctx.globalAlpha = 1;
       ctx.fillStyle = TEXT; ctx.font = '10px DM Mono, monospace'; ctx.textAlign = 'left';
       ctx.fillText(it.label, x + 14, y + 7);
     });
-  }, [rows, tick]);
+  }, [rows, priorLabel, tick]);
 
   return (
     <div style={S.panel}>
       <div style={S.hdr}>
         <div>
           <div style={S.title}>Per-position character accuracy</div>
-          <div style={S.sub}>Accuracy at each character slot · baseline vs trained · value ×100 above bar</div>
+          <div style={S.sub}>Accuracy at each character slot · {priorLabel.toLowerCase()} vs this run · value ×100 above bar</div>
         </div>
       </div>
       <div style={S.body}>
@@ -604,7 +620,7 @@ export function LprnetSubHeader({ summary }: { summary: OcrSummary | null }) {
 // ─── The tab body ───────────────────────────────────────────────────
 export default function LprnetView() {
   const { data: summary } = useOcrSummary();
-  const { data: comparison } = useOcrComparison();
+  const { data: runCmp } = useOcrRunComparison();
   const { data: detail } = useOcrDetail();
   const { data: confusion } = useOcrConfusion();
   const { data: dataset } = useOcrDataset();
@@ -639,9 +655,9 @@ export default function LprnetView() {
     <div>
       <LprnetSubHeader summary={summary} />
 
-      {/* Headline OCR metrics */}
-      {comparison?.available && summary?.headline ? (
-        <HeadlineCards rows={summary.headline} />
+      {/* Headline OCR metrics — current run vs prior run (run-over-run) */}
+      {runCmp?.available ? (
+        <HeadlineCards cmp={runCmp} />
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 1, background: 'var(--border)' }}>
           {[1, 2, 3, 4].map(i => <div key={i} style={{ background: 'var(--s0)', padding: 20 }}><div className="skeleton" style={{ height: 76 }} /></div>)}
@@ -652,11 +668,11 @@ export default function LprnetView() {
       {detail?.available && detail.latency ? <LatencyStrip lat={detail.latency} /> : null}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--border)' }}>
-        {/* Per-position (wide) */}
+        {/* Per-position (wide) — run-over-run: prior run vs this run */}
         <div style={{ gridColumn: 'span 2' }}>
-          {comparison === null ? <SkeletonPanel title="Per-position character accuracy" />
-            : (comparison.per_position && comparison.per_position.length > 0)
-              ? <PerPositionBars rows={comparison.per_position} />
+          {runCmp === null ? <SkeletonPanel title="Per-position character accuracy" />
+            : (runCmp.per_position && runCmp.per_position.length > 0)
+              ? <PerPositionBars rows={runCmp.per_position} priorLabel={runCmp.compared_to === 'prior_run' ? 'Prior run' : 'Baseline'} />
               : <EmptyPanel title="Per-position character accuracy" message="No per-position data in this run." />}
         </div>
 

@@ -399,6 +399,82 @@ def comparison() -> dict:
     }
 
 
+def run_comparison() -> dict:
+    """Run-over-run headline comparison — the OCR analogue of the detection
+    tab's day-over-day view. Compares the current run's *trained* headline
+    metrics against the previous run's *trained* values (the most recent prior
+    snapshot on disk). When only one run exists there is no prior run, so we
+    fall back to the current run's own *baseline* column and flag
+    compared_to="baseline" (same fallback spirit as ai_metrics.comparison's
+    daily mode)."""
+    cur = _STATE["current"]
+    if cur is None:
+        return {"available": False}
+    hist = _STATE["history"]
+    prior = hist[-2] if len(hist) >= 2 else None
+    prior_comp = prior["comparison"] if prior else None
+    compared_to = "prior_run" if prior is not None else "baseline"
+
+    rows = []
+    for spec in HEADLINE_METRICS:
+        key = spec["key"]
+        cell = cur["comparison"].get(key, {})
+        current = cell.get("trained")
+        if prior_comp is not None:
+            previous = prior_comp.get(key, {}).get("trained")
+        else:
+            previous = cell.get("baseline")
+        delta = (
+            current - previous
+            if current is not None and previous is not None
+            else None
+        )
+        rows.append({
+            "key": key,
+            "label": spec["label"],
+            "lower_is_better": spec["lower_is_better"],
+            "current": current,
+            "previous": previous,
+            "delta": delta,
+        })
+
+    # Per-position accuracy, run-over-run: this run's trained value at each
+    # character slot vs the prior run's trained value (baseline fallback when
+    # there is no prior run), unioning positions in case the two runs differ.
+    cur_pp = {p["position"]: p for p in cur["per_position"]}
+    prior_pp = {p["position"]: p for p in prior["per_position"]} if prior is not None else {}
+    per_position = []
+    for pos in sorted(set(cur_pp) | set(prior_pp)):
+        c = cur_pp.get(pos, {})
+        pos_current = c.get("trained")
+        if prior is not None:
+            pos_previous = prior_pp.get(pos, {}).get("trained")
+        else:
+            pos_previous = c.get("baseline")
+        pos_delta = (
+            pos_current - pos_previous
+            if pos_current is not None and pos_previous is not None
+            else None
+        )
+        per_position.append({
+            "position": pos,
+            "current": pos_current,
+            "previous": pos_previous,
+            "delta": pos_delta,
+        })
+
+    return {
+        "available": True,
+        "compared_to": compared_to,
+        "current_run_date": cur["run_date"],
+        "current_run_name": cur["run_name"],
+        "previous_run_date": prior["run_date"] if prior is not None else None,
+        "previous_run_name": prior["run_name"] if prior is not None else None,
+        "headline": rows,
+        "per_position": per_position,
+    }
+
+
 def detail() -> dict:
     """Edit-distance histogram, per-length accuracy, and latency/throughput."""
     cur = _STATE["current"]
