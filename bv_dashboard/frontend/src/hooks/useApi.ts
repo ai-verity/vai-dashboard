@@ -6,7 +6,7 @@ import type {
   SeverityTier, HeatmapCell, TypeRankingItem, Location,
   VlmObservation, VlmDetail, VlmFeed, VlmStats, VlmPrompt, VlmAggregates, VlmRun,
   AiSummary, AiByClass, AiComparison, AiHistory, AiPeriod, AiDataset,
-  OcrSummary, OcrComparison, OcrDetail, OcrConfusion, OcrDataset,
+  OcrSummary, OcrComparison, OcrRunComparison, OcrDetail, OcrConfusion, OcrDataset,
   OcrTraining, OcrHistory,
 } from '../types';
 
@@ -311,6 +311,10 @@ export function useOcrSummary() {
 
 export function useOcrComparison() {
   return useFetch<OcrComparison>(`${OCR_BASE}/comparison`);
+}
+
+export function useOcrRunComparison() {
+  return useFetch<OcrRunComparison>(`${OCR_BASE}/run_comparison`);
 }
 
 export function useOcrDetail() {

@@ -1223,6 +1223,11 @@ def lprnet_metrics_comparison():
     return lprnet_metrics.comparison()
 
 
+@app.get("/api/lprnet_metrics/run_comparison")
+def lprnet_metrics_run_comparison():
+    return lprnet_metrics.run_comparison()
+
+
 @app.get("/api/lprnet_metrics/detail")
 def lprnet_metrics_detail():
     return lprnet_metrics.detail()
