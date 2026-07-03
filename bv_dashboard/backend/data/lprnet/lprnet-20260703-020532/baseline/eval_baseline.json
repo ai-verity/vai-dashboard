@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "n_eval_samples": 144,
+  "metrics": {
+    "seq_accuracy": 0.0,
+    "char_accuracy": 0.5290581162324649,
+    "cer_mean": 0.4871031746031746,
+    "cer_median": 0.42857142857142855,
+    "per_position_accuracy_p0": 0.09722222222222222,
+    "per_position_accuracy_p1": 0.3333333333333333,
+    "per_position_accuracy_p2": 0.18055555555555555,
+    "per_position_accuracy_p3": 0.625,
+    "per_position_accuracy_p4": 0.6041666666666666,
+    "per_position_accuracy_p5": 0.6616541353383458,
+    "per_position_accuracy_p6": 0.5801526717557252,
+    "per_position_accuracy_p7": 0.0,
+    "per_position_accuracy_p8": 0.0,
+    "per_position_accuracy_p9": 0.0,
+    "per_position_accuracy_p10": 0.0,
+    "per_position_accuracy_p11": 0.0,
+    "edit_distance_mean": 3.263888888888889
+  },
+  "tables": {
+    "edit_distance_histogram": "eval_baseline_editdist_hist.csv",
+    "plate_length_accuracy": "eval_baseline_len_acc.csv",
+    "confusion_matrix": "eval_baseline_confusion.csv"
+  },
+  "plots": [
+    "eval_baseline_editdist_hist.png",
+    "eval_baseline_confusion.png"
+  ]
+}
