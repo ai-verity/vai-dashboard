@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "n_eval_samples": 144,
+  "metrics": {
+    "seq_accuracy": 0.0,
+    "char_accuracy": 0.5185185185185186,
+    "cer_mean": 0.4970238095238094,
+    "cer_median": 0.42857142857142855,
+    "edit_distance_mean": 3.3402777777777777,
+    "per_position_accuracy_p0": 0.06944444444444445,
+    "per_position_accuracy_p1": 0.3055555555555556,
+    "per_position_accuracy_p2": 0.2013888888888889,
+    "per_position_accuracy_p3": 0.6180555555555556,
+    "per_position_accuracy_p4": 0.5972222222222222,
+    "per_position_accuracy_p5": 0.6766917293233082,
+    "per_position_accuracy_p6": 0.5939849624060151,
+    "per_position_accuracy_p7": 0.0,
+    "per_position_accuracy_p8": 0.0,
+    "per_position_accuracy_p9": 0.0,
+    "per_position_accuracy_p10": 0.0,
+    "per_position_accuracy_p11": 0.0
+  }
+}

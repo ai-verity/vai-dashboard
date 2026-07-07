@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "run_name": "lprnet-20260707-142925",
+  "run_id": "ca72fbb81e224f85b46726a88f9ec205",
+  "experiment_id": "4",
+  "status": "FINISHED",
+  "start_time_ms": 1783434565963,
+  "end_time_ms": 1783434975541,
+  "model": {
+    "arch": "baseline",
+    "nlayers": "18",
+    "hidden_units": "512",
+    "max_label_length": "12",
+    "pretrained": "us_lprnet_baseline18_trainable.tlt",
+    "characters_count": "36"
+  },
+  "training": {
+    "num_epochs": "100",
+    "batch_size_per_gpu": "8",
+    "epochs_done": 100.0,
+    "wall_clock_seconds": 265.0666783833876,
+    "time_per_epoch_s": 2.6281000680755824,
+    "final_train_loss": 0.23987727,
+    "best_epoch": 59.0,
+    "best_seq_accuracy": 0.4897959183673469,
+    "best_train_loss": 0.29574934
+  },
+  "tao_eval": {
+    "tao_correct": 72.0,
+    "tao_total": 147.0,
+    "tao_accuracy": 0.4897959183673469
+  },
+  "worst_chars": {
+    "baseline": "X:0.00(n=46), S:0.00(n=40), T:0.00(n=39)",
+    "trained": "I:0.00(n=1), O:0.00(n=1), B:0.27(n=11)"
+  }
+}

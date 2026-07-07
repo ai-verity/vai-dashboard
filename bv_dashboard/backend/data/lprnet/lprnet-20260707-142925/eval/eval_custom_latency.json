@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "metrics": {
+    "trt_fp16_inference_ms_min": 0.69693,
+    "trt_fp16_inference_ms_max": 3.30804,
+    "trt_fp16_inference_ms_mean": 0.928942,
+    "trt_fp16_inference_ms_p50": 0.733643,
+    "trt_fp16_inference_ms_p90": 1.05566,
+    "trt_fp16_inference_ms_p95": 1.07471,
+    "trt_fp16_inference_ms_p99": 3.15277,
+    "trt_fp16_throughput_qps": 1064.27
+  }
+}

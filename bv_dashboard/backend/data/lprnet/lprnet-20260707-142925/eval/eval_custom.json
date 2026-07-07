@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "n_eval_samples": 144,
+  "metrics": {
+    "seq_accuracy": 0.4861111111111111,
+    "char_accuracy": 0.8087044534412955,
+    "cer_mean": 0.19027777777777777,
+    "cer_median": 0.14285714285714285,
+    "edit_distance_mean": 1.3125,
+    "per_position_accuracy_p0": 0.7708333333333334,
+    "per_position_accuracy_p1": 0.6111111111111112,
+    "per_position_accuracy_p2": 0.5763888888888888,
+    "per_position_accuracy_p3": 0.7777777777777778,
+    "per_position_accuracy_p4": 0.7569444444444444,
+    "per_position_accuracy_p5": 0.7593984962406015,
+    "per_position_accuracy_p6": 0.7142857142857143,
+    "per_position_accuracy_p7": 0.0,
+    "per_position_accuracy_p8": 0.0,
+    "per_position_accuracy_p9": 0.0,
+    "per_position_accuracy_p10": 0.0,
+    "per_position_accuracy_p11": 0.0,
+    "trt_fp16_inference_ms_min": 0.69693,
+    "trt_fp16_inference_ms_max": 3.30804,
+    "trt_fp16_inference_ms_mean": 0.928942,
+    "trt_fp16_inference_ms_p50": 0.733643,
+    "trt_fp16_inference_ms_p90": 1.05566,
+    "trt_fp16_inference_ms_p95": 1.07471,
+    "trt_fp16_inference_ms_p99": 3.15277,
+    "trt_fp16_throughput_qps": 1064.27
+  }
+}
