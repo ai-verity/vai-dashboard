@@ -2,12 +2,12 @@
 AI Model Metrics loader.
 
 Reads the daily training-pipeline output (per-class Precision/Recall/F1
-plus mAP) from backend/data/ai_model_metrics/ and exposes structured
+plus mAP) from backend/data/people_vehicle_detection/ and exposes structured
 views consumed by the /api/ai_metrics/* endpoints.
 
 Data layout expected (flat — all files live in one directory):
 
-  backend/data/ai_model_metrics/
+  backend/data/people_vehicle_detection/
     comparison_YYYYMMDD.csv                       per-class before/after
     compare_YYYYMMDD_HHMMSS_comparison.csv        timestamped pipeline output
     YYYYMMDD_HHMMSS_stream_class_mapping.txt      per-run dataset summary
@@ -38,7 +38,7 @@ from typing import Optional
 # directory. The two history-file regexes and the class-mapping regex
 # all match against this same flat listing, so files at the same level
 # co-exist without nested subfolders.
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "ai_model_metrics")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "people_vehicle_detection")
 HISTORY_DIR = DATA_DIR
 CLASS_MAPPING_DIR = DATA_DIR
 
@@ -49,6 +49,14 @@ CLASS_MAPPING_DIR = DATA_DIR
 # via the `lpr` store at the bottom of this module.
 LPR_DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "lpr")
 _LPR_COMPARISON_RE = re.compile(r"^comparison_(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(\d{2})\.csv$")
+
+# Third dataset: the "TAO: LPR" tab. Same pipeline output shape as the LPR
+# fine-tuning dataset above (comparison_<date>_<time>.csv + sibling
+# class_mapping_<date>_<time>.txt), but for the TAO-project training runs
+# that fine-tune a plain ResNet backbone from scratch (no pretrained/COCO
+# init) rather than the RT-DETR pipeline. Loaded into its own state and
+# exposed via the `tao_lpr` store at the bottom of this module.
+TAO_LPR_DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "tao_lpr")
 
 METRICS = ("Precision", "Recall", "F1")
 EXTRA_METRICS = ("mAP@0.5", "mAP@0.5:0.95")
@@ -70,6 +78,8 @@ _HISTORY_FILE_RES = (
 # files by name, so an off-pattern upload would otherwise never be ingested).
 HISTORY_FILE_RES = _HISTORY_FILE_RES
 LPR_COMPARISON_RES = (_LPR_COMPARISON_RE,)
+# Same filename shape as the LPR dataset — reuse the identical regex.
+TAO_LPR_COMPARISON_RES = (_LPR_COMPARISON_RE,)
 
 
 # ─── Dataclasses ────────────────────────────────────────────────────────────
@@ -152,6 +162,10 @@ _STATE: dict = _new_state()
 # Independent state for the LPR dataset (populated by _load_lpr()).
 _LPR_LOCK = threading.Lock()
 _LPR_STATE: dict = _new_state()
+
+# Independent state for the TAO: LPR dataset (populated by _load_tao_lpr()).
+_TAO_LPR_LOCK = threading.Lock()
+_TAO_LPR_STATE: dict = _new_state()
 
 
 def _parse_float(s: str) -> Optional[float]:
@@ -1028,60 +1042,75 @@ def _instance_counts_from_dataset(ds: Optional[DatasetSnapshot]) -> dict:
     }
 
 
-def _load_lpr() -> None:
-    """(Re-)load the LPR pipeline runs from LPR_DATA_DIR into _LPR_STATE.
+def _load_lpr_like(data_dir: str) -> dict:
+    """Scan an LPR-shaped directory (comparison_<date>_<time>.csv + sibling
+    class_mapping_<date>_<time>.txt) and return a fresh state dict.
 
-    Metrics come from comparison_<date>_<time>.csv; dataset/instance counts and
-    run metadata come from the sibling class_mapping_<date>_<time>.txt — the
-    same text format the main AI-metrics tab parses (the LPR pipeline emits an
-    equivalent .json, but we read the .txt for consistency with that tab).
-    Every comparison file is kept as its own snapshot (LPR runs can share a
-    calendar date), sorted by wall-clock timestamp; the latest is `current`.
+    Shared by the LPR and TAO: LPR datasets — same pipeline output shape,
+    different source directories. Metrics come from the comparison CSV;
+    dataset/instance counts and run metadata come from the sibling
+    class_mapping .txt (the same text format the main AI-metrics tab
+    parses). Every comparison file is kept as its own snapshot (runs can
+    share a calendar date), sorted by wall-clock timestamp; the latest
+    becomes `current`.
     """
+    runs: list[tuple[str, RunSnapshot]] = []
+    datasets: list[tuple[str, DatasetSnapshot]] = []
+    if os.path.isdir(data_dir):
+        names = sorted(os.listdir(data_dir))
+        for name in names:
+            m = _LPR_COMPARISON_RE.match(name)
+            if not m:
+                continue
+            y, mo, d, hh, mm, ss = m.groups()
+            run_date = f"{y}-{mo}-{d} {hh}:{mm}"
+            ts_key = f"{y}{mo}{d}{hh}{mm}{ss}"
+            fallback_ts = f"{y}-{mo}-{d}T{hh}:{mm}:{ss}+00:00"
+            comp_path = os.path.join(data_dir, name)
+            # Pair with the sibling class_mapping_<date>_<time>.txt.
+            ds: Optional[DatasetSnapshot] = None
+            for cand in names:
+                if cand.endswith(".txt") and ts_key in cand.replace("_", ""):
+                    ds = _parse_class_mapping_txt(
+                        os.path.join(data_dir, cand),
+                        fallback_run_date=run_date,
+                        fallback_ts=fallback_ts,
+                    )
+                    break
+            classes, metrics = _read_comparison_csv(comp_path)
+            snap = RunSnapshot(
+                run_date=run_date,
+                run_timestamp=ds.run_timestamp if ds else fallback_ts,
+                run_name=ds.run_name if ds else None,
+                model=ds.model if ds else None,
+                classes=classes,
+                metrics=metrics,
+                instance_counts=_instance_counts_from_dataset(ds),
+            )
+            runs.append((ts_key, snap))
+            if ds is not None:
+                datasets.append((ts_key, ds))
+    runs.sort(key=lambda t: t[0])
+    datasets.sort(key=lambda t: t[0])
+    history = [s for _, s in runs]
+    return {
+        "history": history,
+        "current": history[-1] if history else None,
+        "dataset": [ds for _, ds in datasets],
+        "loaded_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def _load_lpr() -> None:
+    """(Re-)load the LPR pipeline runs from LPR_DATA_DIR into _LPR_STATE."""
     with _LPR_LOCK:
-        runs: list[tuple[str, RunSnapshot]] = []
-        datasets: list[tuple[str, DatasetSnapshot]] = []
-        if os.path.isdir(LPR_DATA_DIR):
-            names = sorted(os.listdir(LPR_DATA_DIR))
-            for name in names:
-                m = _LPR_COMPARISON_RE.match(name)
-                if not m:
-                    continue
-                y, mo, d, hh, mm, ss = m.groups()
-                run_date = f"{y}-{mo}-{d} {hh}:{mm}"
-                ts_key = f"{y}{mo}{d}{hh}{mm}{ss}"
-                fallback_ts = f"{y}-{mo}-{d}T{hh}:{mm}:{ss}+00:00"
-                comp_path = os.path.join(LPR_DATA_DIR, name)
-                # Pair with the sibling class_mapping_<date>_<time>.txt.
-                ds: Optional[DatasetSnapshot] = None
-                for cand in names:
-                    if cand.endswith(".txt") and ts_key in cand.replace("_", ""):
-                        ds = _parse_class_mapping_txt(
-                            os.path.join(LPR_DATA_DIR, cand),
-                            fallback_run_date=run_date,
-                            fallback_ts=fallback_ts,
-                        )
-                        break
-                classes, metrics = _read_comparison_csv(comp_path)
-                snap = RunSnapshot(
-                    run_date=run_date,
-                    run_timestamp=ds.run_timestamp if ds else fallback_ts,
-                    run_name=ds.run_name if ds else None,
-                    model=ds.model if ds else None,
-                    classes=classes,
-                    metrics=metrics,
-                    instance_counts=_instance_counts_from_dataset(ds),
-                )
-                runs.append((ts_key, snap))
-                if ds is not None:
-                    datasets.append((ts_key, ds))
-        runs.sort(key=lambda t: t[0])
-        datasets.sort(key=lambda t: t[0])
-        history = [s for _, s in runs]
-        _LPR_STATE["history"] = history
-        _LPR_STATE["current"] = history[-1] if history else None
-        _LPR_STATE["dataset"] = [ds for _, ds in datasets]
-        _LPR_STATE["loaded_at"] = datetime.now(timezone.utc).isoformat()
+        _LPR_STATE.update(_load_lpr_like(LPR_DATA_DIR))
+
+
+def _load_tao_lpr() -> None:
+    """(Re-)load the TAO: LPR pipeline runs from TAO_LPR_DATA_DIR into _TAO_LPR_STATE."""
+    with _TAO_LPR_LOCK:
+        _TAO_LPR_STATE.update(_load_lpr_like(TAO_LPR_DATA_DIR))
 
 
 class _Store:
@@ -1117,9 +1146,13 @@ class _Store:
 # LPR store exposed to main.py as ai_metrics.lpr.*
 lpr = _Store(_LPR_STATE, _load_lpr)
 
+# TAO: LPR store exposed to main.py as ai_metrics.tao_lpr.*
+tao_lpr = _Store(_TAO_LPR_STATE, _load_tao_lpr)
+
 
 # ─── Initial load on import ─────────────────────────────────────────────────
 
 
 load()
 _load_lpr()
+_load_tao_lpr()

@@ -8,6 +8,7 @@ import type {
   AiSummary, AiByClass, AiComparison, AiHistory, AiPeriod, AiDataset,
   OcrSummary, OcrComparison, OcrRunComparison, OcrDetail, OcrConfusion, OcrDataset,
   OcrTraining, OcrHistory,
+  AutolabelSummary, AutolabelByClass, AutolabelFrames, AutolabelHistory,
 } from '../types';
 
 // Auto-refresh interval (ms) for VLM data, so an upload / re-ingest shows up in
@@ -28,7 +29,12 @@ function useFetch<T>(url: string, pollMs = 0) {
     if (abortRef.current) abortRef.current.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
-    if (!isSilent) setLoading(true);
+    // Non-silent fetches fire whenever `url` changes (see the effect below),
+    // so a tab switch to a different endpoint must drop the previous URL's
+    // payload here — otherwise consumers briefly render a response shaped
+    // for the old endpoint (e.g. an aggregate-only `{available:false}` body
+    // with no `headline`) against the new tab's rendering logic and crash.
+    if (!isSilent) { setLoading(true); setData(null); }
     setError(null);
     try {
       const r = await fetch(`${API_BASE}${url}`, { signal: ctrl.signal });
@@ -335,6 +341,28 @@ export function useOcrTraining() {
 
 export function useOcrHistory() {
   return useFetch<OcrHistory>(`${OCR_BASE}/history`);
+}
+
+// ─── Auto-Labeling Efficacy pilot hooks ──────────────────────────────────
+// Detection-eval scorecard (auto-label script vs human-verified ground
+// truth), distinct from both the day-over-day AI-metrics family and the
+// baseline-vs-trained OCR family — has its own response shapes.
+const AUTOLABEL_BASE = '/api/autolabel_efficacy';
+
+export function useAutolabelSummary() {
+  return useFetch<AutolabelSummary>(`${AUTOLABEL_BASE}/summary`);
+}
+
+export function useAutolabelByClass() {
+  return useFetch<AutolabelByClass>(`${AUTOLABEL_BASE}/by_class`);
+}
+
+export function useAutolabelFrames() {
+  return useFetch<AutolabelFrames>(`${AUTOLABEL_BASE}/frames`);
+}
+
+export function useAutolabelHistory() {
+  return useFetch<AutolabelHistory>(`${AUTOLABEL_BASE}/history`);
 }
 
 // Streaming AI analysis
