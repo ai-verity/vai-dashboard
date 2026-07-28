@@ -1,0 +1,37 @@
+Class mapping  (2026-07-28T03:27:07.094000+00:00)
+Run     : PeopleVehicle-1
+Model   : resnet_50
+Weights : none (scratch init)
+Layout  : Custom 7-class layout (person, bicycle, car, motorcycle, bus, truck, license_plate)
+          Backbone (resnet_50) trained from scratch — no pretrained/COCO initialization for this run.
+          Training config: 100 epochs, imgsz 640, batch 32, lr 0.0001.
+
+VIA class name        →  COCO category_id
+────────────────────────────────────────────
+  person              1
+  bicycle             2
+  car                 3
+  motorcycle          4
+  bus                 5
+  truck               6
+  license_plate       7
+
+Dropped class regions (no entry in mapping):
+  animal              3
+  traffic_sign        1
+  utility_veh         12
+
+Class instance counts (from COCO instances_*.json):
+  class                    train     val   total
+  ──────────────────────────────────────────────
+  person                     5941    1486    7427
+  bicycle                     833     182    1015
+  car                       22997    5652   28649
+  motorcycle                   22       4      26
+  bus                          64      16      80
+  truck                        95      22     117
+  license_plate              9172    2249   11421
+  ──────────────────────────────────────────────
+  total boxes               39124    9611   48735
+  image files                4738    1184    5922
+    of which empty bg          2711     695     3406

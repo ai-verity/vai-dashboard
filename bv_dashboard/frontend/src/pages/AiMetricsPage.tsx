@@ -21,6 +21,7 @@ import { useChartHover, ChartTooltip } from '../utils/chartHover';
 import { useTheme } from '../hooks/useTheme';
 import ThemeToggle from '../components/ThemeToggle';
 import LprnetView from './LprnetView';
+import AutolabelEfficacyView from './AutolabelEfficacyView';
 
 const METRICS = ['Precision', 'Recall', 'F1'] as const;
 
@@ -901,7 +902,7 @@ function DatasetByClassChart({ latest }: { latest: AiDatasetPoint | null }) {
 }
 
 // ─── Page header (self-contained — does NOT use TopNav) ─────────────
-type DataSource = 'ai_metrics' | 'lpr' | 'lprnet';
+type DataSource = 'ai_metrics' | 'lpr' | 'tao_lpr' | 'lprnet' | 'autolabel';
 
 function AiHeader({
   runDate, model, runName, period, onPeriodChange, dataSource, onDataSourceChange,
@@ -944,7 +945,10 @@ function AiHeader({
           {/* Dataset tabs — switch the whole page between the general model
               metrics and the LPR fine-tuning pipeline. Left-aligned beside the title. */}
           <div style={{ display: 'flex', gap: 6 }}>
-            {([['ai_metrics', 'People-Vehicle Detection'], ['lpr', 'License Plate Detection'], ['lprnet', 'License Plate OCR']] as const).map(([src, label]) => (
+            {/* 'autolabel' tab (Auto-Label Efficacy) intentionally hidden for now —
+                implementation is complete in AutolabelEfficacyView.tsx / autolabel_efficacy.py,
+                just re-add the ['autolabel', 'Auto-Label Efficacy'] entry below to bring it back. */}
+            {([['ai_metrics', 'People-Vehicle Detection'], ['lpr', 'License Plate Detection'], ['tao_lpr', 'TAO: LPR'], ['lprnet', 'License Plate OCR']] as const).map(([src, label]) => (
               <button
                 key={src}
                 onClick={() => onDataSourceChange(src)}
@@ -981,9 +985,10 @@ function AiHeader({
       </nav>
 
       {/* Detection-only sub-header (metric title + period selector). The OCR
-          tab renders its own sub-header (LprnetSubHeader) since it has no
-          daily/weekly/monthly comparison, so this bar is hidden there. */}
-      {dataSource !== 'lprnet' && (
+          tab renders its own sub-header (LprnetSubHeader), and the Auto-Label
+          Efficacy tab renders its own (AutolabelSubHeader) — neither has a
+          daily/weekly/monthly comparison, so this bar is hidden for both. */}
+      {dataSource !== 'lprnet' && dataSource !== 'autolabel' && (
       <div style={{
         background: 'var(--s1)', borderBottom: '1px solid var(--border)',
         padding: '16px 24px',
@@ -1031,7 +1036,9 @@ function AiHeader({
 export default function AiMetricsPage() {
   const [period, setPeriod] = useState<AiPeriod>('daily');
   const [dataSource, setDataSource] = useState<DataSource>('ai_metrics');
-  const basePath = dataSource === 'lpr' ? '/api/lpr_metrics' : '/api/ai_metrics';
+  const basePath = dataSource === 'lpr' ? '/api/lpr_metrics'
+    : dataSource === 'tao_lpr' ? '/api/tao_lpr_metrics'
+    : '/api/ai_metrics';
   const { data: summary } = useAiSummary(basePath);
   const { data: comparison } = useAiComparison(period, basePath);
   const { data: byClass } = useAiByClass(basePath);
@@ -1081,6 +1088,26 @@ export default function AiMetricsPage() {
           onDataSourceChange={setDataSource}
         />
         <LprnetView />
+      </div>
+    );
+  }
+
+  // Auto-Label Efficacy tab: a detection-eval scorecard (auto-label script
+  // vs human-verified ground truth), not a training-pipeline delta, so it
+  // renders its own component with its own sub-header and panels.
+  if (dataSource === 'autolabel') {
+    return (
+      <div>
+        <AiHeader
+          runDate={undefined}
+          model={undefined}
+          runName={undefined}
+          period={period}
+          onPeriodChange={setPeriod}
+          dataSource={dataSource}
+          onDataSourceChange={setDataSource}
+        />
+        <AutolabelEfficacyView />
       </div>
     );
   }

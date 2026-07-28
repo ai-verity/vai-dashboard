@@ -22,6 +22,7 @@ import json
 import vlm
 import ai_metrics
 import lprnet_metrics
+import autolabel_efficacy
 from agents import orchestrator as live_feed
 
 # Optional rate-limit. slowapi is only required for production deployments;
@@ -1114,7 +1115,7 @@ async def ai_metrics_upload(
     request: Request,  # noqa: ARG001 — slowapi inspects this argument
     file: UploadFile = File(...),
 ):
-    """Upload an AI-model-metrics comparison CSV into data/ai_model_metrics/
+    """Upload an AI-model-metrics comparison CSV into data/people_vehicle_detection/
     and re-ingest it. Open (no token), like /api/vlm/upload.
 
     The loader selects files by name, so the upload is rejected unless it
@@ -1205,6 +1206,81 @@ async def lpr_metrics_upload(
     return {"filename": name, "bytes": size, "state": ai_metrics.lpr.state()}
 
 
+# ─── TAO: LPR model metrics ──────────────────────────────────────────────────
+# Third dataset (data/tao_lpr/), same response shapes as /api/lpr_metrics/* —
+# the TAO-project runs that fine-tune a plain ResNet backbone from scratch
+# (no pretrained/COCO init), rendered in their own "TAO: LPR" tab.
+
+
+@app.get("/api/tao_lpr_metrics/summary")
+def tao_lpr_metrics_summary():
+    return ai_metrics.tao_lpr.summary()
+
+
+@app.get("/api/tao_lpr_metrics/by_class")
+def tao_lpr_metrics_by_class():
+    return ai_metrics.tao_lpr.by_class()
+
+
+@app.get("/api/tao_lpr_metrics/comparison")
+def tao_lpr_metrics_comparison(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.tao_lpr.comparison(period)
+
+
+@app.get("/api/tao_lpr_metrics/history")
+def tao_lpr_metrics_history(period: str = Query("daily", regex="^(daily|weekly|monthly)$")):
+    return ai_metrics.tao_lpr.history(period)
+
+
+@app.get("/api/tao_lpr_metrics/state")
+def tao_lpr_metrics_state():
+    return ai_metrics.tao_lpr.state()
+
+
+@app.get("/api/tao_lpr_metrics/dataset")
+def tao_lpr_metrics_dataset():
+    return ai_metrics.tao_lpr.dataset_by_date()
+
+
+@app.post("/api/tao_lpr_metrics/reload")
+@rate_limit(_RELOAD_RATE)
+async def tao_lpr_metrics_reload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    x_reload_token: Optional[str] = Header(default=None),
+):
+    """Re-read TAO: LPR pipeline metrics from disk. Same fail-closed token
+    contract as /api/ai_metrics/reload."""
+    expected = os.getenv("BV_RELOAD_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="reload disabled: set BV_RELOAD_TOKEN on the server to enable",
+        )
+    if not x_reload_token or not hmac.compare_digest(x_reload_token, expected):
+        raise HTTPException(status_code=401, detail="invalid reload token")
+    await run_in_threadpool(ai_metrics.tao_lpr.load)
+    return ai_metrics.tao_lpr.state()
+
+
+@app.post("/api/tao_lpr_metrics/upload")
+@rate_limit(_RELOAD_RATE)
+async def tao_lpr_metrics_upload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    file: UploadFile = File(...),
+):
+    """Upload a TAO: LPR metrics comparison CSV into data/tao_lpr/ and
+    re-ingest it. Open (no token). Filename must match
+    comparison_YYYYMMDD_HHMMSS.csv — the only shape the loader recognizes.
+    """
+    name, size = await _accept_csv_upload(
+        file, ai_metrics.TAO_LPR_DATA_DIR, _REQUIRED_METRICS_COLS,
+        filename_res=ai_metrics.TAO_LPR_COMPARISON_RES,
+    )
+    await run_in_threadpool(ai_metrics.tao_lpr.load)
+    logger.info("tao_lpr_metrics upload: saved %s (%d bytes); reloaded", name, size)
+    return {"filename": name, "bytes": size, "state": ai_metrics.tao_lpr.state()}
+
+
 # ─── LPRNet OCR metrics ──────────────────────────────────────────────────────
 # Third dataset (data/lprnet/) — the license-plate OCR (character recognition)
 # pipeline. Unlike the two detection tabs above, the metrics are OCR-shaped
@@ -1283,6 +1359,59 @@ async def lprnet_metrics_reload(
     return lprnet_metrics.state()
 
 
+# ─── Auto-labeling efficacy pilot ────────────────────────────────────────────
+# Fourth dataset (data/autolabel_efficacy/) — per the Auto-Labeling Efficacy
+# Measurement Plan, a detection-eval scorecard (auto-label script output
+# scored against a human-verified sample) rather than a daily training-pipeline
+# delta. One cycle so far (100 frames); Cycle 2 (1,000 frames) lands as a
+# second dated folder and becomes comparable via /history.
+
+
+@app.get("/api/autolabel_efficacy/summary")
+def autolabel_efficacy_summary():
+    return autolabel_efficacy.summary()
+
+
+@app.get("/api/autolabel_efficacy/by_class")
+def autolabel_efficacy_by_class():
+    return autolabel_efficacy.by_class()
+
+
+@app.get("/api/autolabel_efficacy/frames")
+def autolabel_efficacy_frames():
+    return autolabel_efficacy.frames()
+
+
+@app.get("/api/autolabel_efficacy/history")
+def autolabel_efficacy_history():
+    return autolabel_efficacy.history()
+
+
+@app.get("/api/autolabel_efficacy/state")
+def autolabel_efficacy_state():
+    return autolabel_efficacy.state()
+
+
+@app.post("/api/autolabel_efficacy/reload")
+@rate_limit(_RELOAD_RATE)
+async def autolabel_efficacy_reload(
+    request: Request,  # noqa: ARG001 — slowapi inspects this argument
+    x_reload_token: Optional[str] = Header(default=None),
+):
+    """Re-read auto-labeling efficacy pilot cycles from disk. Same fail-closed
+    token contract as /api/ai_metrics/reload."""
+    expected = os.getenv("BV_RELOAD_TOKEN")
+    if not expected:
+        raise HTTPException(
+            status_code=503,
+            detail="reload disabled: set BV_RELOAD_TOKEN on the server to enable",
+        )
+    if not x_reload_token or not hmac.compare_digest(x_reload_token, expected):
+        raise HTTPException(status_code=401, detail="invalid reload token")
+    await run_in_threadpool(autolabel_efficacy.load)
+    return autolabel_efficacy.state()
+
+
 # ─── Live Brownsville feed ──────────────────────────────────────────────────
 @app.get("/api/feeds/status")
 def feeds_status():
@@ -1321,6 +1450,7 @@ def health():
         "vlm_observations": vlm.load_info().get("row_count", 0),
         "ai_metrics_runs": ai_metrics.state().get("runs", 0),
         "lprnet_runs": lprnet_metrics.state().get("runs", 0),
+        "autolabel_efficacy_cycles": autolabel_efficacy.state().get("runs", 0),
         "timestamp": datetime.now().isoformat(),
     }
 

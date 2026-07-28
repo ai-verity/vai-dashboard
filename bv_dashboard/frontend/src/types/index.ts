@@ -773,3 +773,116 @@ export const OCR_METRIC_COLORS: Record<string, string> = {
   cer_mean:           '#e85d2f',  // accent (lower better)
   edit_distance_mean: '#A78BFA',  // purple (lower better)
 };
+
+// ─── Auto-Labeling Efficacy pilot (detection-eval scorecard) ───────────
+// Distinct shape from both metric families above: this is auto-label-script
+// output scored against a human-verified ground-truth sample (raw GT /
+// predicted / TP / FP / FN counts, IoU >= 0.5), not a day-over-day training
+// delta. Served by /api/autolabel_efficacy/* and rendered in the
+// "Auto-Label Efficacy" tab. Precision/Recall/F1/policy are computed
+// server-side from the raw counts.
+
+export type AutolabelPolicy = 'pre_label_on' | 'review_required' | 'pre_label_off' | 'insufficient_data';
+export type AutolabelWarning = 'small_sample' | 'zero_predictions';
+
+export interface AutolabelClassRow {
+  cls: string;
+  gt: number;
+  pred: number;
+  tp: number;
+  fp: number;
+  fn: number;
+  mean_iou: number | null;
+  precision: number | null;
+  recall: number | null;
+  f1: number | null;
+  policy: AutolabelPolicy;
+  warning?: AutolabelWarning | null;
+}
+
+export interface AutolabelBusiestQuartile {
+  frame_count: number;
+  gt_total: number;
+  tp_total: number;
+  recall: number | null;
+}
+
+export interface AutolabelFrameStats {
+  frames_scored: number;
+  confirmed_empty_frames: number;
+  confirmed_empty_share: number | null;
+  fp_from_empty_frames: number;
+  fp_from_empty_frames_share: number | null;
+  busiest_quartile: AutolabelBusiestQuartile | null;
+}
+
+export interface AutolabelSummary {
+  available: boolean;
+  reason?: string;
+  cycle?: number;
+  run_date?: string;
+  frame_count_target?: number;
+  frame_count_note?: string;
+  collection_window?: string;
+  cameras?: string[];
+  methodology?: string[];
+  notes?: string[];
+  overall?: AutolabelClassRow;
+  frame_stats?: AutolabelFrameStats;
+}
+
+export interface AutolabelByClass {
+  available: boolean;
+  run_date?: string;
+  classes: AutolabelClassRow[];
+  overall: AutolabelClassRow | null;
+}
+
+export interface AutolabelFrameRow {
+  frame: string;
+  gt: number;
+  pred: number;
+  tp: number;
+  fp: number;
+  fn: number;
+  mean_iou: number | null;
+  confirmed_empty: boolean;
+}
+
+export interface AutolabelFrames {
+  available: boolean;
+  run_date?: string;
+  frames: AutolabelFrameRow[];
+  stats: AutolabelFrameStats | null;
+}
+
+export interface AutolabelHistoryPoint {
+  run_date: string;
+  cycle: number | null;
+  frame_count_target: number | null;
+  f1: number | null;
+  precision: number | null;
+  recall: number | null;
+}
+
+export interface AutolabelHistory {
+  available: boolean;
+  points: AutolabelHistoryPoint[];
+  points_captured: number;
+  points_required: number;
+}
+
+// Badge color per Step-5 decision-policy band (Measurement Plan §04).
+export const AUTOLABEL_POLICY_COLORS: Record<AutolabelPolicy, string> = {
+  pre_label_on: 'var(--green)',
+  review_required: 'var(--amber)',
+  pre_label_off: 'var(--red)',
+  insufficient_data: 'var(--muted)',
+};
+
+export const AUTOLABEL_POLICY_LABELS: Record<AutolabelPolicy, string> = {
+  pre_label_on: 'PRE-LABEL ON',
+  review_required: 'REVIEW REQUIRED',
+  pre_label_off: 'PRE-LABEL OFF',
+  insufficient_data: 'INSUFFICIENT DATA',
+};
