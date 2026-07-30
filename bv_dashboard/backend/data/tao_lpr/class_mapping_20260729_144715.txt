@@ -1,0 +1,39 @@
+Class mapping  (2026-07-29T14:47:17.175000+00:00)
+Run     : TAO-RTDETR-COCO-7
+Model   : resnet_50
+Weights : none (scratch init) — before/after eval reflects pre- vs post-training checkpoints
+Layout  : Custom 7-class layout (person, bicycle, car, motorcycle, bus, truck, license_plate)
+          Backbone (resnet_50) trained from scratch — no pretrained/COCO initialization for this run.
+          Training config: 100 epochs, imgsz 640, batch 32, lr 0.0001.
+          NOTE: this run's eval only reported per-class P/R/F1/mAP for 6 of 7 classes —
+          license_plate is absent from per-class metrics (dataset counts below still include it).
+
+VIA class name        →  COCO category_id
+────────────────────────────────────────────
+  person              1
+  bicycle             2
+  car                 3
+  motorcycle          4
+  bus                 5
+  truck               6
+  license_plate       7
+
+Dropped class regions (no entry in mapping):
+  animal              0
+  traffic_sign        0
+  utility_veh         0
+
+Class instance counts (from COCO instances_*.json):
+  class                    train     val   total
+  ──────────────────────────────────────────────
+  person                   311611   76783  388394
+  bicycle                   23059    5713   28772
+  car                      184443   46869  231312
+  motorcycle                34685    8869   43554
+  bus                       10044    2477   12521
+  truck                     19329    4680   24009
+  license_plate                 0       0       0
+  ──────────────────────────────────────────────
+  total boxes              583171  145391  728562
+  image files               64055   16014   80069
+    of which empty bg            0       0       0
